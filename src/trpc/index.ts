@@ -43,6 +43,17 @@ export const appRouter = router({
     })
   }),
 
+  getFileUploadStatus: PrivateProcedure.input(z.object({fileId: z.string()})).query(async({input, ctx})=> {
+     const file = await db.file.findFirst({
+        where:{
+            id: input.fileId,
+            userId: ctx.userId
+        }
+     })
+
+     if(!file) return {status: "PENDING" as const}
+     return {status: file.uploadStatus}
+  }),
   getFile: PrivateProcedure.input(z.object({key:z.string()}))
   .mutation(async({ctx, input}) => {
      const { userId } = ctx
