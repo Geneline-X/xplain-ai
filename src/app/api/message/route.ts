@@ -9,6 +9,46 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { loadQAStuffChain} from "langchain/chains"
 import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
+import WebSocket, { WebSocketServer } from 'ws';
+import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
+
+const messageQueue: Array<{
+    message: string;
+    text: string;
+    userId: string;
+    fileId: string;
+  }> = [];
+
+  async function processQueue() {
+    while (messageQueue.length > 0) {
+      const { message, text, userId, fileId } = messageQueue.shift()!;
+      try {
+        
+        // Perform your database operations here
+        const createMessage = await db.message.create({
+          data: {
+            text: message,
+            isUserMessage: true,
+            userId,
+            fileId,
+          },
+        });
+  
+        const streamMessage = await db.message.create({
+          data: {
+            text,
+            isUserMessage: false,
+            fileId,
+            userId,
+          },
+        });
+  
+        console.log('Database operations completed:', createMessage, streamMessage);
+      } catch (error) {
+        console.error('Error in background processing:', error);
+      }
+    }
+}
 
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
@@ -33,15 +73,6 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
 
-   const createMessage =  await db.message.create({
-        data: {
-            text: message,
-            isUserMessage: true,
-            userId,
-            fileId
-        }
-    })
-
     /// nlp part of the app //////
 
     ///// vectorize the incoming message ////
@@ -57,7 +88,7 @@ export const POST = async(req: NextRequest) => {
     const result = await model.embedContent(message);
     const messageEmbedding = result.embedding.values;
 
-     const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 4,vector: messageEmbedding, includeValues:true})
+     const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true})
 
      console.log(`Found ${similarEmbeddings.matches?.length} matched...`)
 
@@ -75,29 +106,17 @@ export const POST = async(req: NextRequest) => {
         take: 6
     })
 
-    const formattedPrevMessages = prevMessages.map((msg) => {
+   const formattedPrevMessages = prevMessages.map((msg) => {
         return {
           role: msg.isUserMessage ? "user" : "model",
           parts: msg.text as string,
         };
       });
-     
-  
-      // Assuming you have a prompt message from the user
-      const userPrompt = "Hello, I have 2 dogs in my house.";
-  
-      
-      // Start the chat with the user's prompt
+
+       // Start the chat with the user's prompt
       let chat = llm.startChat({
         history: [
-            {
-                role: 'user',
-                parts: 'who is kamanda'
-            },
-            {
-                role: "model",
-                parts: "Kamanda is the person that they are writing to this letter"
-            },
+            ...formattedPrevMessages,
          ],
             generationConfig: {
                 maxOutputTokens: 100,
@@ -112,11 +131,12 @@ export const POST = async(req: NextRequest) => {
           const loader = new PDFLoader(blob);
           const pageLevelDocs = await loader.load();
 
-          // Extract page numbers from similarity embeddings and increment by 1
+         // Extract page numbers from similarity embeddings and increment by 1
             const pageNumbers = similarEmbeddings.matches.map((match) => {
                 const pageNumberMatch = match.id.match(/page-(\d+)$/);
                 return pageNumberMatch ? parseInt(pageNumberMatch[1]) + 1 : null;
             });
+
             // Search for corresponding pages in the PDFLoader
             const pageContents = pageNumbers.map((pageNumber) => {
                 if (pageNumber !== null && pageNumber >= 0 && pageNumber < pageLevelDocs.length) {
@@ -128,24 +148,57 @@ export const POST = async(req: NextRequest) => {
         const context = pageContents.filter((content) => content !== null).join('\n\n');
 
 
-       const msg = `${message} ${similarEmbeddings.matches.join("")} ${context}`;
-    //   const msg = `how to add`;
+       const msg = `${message} ${similarEmbeddings.matches.join("")} ${pageContents}`;
+   
+       //   const msg = `how to add`;
       const resultFromChat = await chat.sendMessageStream(msg);
-      const response = await resultFromChat.response;
-      const text =  response.text();
-      console.log('This is the text generated from the model', text)
-      
-     const streamMessage =  await db.message.create({
-        data: {
-            text,
-            isUserMessage: false,
-            fileId,
-            userId
-        }
-      })
+    
+      // Use await for the asynchronous operation
+    //  const responseText = (await resultFromChat.response).text();
 
-      return new Response(JSON.stringify(streamMessage), {status: 200})
-     
+    
+      const responseStream = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of resultFromChat.stream) {
+              controller.enqueue(chunk.text());
+            }
+            controller.close();
+          } catch (error) {
+            console.error("Error enqueuing chunks:", error);
+            controller.error(error);
+          }
+        },
+      })
+      
+      
+            // Return the streaming response immediately
+       const streamingResponse = new StreamingTextResponse(responseStream);
+
+
+        //         await resultFromChat.stream.next();
+        //         const text =  (await resultFromChat.response).text()
+        //         console.log('This is the text generated from the model', text);
+                
+        //     const createMessage =  await db.message.create({
+        //         data: {
+        //             text: message,
+        //             isUserMessage: true,
+        //             userId,
+        //             fileId
+        //         }
+        //     })
+
+        //     const streamMessage =  await db.message.create({
+        //         data: {
+        //             text,
+        //             isUserMessage: false,
+        //             fileId,
+        //             userId
+        //         }
+        //   })
+
+        return streamingResponse;    
   } catch (error) {
     console.log(error)
   }
