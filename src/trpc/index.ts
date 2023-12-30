@@ -4,6 +4,9 @@ import { PrivateProcedure, publicProcedure, router } from './trpc';
 import { TRPCError } from "@trpc/server"
 import { z } from 'zod';
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
+import { absoluteUrl } from '@/lib/utils';
+import { getUserSubscriptionPlan, } from '@/lib/stripe';
+import { PLANS } from '@/config/stripe';
 
 interface KindeUser {
     id: string;
@@ -34,6 +37,81 @@ export const appRouter = router({
     }
     return { success: true}
   }),
+
+
+  createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
+    const { userId } = ctx
+
+    // const billingUrl = absoluteUrl("/dashboard/billing")
+
+    if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
+
+    const dbUser = await db.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+
+    if(!dbUser) throw new TRPCError({code: "UNAUTHORIZED"})
+
+    const subscriptionPlan = await getUserSubscriptionPlan()
+
+    console.log("this is the subscription plan ",subscriptionPlan)
+    if (!subscriptionPlan.isSubscribed && !dbUser.monimeCustomerId) {
+        // Use Monime API to create a checkout session
+         try {
+            const monimeSessionResponse = await fetch('https://api.monime.space/v1/checkout-sessions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Monime-Space-Id': '755247', // Replace with your Monime Space ID
+                  'X-Idempotency-Key': dbUser.id
+                  // Add any other necessary headers
+                },
+                body: JSON.stringify({
+                  clientReference: userId, // You can use a unique identifier for your session
+                  // Add other necessary parameters based on Monime docs
+                  callbackUrlState: dbUser.id,
+                  bulk: {
+                    amount: {
+                      "currency": "SLE",
+                      "value": "100"
+                    }
+                  },
+                  cancelUrl:  `https://${process.env.VERCEL_URL}/pricing` || 'http://localhost:3000/pricing',
+                  receiptUrl: `https://${process.env.VERCEL_URL}/dashboard` || 'http://localhost:3000/dashboard'
+                }),
+              });
+
+              const monimeSessionData = await monimeSessionResponse.json();
+              console.log("this is the session data ", monimeSessionData)
+              // Extract relevant data from Monime response
+              const monimeUrl = monimeSessionData.success ? monimeSessionData.result.checkoutUrl : null;
+          
+             console.log("this is the monime url ", monimeUrl)
+              // Update user model with Monime data
+                 const newUser =  await db.user.update({
+                      where: { id: userId },
+                      data: {
+                      monimeSessionId: monimeSessionData.success ? monimeSessionData.result.id : null,
+                      monimeUrl,
+                      // Add other relevant fields based on Monime response
+                      },
+                  });
+      
+                  console.log(newUser)
+      
+        return { url: monimeUrl }; 
+         } catch (error) {
+            console.log(error)
+        }
+ } 
+}),
+
+//   confirmPayment: PrivateProcedure.input(z.object({
+//     userId:z.string(),
+//     paymentToken: z.string()
+//   })).,
 
   getFileMessages: PrivateProcedure.input(z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -75,7 +153,7 @@ export const appRouter = router({
         const nextItem = messages.pop()
         nextCursor = nextItem?.id
     }
-    
+
     return {
         messages,
         nextCursor

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { buttonVariants } from './ui/button'
 import { LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server'
 import { ArrowRight } from 'lucide-react'
+import Image from 'next/image'
 
 interface Props {}
 
@@ -12,9 +13,23 @@ const Navbar = () => {
     <nav className='sticky h-14 inset-x-0 top-0 z-30 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all'>
       <MaxWidthWrapper>
         <div className='flex h-14 items-center justify-between border-b border-zinc-200'>
+           
+              {/* Logo */}
+          <div className='flex items-center space-x-2'>
+            <Image
+              src="/logo-pic.jpg"
+              width={50}
+              height={50}
+              alt="Logo"
+              quality={100}
+              className='rounded-full'
+            />
             <Link href="/" className='flex z-40 font-semibold'>
-                <span>ChatFlowPdfHub.</span>
+              <span>ChatFlowPdfHub.</span>
             </Link>
+          </div>
+          
+            
 
             {/* todo: add mobile navbar */}
 

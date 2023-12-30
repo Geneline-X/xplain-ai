@@ -42,8 +42,7 @@ const messageQueue: Array<{
             userId,
           },
         });
-  
-        console.log('Database operations completed:', createMessage, streamMessage);
+
       } catch (error) {
         console.error('Error in background processing:', error);
       }
@@ -157,13 +156,25 @@ export const POST = async(req: NextRequest) => {
     //  const responseText = (await resultFromChat.response).text();
 
     
+      const chunks = [""]
+      let text = ''
       const responseStream = new ReadableStream({
         async start(controller) {
           try {
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
+              // Store each chunk in the array
+               text += chunk.text()
             }
+
+                console.log("this is the text generated ", text)
+
             controller.close();
+              // Initialize the queue with the message data
+               messageQueue.push({ message, text, userId, fileId });
+
+            // Process the message queue after returning the streaming response
+          processQueue();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
@@ -171,32 +182,9 @@ export const POST = async(req: NextRequest) => {
         },
       })
       
-      
             // Return the streaming response immediately
        const streamingResponse = new StreamingTextResponse(responseStream);
 
-
-        //         await resultFromChat.stream.next();
-        //         const text =  (await resultFromChat.response).text()
-        //         console.log('This is the text generated from the model', text);
-                
-        //     const createMessage =  await db.message.create({
-        //         data: {
-        //             text: message,
-        //             isUserMessage: true,
-        //             userId,
-        //             fileId
-        //         }
-        //     })
-
-        //     const streamMessage =  await db.message.create({
-        //         data: {
-        //             text,
-        //             isUserMessage: false,
-        //             fileId,
-        //             userId
-        //         }
-        //   })
 
         return streamingResponse;    
   } catch (error) {
