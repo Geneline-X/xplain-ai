@@ -7,12 +7,14 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
 import { absoluteUrl } from '@/lib/utils';
 import { getUserSubscriptionPlan, } from '@/lib/stripe';
 import { PLANS } from '@/config/stripe';
-
+import { v4 } from 'uuid'
 interface KindeUser {
     id: string;
     email: string;
     
 }
+
+
 export const appRouter = router({
   authCallback: publicProcedure.query(async() => {
     const { getUser } = getKindeServerSession()
@@ -60,17 +62,17 @@ export const appRouter = router({
     if (!subscriptionPlan.isSubscribed && !dbUser.monimeCustomerId) {
         // Use Monime API to create a checkout session
          try {
+            const idempotencyKey = v4();
             const monimeSessionResponse = await fetch('https://api.monime.space/v1/checkout-sessions', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'X-Monime-Space-Id': '755247', // Replace with your Monime Space ID
-                  'X-Idempotency-Key': dbUser.id
-                  // Add any other necessary headers
+                  'X-Monime-Space-Id': 'spc-QcPL6aSJ38EDif4LRf9X23FV2',
+                  'Authorization': `Bearer ${process.env.MONIME_ACCESS_TOKEN}`,
+                  'X-Idempotency-Key': idempotencyKey
                 },
                 body: JSON.stringify({
-                  clientReference: userId, // You can use a unique identifier for your session
-                  // Add other necessary parameters based on Monime docs
+                  clientReference: userId,
                   callbackUrlState: dbUser.id,
                   bulk: {
                     amount: {
@@ -78,13 +80,14 @@ export const appRouter = router({
                       "value": "100"
                     }
                   },
-                  cancelUrl:  `https://${process.env.VERCEL_URL}/pricing` || 'http://localhost:3000/pricing',
-                  receiptUrl: `https://${process.env.VERCEL_URL}/dashboard` || 'http://localhost:3000/dashboard'
+                  cancelUrl:  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/pricing`: 'http://localhost:3000/pricing',
+                  receiptUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/dashboard`: 'http://localhost:3000/dashboard'
                 }),
               });
 
               const monimeSessionData = await monimeSessionResponse.json();
               console.log("this is the session data ", monimeSessionData)
+              
               // Extract relevant data from Monime response
               const monimeUrl = monimeSessionData.success ? monimeSessionData.result.checkoutUrl : null;
           
