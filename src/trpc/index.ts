@@ -91,7 +91,7 @@ export const appRouter = router({
               // Extract relevant data from Monime response
               const monimeUrl = monimeSessionData.success ? monimeSessionData.result.checkoutUrl : null;
           
-             console.log("this is the monime url ", monimeUrl)
+             
               // Update user model with Monime data
                  const newUser =  await db.user.update({
                       where: { id: userId },
