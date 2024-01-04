@@ -4,7 +4,7 @@ import { PrivateProcedure, publicProcedure, router } from './trpc';
 import { TRPCError } from "@trpc/server"
 import { z } from 'zod';
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
-import { absoluteUrl } from '@/lib/utils';
+import { absoluteUrl, setMainMonimeSessionData } from '@/lib/utils';
 import { getUserSubscriptionPlan, } from '@/lib/stripe';
 import { PLANS } from '@/config/stripe';
 import { v4 } from 'uuid'
@@ -13,6 +13,8 @@ interface KindeUser {
     email: string;
     
 }
+
+let mainMonimeSessionData:any = {}
 
 
 export const appRouter = router({
@@ -40,11 +42,8 @@ export const appRouter = router({
     return { success: true}
   }),
 
-
-  createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
+  updateUserData: PrivateProcedure.mutation(async({ctx}) =>{
     const { userId } = ctx
-
-    // const billingUrl = absoluteUrl("/dashboard/billing")
 
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
 
@@ -56,6 +55,49 @@ export const appRouter = router({
 
     if(!dbUser) throw new TRPCError({code: "UNAUTHORIZED"})
 
+    console.log("this is the stored monimedata ", mainMonimeSessionData)
+      // Extract relevant data from Monime response
+      const monimeUrl = mainMonimeSessionData.success ? mainMonimeSessionData.result.checkoutUrl : null;
+    
+      // Convert createTime to a Date object
+      const createTime = new Date(mainMonimeSessionData.result.createTime);
+    
+      // Set the subscription period in hours (adjust as needed)
+      const subscriptionPeriodHours = 1; // 1 hours for example
+    
+      // Calculate the end time by adding the subscription period to the createTime
+      const subscriptionEndTime = new Date(createTime.getTime() + subscriptionPeriodHours * 60 * 60 * 1000);
+    
+      const newUser = await db.user.update({
+        where: { id: userId },
+        data: {
+          monimeSessionId: mainMonimeSessionData.success ? mainMonimeSessionData.result.id : null,
+          monimeCustomerId: userId,
+          monimeCurrentPeriodsEnd: subscriptionEndTime,
+          monimeUrl,
+         
+        },
+      });
+    
+      console.log('This is the new updated user', newUser);
+
+  }),
+  createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
+    const { userId } = ctx
+
+    const billingUrl = absoluteUrl("/dashboard/billing")
+
+    if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
+
+    const dbUser = await db.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+
+    if(!dbUser) throw new TRPCError({code: "UNAUTHORIZED"})
+
+    
     const subscriptionPlan = await getUserSubscriptionPlan()
 
     console.log("this is the subscription plan ",subscriptionPlan)
@@ -80,41 +122,24 @@ export const appRouter = router({
                       "value": "100"
                     }
                   },
-                  cancelUrl:  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/pricing`: 'http://localhost:3000/pricing',
-                  receiptUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/dashboard`: 'http://localhost:3000/dashboard'
+                  cancelUrl:  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/pricing?status=cancel`: `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
+                  receiptUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/dashboard?status=success`: `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
                 }),
               });
 
               const monimeSessionData = await monimeSessionResponse.json();
               console.log("this is the session data ", monimeSessionData)
-              
-              // Extract relevant data from Monime response
+              mainMonimeSessionData = monimeSessionData
+              await setMainMonimeSessionData({monimeSessionData, userId})
+               // Extract relevant data from Monime response
               const monimeUrl = monimeSessionData.success ? monimeSessionData.result.checkoutUrl : null;
-          
-             
-              // Update user model with Monime data
-                 const newUser =  await db.user.update({
-                      where: { id: userId },
-                      data: {
-                      monimeSessionId: monimeSessionData.success ? monimeSessionData.result.id : null,
-                      monimeUrl,
-                      // Add other relevant fields based on Monime response
-                      },
-                  });
-      
-                  console.log(newUser)
-      
-        return { url: monimeUrl }; 
+              
+                  return { url: monimeUrl }; 
          } catch (error) {
             console.log(error)
         }
  } 
 }),
-
-//   confirmPayment: PrivateProcedure.input(z.object({
-//     userId:z.string(),
-//     paymentToken: z.string()
-//   })).,
 
   getFileMessages: PrivateProcedure.input(z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -223,4 +248,5 @@ export const appRouter = router({
 
 });
  
+export { mainMonimeSessionData}
 export type AppRouter = typeof appRouter;

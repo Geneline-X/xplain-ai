@@ -11,3 +11,21 @@ export function absoluteUrl(path:string){
   if(process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}${path}`
   return `http://localhost:${process.env.VERCEL_URL ?? 3000}${path}`
 }
+
+// sharedData.js
+let mainMonimeSessionDataPromise: Promise<any> | null = null;
+
+export const setMainMonimeSessionData = ({ monimeSessionData, userId }: any) => {
+  // Create a new promise and resolve it immediately
+  mainMonimeSessionDataPromise = Promise.resolve({
+    ...monimeSessionData,
+    userId,
+  });
+
+  return mainMonimeSessionDataPromise;
+};
+
+export const getMainMonimeSessionData = () => {
+  return mainMonimeSessionDataPromise;
+};
+

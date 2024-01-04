@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 import { redirect } from 'next/navigation'
 import { db } from '@/db'
 import DashBoard from '@/components/DashBoard'
+
 interface Props {}
 
 const Page = async() => {
@@ -19,6 +20,8 @@ const Page = async() => {
     if(!dbUser){
       redirect("/auth-callback?origin=dashboard")
     }
+    
+    
   return (
     <>
     <DashBoard/>

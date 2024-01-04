@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import UploadButton from './UploadButton'
 import { trpc } from '@/app/_trpc/client'
 import { Ghost, Loader2, MessageSquare, Plus, Trash } from 'lucide-react'
@@ -8,10 +8,14 @@ import Skeleton from 'react-loading-skeleton'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { Button } from './ui/button'
-
-interface Props {}
+import { useSearchParams } from 'next/navigation'
+import SSE from 'sse'
+import io from 'socket.io-client';
+import useSocket from '@/lib/hooks/useSocket'
 
 const DashBoard = () => {
+
+  const searchParams = useSearchParams()
 
     const [currentDeletingFile, setCurrentDeletingFile] = useState<string | null>(null)
 
@@ -89,5 +93,6 @@ const DashBoard = () => {
     </main>
   )
 }
+
 
 export default DashBoard

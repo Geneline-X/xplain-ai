@@ -43,7 +43,7 @@ export async function getUserSubscriptionPlan() {
     return {
       ...plan,
       monimeSubscriptionId: dbUser.monimeSubscriptionId,
-      monimeCurrentPeriodEnd: dbUser.monimeCurrentPeriodsEnd,
+      monimeCurrentPeriodsEnd: dbUser.monimeCurrentPeriodsEnd,
       monimeCustomerId: dbUser.monimeCustomerId,
       isSubscribed,
       isCanceled: false, // Assume not canceled since there's no specific Monime API endpoint for it
