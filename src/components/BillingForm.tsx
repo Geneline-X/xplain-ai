@@ -17,7 +17,10 @@ const BillingForm = ({subScriptionPlan}: BillingFormProps) => {
 
     // Assuming subScriptionPlan?.monimeCurrentPeriodsEnd! is a valid Date object
     const endDate = subScriptionPlan?.monimeCurrentPeriodsEnd!;
-
+    if (!endDate) {
+        // Handle the case where endDate is null or undefined
+        return <div>Error: End date not available</div>;
+      }
     const formattedDate = format(endDate, "dd.MM.yy HH:mm:ss");
     const timeUntilEnd = formatDistanceToNow(endDate, { addSuffix: true });
     const {mutate: createMonimeSession, isLoading} = trpc.createMonimeSession.useMutation({
