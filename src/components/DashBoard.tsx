@@ -12,8 +12,12 @@ import { useSearchParams } from 'next/navigation'
 import SSE from 'sse'
 import io from 'socket.io-client';
 import useSocket from '@/lib/hooks/useSocket'
+import { getUserSubscriptionPlan } from '@/lib/stripe'
 
-const DashBoard = () => {
+interface PageProps{
+  subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
+}
+const DashBoard = ({subscriptionPlan}: PageProps) => {
 
   const searchParams = useSearchParams()
 
@@ -40,7 +44,7 @@ const DashBoard = () => {
           <h1 className='mt-3 font-bold text-5xl text-gray-900'>
             My Files
           </h1>
-          <UploadButton/>
+          <UploadButton isSubscribed={subscriptionPlan.isSubscribed}/>
        </div>
 
        {/* display all user first */}

@@ -6,6 +6,7 @@ import { LoginLink, RegisterLink, getKindeServerSession } from '@kinde-oss/kinde
 import { ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import UserAccountNav from './UserAccountNav'
+import MobileNav from './MobileNav'
 
 interface Props {}
 
@@ -36,7 +37,7 @@ const Navbar = async() => {
             
 
             {/* todo: add mobile navbar */}
-
+            <MobileNav isAuth={!!user}/>
             <div className='hidden items-center space-x-4 sm:flex'>
                 
                 {!user ?<>
@@ -63,7 +64,7 @@ const Navbar = async() => {
                     imageUrl={user.picture ?? ""}
                    />
                 </>}
-            </div>
+            M</div>
         </div>
       </MaxWidthWrapper>
     </nav>
