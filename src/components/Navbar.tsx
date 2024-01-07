@@ -2,7 +2,7 @@ import React from 'react'
 import MaxWidthWrapper from './MaxWidthWrapper'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
-import { LoginLink, RegisterLink, getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
+import { LoginLink, RegisterLink, getKindeServerSession, } from '@kinde-oss/kinde-auth-nextjs/server'
 import { ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import UserAccountNav from './UserAccountNav'
@@ -64,7 +64,7 @@ const Navbar = async() => {
                     imageUrl={user.picture ?? ""}
                    />
                 </>}
-            M</div>
+            </div>
         </div>
       </MaxWidthWrapper>
     </nav>
