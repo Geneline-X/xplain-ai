@@ -69,7 +69,7 @@ export default function Home() {
             <h2 className="mt-2 font-bold tex--4xl text-gray-900 sm:text-5xl">
               Start Chatting in minutes
             </h2>
-            <p className="mt-4 text-lg text-gray-600">Chatting with you pdf files has never been easier than with CPH</p>
+            <p className="mt-4 text-lg text-gray-600">Chatting with you pdf files has never been easier with CPH</p>
           </div>
         </div>
 

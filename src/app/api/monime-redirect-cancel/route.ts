@@ -10,7 +10,7 @@ export async function POST(req:any, res:any) {
   // You may perform necessary processing here
 
   // Set the Location header for server-side redirection
-  const redirectUrl = 'http://localhost:3000/pricing';
+  const redirectUrl = "https://cph-nine.vercel.app/pricing " || 'http://localhost:3000/pricing';
   res.setHeader('Location', redirectUrl);
   res.status(302).end(); // 302 Found status code indicates a temporary redirect
 

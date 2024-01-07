@@ -105,7 +105,7 @@ export const POST = async(req: NextRequest) => {
         take: 6
     })
 
-   const formattedPrevMessages = prevMessages.map((msg) => {
+   const formattedPrevMessages = prevMessages.map((msg:any) => {
         return {
           role: msg.isUserMessage ? "user" : "model",
           parts: msg.text as string,
@@ -159,7 +159,7 @@ export const POST = async(req: NextRequest) => {
       const chunks = [""]
       let text = ''
       const responseStream = new ReadableStream({
-        async start(controller) {
+        async start(controller:any) {
           try {
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());

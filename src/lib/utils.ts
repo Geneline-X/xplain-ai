@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
+import { Metadata } from "next"
 import { twMerge } from "tailwind-merge"
 import { pathToFileURL } from "url"
  
@@ -28,4 +29,48 @@ export const setMainMonimeSessionData = ({ monimeSessionData, userId }: any) => 
 export const getMainMonimeSessionData = () => {
   return mainMonimeSessionDataPromise;
 };
+
+export function constructMetaData({
+  title =  "ChatFlowPdfHub - the SaaS for students",
+  description = "ChatFlowPdfHub is a software that makes chatting with your PDF files easy.",
+  image = "/logo-pic.jpg",
+  icons = "/favicon.ico",
+  noIndex = false
+}: {
+  title?: string
+  description?: string
+  image?: string
+  icons?: string
+  noIndex?:boolean
+} = {}) : Metadata {
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url:image
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+      creator: "@DKamara36931"
+    },
+    icons,
+    metadataBase: new URL("https://cph-nine.vercel.app"),
+    themeColor: "#FFF",
+    ...(noIndex && {
+      robots: {
+        index:false,
+        follow:false
+      }
+    })
+  }
+}
 
