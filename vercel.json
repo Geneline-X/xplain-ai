@@ -1,0 +1,8 @@
+{
+    "functions": {
+      "api/message": {
+        "maxDuration": 60
+      }
+    }
+  }
+  
