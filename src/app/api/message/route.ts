@@ -3,13 +3,9 @@ import { SendMessageValidators } from "@/lib/validators/SendMessageValidator";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextRequest } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { getPineconeClient } from "../../../lib/pinecone";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { loadQAStuffChain} from "langchain/chains"
 import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
-import WebSocket, { WebSocketServer } from 'ws';
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
 
 const messageQueue: Array<{
@@ -25,23 +21,24 @@ const messageQueue: Array<{
       try {
         
         // Perform your database operations here
-        const createMessage = await db.message.create({
-          data: {
-            text: message,
-            isUserMessage: true,
-            userId,
-            fileId,
-          },
-        });
-  
-        const streamMessage = await db.message.create({
-          data: {
-            text,
-            isUserMessage: false,
-            fileId,
-            userId,
-          },
-        });
+        const [createMessage, streamMessage] = await Promise.all([
+          db.message.create({
+            data: {
+              text: message,
+              isUserMessage: true,
+              userId,
+              fileId,
+            },
+          }),
+          db.message.create({
+            data: {
+              text,
+              isUserMessage: false,
+              fileId,
+              userId,
+            },
+          }),
+        ]);
 
       } catch (error) {
         console.error('Error in background processing:', error);
