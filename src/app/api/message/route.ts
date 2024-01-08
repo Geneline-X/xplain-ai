@@ -3,13 +3,9 @@ import { SendMessageValidators } from "@/lib/validators/SendMessageValidator";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextRequest } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { getPineconeClient } from "../../../lib/pinecone";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { loadQAStuffChain} from "langchain/chains"
 import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
-import WebSocket, { WebSocketServer } from 'ws';
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
 
 const messageQueue: Array<{
@@ -20,33 +16,32 @@ const messageQueue: Array<{
   }> = [];
 
   async function processQueue() {
-    while (messageQueue.length > 0) {
-      const { message, text, userId, fileId } = messageQueue.shift()!;
-      try {
-        
-        // Perform your database operations here
-        const createMessage = await db.message.create({
+  while (messageQueue.length > 0) {
+    const { message, text, userId, fileId } = messageQueue.shift()!;
+    try {
+      // Perform your database operations here
+      const [createMessage, streamMessage] = await Promise.all([
+        db.message.create({
           data: {
             text: message,
             isUserMessage: true,
             userId,
             fileId,
           },
-        });
-  
-        const streamMessage = await db.message.create({
+        }),
+        db.message.create({
           data: {
             text,
             isUserMessage: false,
             fileId,
             userId,
           },
-        });
-
-      } catch (error) {
-        console.error('Error in background processing:', error);
-      }
+        }),
+      ]);
+    } catch (error) {
+      console.error('Error in background processing:', error);
     }
+  }
 }
 
 export const POST = async(req: NextRequest) => {
@@ -87,11 +82,8 @@ export const POST = async(req: NextRequest) => {
     const result = await model.embedContent(message);
     const messageEmbedding = result.embedding.values;
 
-     const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true})
+    const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 4,vector: messageEmbedding, includeValues:true})
 
-     console.log(`Found ${similarEmbeddings.matches?.length} matched...`)
-
-     
     const llm = genAI.getGenerativeModel({model: "gemini-pro"})
 
 
@@ -125,38 +117,33 @@ export const POST = async(req: NextRequest) => {
         const responseBlob = await fetch(
             `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
           );
-          const blob = await responseBlob.blob();
+        const blob = await responseBlob.blob();
   
-          const loader = new PDFLoader(blob);
-          const pageLevelDocs = await loader.load();
+        const loader = new PDFLoader(blob);
+        const pageLevelDocs = await loader.load();
 
          // Extract page numbers from similarity embeddings and increment by 1
-            const pageNumbers = similarEmbeddings.matches.map((match) => {
-                const pageNumberMatch = match.id.match(/page-(\d+)$/);
-                return pageNumberMatch ? parseInt(pageNumberMatch[1]) + 1 : null;
-            });
+        const pageNumbers = similarEmbeddings.matches.map((match) => {
+            const pageNumberMatch = match.id.match(/page-(\d+)$/);
+            return pageNumberMatch ? parseInt(pageNumberMatch[1]) + 1 : null;
+        });
 
             // Search for corresponding pages in the PDFLoader
-            const pageContents = pageNumbers.map((pageNumber) => {
-                if (pageNumber !== null && pageNumber >= 0 && pageNumber < pageLevelDocs.length) {
-                return pageLevelDocs[pageNumber].pageContent // Assuming getText() method to get text content from the page
-                }
-                return null;
-            });
+        const pageContents = pageNumbers.map((pageNumber) => {
+            if (pageNumber !== null && pageNumber >= 0 && pageNumber < pageLevelDocs.length) {
+            return pageLevelDocs[pageNumber].pageContent // Assuming getText() method to get text content from the page
+            }
+            return null;
+        });
 
         const context = pageContents.filter((content) => content !== null).join('\n\n');
 
 
-       const msg = `${message} ${similarEmbeddings.matches.join("")} ${pageContents}`;
+        const msg = `${message} ${similarEmbeddings.matches.join("")} ${pageContents} ${context}`;
    
        //   const msg = `how to add`;
-      const resultFromChat = await chat.sendMessageStream(msg);
-    
-      // Use await for the asynchronous operation
-    //  const responseText = (await resultFromChat.response).text();
-
-    
-      const chunks = [""]
+       const resultFromChat = await chat.sendMessageStream(msg);
+      
       let text = ''
       const responseStream = new ReadableStream({
         async start(controller:any) {
