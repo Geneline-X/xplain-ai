@@ -42,7 +42,7 @@ export const appRouter = router({
     return { success: true}
   }),
 
-  updateUserData: PrivateProcedure.mutation(async({ctx}) =>{
+  updateUserDataCancelSub: PrivateProcedure.mutation(async({ctx}) =>{
     const { userId } = ctx
 
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
@@ -55,27 +55,11 @@ export const appRouter = router({
 
     if(!dbUser) throw new TRPCError({code: "UNAUTHORIZED"})
 
-    console.log("this is the stored monimedata ", mainMonimeSessionData)
-      // Extract relevant data from Monime response
-      const monimeUrl = mainMonimeSessionData.success ? mainMonimeSessionData.result.checkoutUrl : null;
-    
-      // Convert createTime to a Date object
-      const createTime = new Date(mainMonimeSessionData.result.createTime);
-    
-      // Set the subscription period in hours (adjust as needed)
-      const subscriptionPeriodHours = 1; // 1 hours for example
-    
-      // Calculate the end time by adding the subscription period to the createTime
-      const subscriptionEndTime = new Date(createTime.getTime() + subscriptionPeriodHours * 60 * 60 * 1000);
-    
       const newUser = await db.user.update({
         where: { id: userId },
         data: {
-          monimeSessionId: mainMonimeSessionData.success ? mainMonimeSessionData.result.id : null,
-          monimeCustomerId: userId,
-          monimeCurrentPeriodsEnd: subscriptionEndTime,
-          monimeUrl,
-         
+          monimeCurrentPeriodsEnd: "",
+          monimeSubscriptionId: ""
         },
       });
     

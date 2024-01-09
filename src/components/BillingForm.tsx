@@ -1,4 +1,5 @@
 "use client"
+import { useEffect } from 'react'
 import { getUserSubscriptionPlan } from '@/lib/stripe'
 import React from 'react'
 import { useToast } from './ui/use-toast'
@@ -14,15 +15,31 @@ interface BillingFormProps {
 
 const BillingForm = ({subScriptionPlan}: BillingFormProps) => {
     const {toast} = useToast()
+    const { mutate: updateUserDataCancelSub } = trpc.updateUserDataCancelSub.useMutation();
 
     // Assuming subScriptionPlan?.monimeCurrentPeriodsEnd! is a valid Date object
     const endDate = subScriptionPlan?.monimeCurrentPeriodsEnd!;
+
+    useEffect(() => {
+        if (endDate) {
+          const currentTime = new Date();
+          if (currentTime.getTime() > endDate.getTime() && subScriptionPlan.isSubscribed) {
+            // If current time is greater than end time and subscription is active, cancel subscription
+            updateUserDataCancelSub();
+          }
+        }
+      }, [endDate, subScriptionPlan.isSubscribed, updateUserDataCancelSub]);
+    
     if (!endDate) {
         // Handle the case where endDate is null or undefined
         return <div>Error: End date not available</div>;
       }
+      
     const formattedDate = format(endDate, "dd.MM.yy HH:mm:ss");
     const timeUntilEnd = formatDistanceToNow(endDate, { addSuffix: true });
+
+   
+    
     const {mutate: createMonimeSession, isLoading} = trpc.createMonimeSession.useMutation({
         onSuccess: (data) => {
             const url = data?.url

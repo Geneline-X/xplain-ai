@@ -16,8 +16,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       // Extract relevant data from Monime response
       const monimeUrl = monimeSessionData?.success ? monimeSessionData.result.checkoutUrl : null;
     
-      // Convert createTime to a Date object
-      const createTime = new Date(monimeSessionData.result.createTime);
+      // Convert createTime to a Date object when they hit the end point
+      const createTime = new Date();
     
       // Set the subscription period in hours (adjust as needed)
       const subscriptionPeriodHours = 1; // 1 hour for example
