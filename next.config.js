@@ -13,7 +13,7 @@ const nextConfig = {
             permanent: true
         },
         {
-            source: "*",
+            source: "/*",
             headers:  [
                 { key: "Access-Control-Allow-Credentials", value: "true" },
                 { key: "Access-Control-Allow-Origin", value: "https://cph-redirect.onrender.com" }, // replace this your actual origin
