@@ -106,8 +106,8 @@ export const appRouter = router({
                       "value": "100"
                     }
                   },
-                  cancelUrl:  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/pricing?status=cancel`: `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
-                  receiptUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/dashboard?status=success`: `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
+                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
+                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
                 }),
               });
 
