@@ -1,6 +1,6 @@
 {
     "functions": {
-      "api/message": {
+      "/api/message": {
         "maxDuration": 10
       }
     },
