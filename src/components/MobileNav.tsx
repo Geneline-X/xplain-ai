@@ -3,6 +3,7 @@ import { ArrowRight, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/server';
 
 interface Props {}
 
@@ -78,12 +79,17 @@ const MobileNav = ({ isAuth }: {isAuth: boolean}) => {
                         </li>
                         <li className='my-3 h-px w-full bg-gray-300'/>
                         <li>
-                            <Link 
+                            {/* <Link 
                             href='/sign-out'
                             className='flex items-center w-full font-semibold'
                             >
                                Sign out 
-                            </Link>
+                            </Link> */}
+                            <LogoutLink
+                            className='flex items-center w-full font-semibold'
+                            >
+                                Log out
+                            </LogoutLink>
                         </li>
                       </>
                     )}
