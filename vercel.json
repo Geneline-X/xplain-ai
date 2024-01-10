@@ -1,7 +1,7 @@
 {
     "functions": {
-      "/api/message": {
-        "maxDuration": 10
+      "api/message": {
+        "maxDuration": 30
       }
     },
     "headers": [
