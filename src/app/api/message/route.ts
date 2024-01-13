@@ -20,24 +20,23 @@ const messageQueue: Array<{
     const { message, text, userId, fileId } = messageQueue.shift()!;
     try {
       // Perform your database operations here
-      const [createMessage, streamMessage] = await Promise.all([
-        db.message.create({
-          data: {
-            text: message,
+      const createMessage = await db.message.create({
+        data: {
+          text: message,
             isUserMessage: true,
             userId,
             fileId,
-          },
-        }),
-        db.message.create({
-          data: {
+        }
+      })
+      const streamMessage = await db.message.create({
+        data: {
             text,
             isUserMessage: false,
             fileId,
             userId,
-          },
-        }),
-      ]);
+        }
+      })
+     
     } catch (error) {
       console.error('Error in background processing:', error);
     }
