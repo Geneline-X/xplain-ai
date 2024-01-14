@@ -109,7 +109,7 @@ export const POST = async(req: NextRequest) => {
             ...formattedPrevMessages,
          ],
             generationConfig: {
-                maxOutputTokens: 100,
+                maxOutputTokens: 2048,
             },
         });
 
@@ -171,7 +171,7 @@ export const POST = async(req: NextRequest) => {
             // Return the streaming response immediately
        const streamingResponse = new StreamingTextResponse(responseStream);
 
-
+       
         return streamingResponse;    
   } catch (error) {
     console.log(error)
