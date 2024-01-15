@@ -14,18 +14,18 @@ const Page = () => {
 
    trpc.authCallback.useQuery(undefined, {
     onSuccess: ({success}) => {
-      console.log("Success callback triggered with:", success);
       if(success) {
         // user is synced to db
-        console.log("this is inside the success ", success)
         router.push(origin ? `/${origin}` : "/dashboard")
       }
     },
     onError: (error) => {
-        if(error?.data?.code === "UNAUTHORIZED"){
-          console.log("this is inside the error")
-            router.push("/sign-in")
-        }
+      const errorCode = Array.isArray(error) && error.length > 0 ? error[0]?.data?.code : error?.data?.code;
+
+      if (errorCode === "UNAUTHORIZED") {
+          console.log("This is inside the error");
+          router.push("/sign-in");
+      }
     },
     retry: true,
     retryDelay: 500,

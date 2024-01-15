@@ -20,7 +20,7 @@ const Page = async({params}: PageProps) => {
 
     const user = await getUser()
     if(!user || !user.id) {
-        redirect(`/auth-callback?origin=dashboard/${fileId}`)
+       return redirect(`/auth-callback?origin=dashboard/${fileId}`)
     }
 
     //// make database call ///
