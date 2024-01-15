@@ -14,13 +14,16 @@ const Page = () => {
 
    trpc.authCallback.useQuery(undefined, {
     onSuccess: ({success}) => {
+      console.log("Success callback triggered with:", success);
       if(success) {
         // user is synced to db
+        console.log("this is inside the success ", success)
         router.push(origin ? `/${origin}` : "/dashboard")
       }
     },
     onError: (error) => {
         if(error?.data?.code === "UNAUTHORIZED"){
+          console.log("this is inside the error")
             router.push("/sign-in")
         }
     },
@@ -33,7 +36,7 @@ const Page = () => {
         <div className="flex flex-col items-center gap-2">
             <Loader2 className='h-8 animate-spin text-zinc-800'/>
             <h3 className='font-semibold text-xl'>Setting up your Account...</h3>
-            <p>you will be directed automatically</p>
+            <p>you will be redirected automatically</p>
         </div>
     </div>
   )

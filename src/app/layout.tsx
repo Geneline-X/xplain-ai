@@ -23,6 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Providers>
+        <head>
+        <meta name="google-site-verification" content="xqSq2gtf73XFTo_Z-8FEfgbwYD2xrJuZ8ityqXyGL4s" />
+        </head>
       <body className={cn(
         'min-h-screen font-sans antialiased grainy',
         inter.className
