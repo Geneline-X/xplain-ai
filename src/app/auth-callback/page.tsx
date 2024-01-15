@@ -20,12 +20,11 @@ const Page = () => {
       }
     },
     onError: (error) => {
-      const errorCode = Array.isArray(error) && error.length > 0 ? error[0]?.data?.code : error?.data?.code;
-
-      if (errorCode === "UNAUTHORIZED") {
-          console.log("This is inside the error");
-          router.push("/sign-in");
-      }
+      console.log("this is the error ", error)
+        if(error?.data?.code === "UNAUTHORIZED"){
+          console.log("this is inside the error")
+            router.push("/sign-in")
+        }
     },
     retry: true,
     retryDelay: 500,
