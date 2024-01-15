@@ -39,6 +39,9 @@ const messageQueue: Array<{
      
     } catch (error) {
       console.error('Error in background processing:', error);
+      /// adding a retry if this operation fail ////
+       messageQueue.unshift({ message, text, userId, fileId });
+       await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
 }
@@ -170,7 +173,6 @@ export const POST = async(req: NextRequest) => {
       
             // Return the streaming response immediately
        const streamingResponse = new StreamingTextResponse(responseStream);
-
        
         return streamingResponse;    
   } catch (error) {

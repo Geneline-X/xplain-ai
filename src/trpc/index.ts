@@ -22,7 +22,6 @@ export const appRouter = router({
     const { getUser } = getKindeServerSession()
     const user = await getUser()
     if(!user?.id || !user?.email){
-      return {success: false}
         throw new TRPCError({code: "UNAUTHORIZED"})
         
     }

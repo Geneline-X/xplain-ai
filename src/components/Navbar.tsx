@@ -23,8 +23,8 @@ const Navbar = async() => {
           <div className='flex items-center space-x-2'>
             <Image
               src="/logo-pic.jpg"
-              width={50}
-              height={50}
+              width={40}
+              height={40}
               alt="Logo"
               quality={100}
               className='rounded-full'

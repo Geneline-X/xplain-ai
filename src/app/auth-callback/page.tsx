@@ -19,14 +19,12 @@ const Page = () => {
         // user is synced to db
         router.push(origin ? `/${origin}` : "/dashboard")
       }
-      if(!success){
-        router.push(`/sign-in`)
-      }
+      
     },
     onError: (error) => {
       console.log("this is the error ", error);
       
-      if(error.message === 'UNAUTHORIZED'){
+      if(error.data?.code === 'UNAUTHORIZED'){
         router.push(`/sign-in`)
       }
     },
