@@ -185,10 +185,6 @@ const UploadButton = ({isSubscribed}: {isSubscribed:boolean}) => {
         </DialogContent>
     </Dialog>
 
-     {/* Conditionally render MobileUploadButton for mobile views */}
-     <div className='md:hidden'>
-        <MobileUploadButton isSubscribed={isSubscribed} />
-      </div>
   </>
   )
 }
