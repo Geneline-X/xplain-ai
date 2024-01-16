@@ -42,7 +42,7 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
             My Files
           </h1>
           {/* Display MobileUploadButton only on small screens */}
-          <div className="flex sm:hidden">
+          <div className="flex sm:hidden items-center justify-center">
             <MobileUploadButton isSubscribed={subscriptionPlan.isSubscribed} />
           </div>
 

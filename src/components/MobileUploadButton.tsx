@@ -104,7 +104,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
 
   return (
     <div className="relative">
-      <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full">
+      <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full mb-3">
         Upload PDF
       </Button>
       <input
