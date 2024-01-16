@@ -103,7 +103,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:hidden">
+    <div className="relative">
       <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full">
         Upload PDF
       </Button>
@@ -127,9 +127,9 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
             <div className="flex items-center">
               <Progress value={uploadProgress} />
               {uploadProgress === 100 ? (
-                <div className="ml-4">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Redirecting...
+                <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span className="text-gray-600">Redirecting...</span>
                 </div>
               ) : null}
             </div>
