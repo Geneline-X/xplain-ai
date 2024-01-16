@@ -70,8 +70,6 @@ export const appRouter = router({
   createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
     const { userId } = ctx
 
-    const billingUrl = absoluteUrl("/dashboard/billing")
-
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
 
     const dbUser = await db.user.findFirst({
