@@ -131,9 +131,31 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
         </DropZone>
     )
 }
+
+const MobileUploadButton = ({ isSubscribed }: { isSubscribed: boolean }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  return (
+      <div className='fixed bottom-4 left-4 right-4 md:hidden'>
+          <Button onClick={() => setIsOpen(true)} className='w-full'>
+              Upload PDF
+          </Button>
+          <Dialog open={isOpen} onOpenChange={(v) => !v && setIsOpen(false)}>
+              <DialogTrigger asChild onClick={() => setIsOpen(true)}>
+                  <div className='fixed inset-0 bg-black bg-opacity-50'></div>
+              </DialogTrigger>
+              <DialogContent>
+                  <UploadDropzone isSubscribed={isSubscribed} />
+              </DialogContent>
+          </Dialog>
+      </div>
+  );
+};
+
 const UploadButton = ({isSubscribed}: {isSubscribed:boolean}) => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={(v) => {
         if(!v){
             setIsOpen(v)
@@ -147,6 +169,12 @@ const UploadButton = ({isSubscribed}: {isSubscribed:boolean}) => {
             <UploadDropzone isSubscribed={isSubscribed}/>
         </DialogContent>
     </Dialog>
+
+     {/* Conditionally render MobileUploadButton for mobile views */}
+     <div className='md:hidden'>
+                <MobileUploadButton isSubscribed={isSubscribed} />
+      </div>
+  </>
   )
 }
 
