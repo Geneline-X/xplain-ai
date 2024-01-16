@@ -71,8 +71,6 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                 })
             }
 
-
-
             clearInterval(progressInterval)
             setUploadProgress(100)
 
