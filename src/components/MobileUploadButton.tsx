@@ -23,7 +23,8 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const { toast } = useToast();
   const { startUpload } = useUploadThing(isSubscribed ? 'proPlanUploader' : 'freePlanUploader');
-  
+  const [disabled, setDisabled] = useState<boolean>(true)
+
   const { mutate: startPolling } = trpc.getFile.useMutation({
     onSuccess: (file) => {
       router.push(`dashboard/${file.id}`);
@@ -96,9 +97,14 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
     return interval
   };
 
+  const handleUploadClicked = () => {
+     document?.getElementById('mobile-file-input')?.click()
+     setDisabled(false)
+  }
+
   return (
     <div className="fixed bottom-4 left-4 right-4 md:hidden">
-      <Button disabled={!selectedFile} onClick={() => document?.getElementById('mobile-file-input')?.click()} className="w-full">
+      <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full">
         Upload PDF
       </Button>
       <input
@@ -128,7 +134,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
               ) : null}
             </div>
           ) : (
-            <Button disabled={selectedFile ? false : true} onClick={handleFileUpload} className="w-full bg-blue-500 text-white">
+            <Button disabled={disabled} onClick={handleFileUpload} className="w-full bg-blue-500 text-white">
               Upload
             </Button>
           )}
