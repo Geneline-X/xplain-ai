@@ -28,7 +28,7 @@ interface Props {
 export const ChatContextProvider = ({fileId, children}: Props) => {
    const [message, setMessage] = useState<string>("")
 
-   const [messageRevertMonitor, setMessageRevertMonitor] = useState(false)
+   const [messageRevertMonitor, setMessageRevertMonitor] = useState(true)
    const [isLoading, setIsLoading] = useState<boolean>(false)
 
    const utils = trpc.useContext()
@@ -109,7 +109,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
                 }
             )
           }
-          setMessageRevertMonitor(true)
+          setMessageRevertMonitor(false)
         return response.body?.getReader()
 
     },
@@ -159,7 +159,6 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
     setIsLoading(true)
         return {
             previousMessages: prevoiusMessage?.pages.flatMap((page) => page.messages) ?? [],
-            hasModelResponse: Boolean(message),
         }
     },
     onSuccess: async(stream) => {
@@ -173,17 +172,17 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
      }
     },
     onError: ({error,__, context}) => {
-        // if (!messageRevertMonitor) {
-        //     // Revert local state only if there is no model response
-        //     utils.getFileMessages.setData(
-        //       { fileId },
-        //       { messages: context?.previousMessages ?? [] }
-        //     );
-        //   }
+        if (messageRevertMonitor) {
+            // Revert local state only if there is no model response
             utils.getFileMessages.setData(
-                {fileId},
-                {messages: context?.previousMessages ?? []}
-            )
+              { fileId },
+              { messages: context?.previousMessages ?? [] }
+            );
+          }
+            // utils.getFileMessages.setData(
+            //     {fileId},
+            //     {messages: context?.previousMessages ?? []}
+            // )
       },
         onSettled: async() => {
             setIsLoading(false)
