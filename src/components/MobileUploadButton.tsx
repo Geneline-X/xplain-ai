@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
 import DropZone  from "react-dropzone"
-import { Cloud, File, Loader2 } from 'lucide-react'
+import { Cloud, File, Loader2, Upload } from 'lucide-react'
 import { Progress } from './ui/progress'
 import { useUploadThing } from '@/lib/uploadthing'
 import { useToast } from './ui/use-toast'
@@ -104,7 +104,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
 
   return (
     <div className="relative">
-      <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full mb-3 ml-5">
+      <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full mb-3">
         Upload PDF
       </Button>
       <input
@@ -134,8 +134,8 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
               ) : null}
             </div>
           ) : (
-            <Button disabled={disabled} onClick={handleFileUpload} className="w-full ml-5 bg-blue-500 text-white">
-              Upload
+            <Button disabled={disabled} onClick={handleFileUpload} className="w-full bg-orange-500 text-white">
+              Upload <Upload className='w-4 h-4'/>
             </Button>
           )}
           </div>
