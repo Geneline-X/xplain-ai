@@ -158,10 +158,8 @@ export const POST = async(req: NextRequest) => {
             }
                 console.log("this is the text generated ", text)
             controller.close();
-
               // Initialize the queue with the message data
               messageQueue.push({ message, text, userId, fileId });
-
             // Process the message queue after returning the streaming response
             processQueue();
           } catch (error) {
@@ -171,8 +169,8 @@ export const POST = async(req: NextRequest) => {
         },
       })
             // Return the streaming response immediately
-       const streamingResponse = new StreamingTextResponse(responseStream);
-        return streamingResponse;    
+            return new StreamingTextResponse(responseStream);
+          
   } catch (error) {
     console.log(error)
   }

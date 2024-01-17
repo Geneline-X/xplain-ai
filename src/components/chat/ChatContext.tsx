@@ -1,5 +1,4 @@
 "use client"
-
 import React, { ReactNode, createContext, useState, useEffect, useRef } from 'react'
 import { useToast } from '../ui/use-toast'
 import { useMutation } from '@tanstack/react-query'
@@ -194,12 +193,9 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         }
    })
 
-   
    const addMessage = () => {
     sendMessage({message})
-
    }
-
    const handleInputChange = (e:React.ChangeEvent<HTMLTextAreaElement>) => {
      setMessage(e.target.value)
    }
