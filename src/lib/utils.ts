@@ -38,11 +38,8 @@ export const setBackgroundCompleted = (isBackgroundCompleted: boolean) => {
   return isBackgroundCompletedPromise
 }
 
-export const getBackgroundCompleted = async() => {
-  if (isBackgroundCompletedPromise) {
-    return await isBackgroundCompletedPromise;
-  }
-  return false;
+export const getBackgroundCompleted = () => {
+    return isBackgroundCompletedPromise;
 }
 
 export function constructMetaData({
