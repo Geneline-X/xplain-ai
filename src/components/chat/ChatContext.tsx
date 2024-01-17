@@ -158,7 +158,8 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
     )
     setIsLoading(true)
         return {
-            previousMessages: prevoiusMessage?.pages.flatMap((page) => page.messages) ?? []
+            previousMessages: prevoiusMessage?.pages.flatMap((page) => page.messages) ?? [],
+            hasModelResponse: Boolean(message),
         }
     },
     onSuccess: async(stream) => {
@@ -170,16 +171,19 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
             variant: "destructive"
         })
      }
-
-
-
-    
     },
     onError: ({error,__, context}) => {
+        if (!context?.hasModelResponse) {
+            // Revert local state only if there is no model response
             utils.getFileMessages.setData(
-                {fileId},
-                {messages: context?.previousMessages ?? []}
-            )
+              { fileId },
+              { messages: context?.previousMessages ?? [] }
+            );
+          }
+            // utils.getFileMessages.setData(
+            //     {fileId},
+            //     {messages: context?.previousMessages ?? []}
+            // )
       },
         onSettled: async() => {
             setIsLoading(false)
