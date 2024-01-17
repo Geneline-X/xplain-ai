@@ -7,6 +7,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
+import { setBackgroundCompleted } from "@/lib/utils";
 
 const messageQueue: Array<{
     message: string;
@@ -36,7 +37,7 @@ const messageQueue: Array<{
             userId,
         }
       })
-     
+     await setBackgroundCompleted(true)
     } catch (error) {
       console.error('Error in background processing:', error);
       /// adding a retry if this operation fail ////

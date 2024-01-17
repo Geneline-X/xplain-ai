@@ -30,6 +30,21 @@ export const getMainMonimeSessionData = () => {
   return mainMonimeSessionDataPromise;
 };
 
+///// waiting for background message process //////
+let isBackgroundCompletedPromise: Promise<any> | null = null;
+
+export const setBackgroundCompleted = (isBackgroundCompleted: boolean) => {
+  isBackgroundCompletedPromise =  Promise.resolve({isBackgroundCompleted})
+  return isBackgroundCompletedPromise
+}
+
+export const getBackgroundCompleted = async() => {
+  if (isBackgroundCompletedPromise) {
+    return await isBackgroundCompletedPromise;
+  }
+  return false;
+}
+
 export function constructMetaData({
   title =  "ChatFlowPdfHub - the SaaS for students",
   description = "ChatFlowPdfHub is a software that makes chatting with your PDF files easy.",

@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import { trpc } from '@/app/_trpc/client'
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
 import { text } from 'stream/consumers'
+import { getBackgroundCompleted } from '@/lib/utils'
 
 type StreamResponseType = {
     addMessage: () => void,
@@ -118,12 +119,12 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
       backupMessage.current = message
       setMessage("")
 
-      ///// step 1////
-      await utils.getFileMessages.cancel()
+        ///// step 1////
+       await utils.getFileMessages.cancel()
 
-      //// step 2 ////
-      const prevoiusMessage = utils.getFileMessages.getInfiniteData()
-
+        //// step 2 ////
+        const prevoiusMessage = utils.getFileMessages.getInfiniteData()
+          
       //// step 3 /////
       utils.getFileMessages.setInfiniteData(
         {fileId, limit: INFINITE_QUERY_LIMIT},
@@ -155,11 +156,14 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
             pages: newPages
            }
         }
-    )
-    setIsLoading(true)
+        )
+
+        setIsLoading(true)
         return {
             previousMessages: prevoiusMessage?.pages.flatMap((page) => page.messages) ?? [],
         }
+
+      
     },
     onSuccess: async(stream) => {
      setIsLoading(false)
@@ -186,8 +190,12 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
       },
         onSettled: async() => {
             setIsLoading(false)
-
-            await utils.getFileMessages.invalidate({fileId})
+            /////// wait for database creating complete ///////
+            const isCompleted = await getBackgroundCompleted()
+                    
+            if(isCompleted){
+                await utils.getFileMessages.invalidate({fileId})
+            }
         }
    })
 
