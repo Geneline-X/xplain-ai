@@ -37,7 +37,7 @@ const messageQueue: Array<{
             userId,
         }
       })
-     await setBackgroundCompleted(true)
+     
     } catch (error) {
       console.error('Error in background processing:', error);
       /// adding a retry if this operation fail ////

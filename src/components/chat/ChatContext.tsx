@@ -162,8 +162,6 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         return {
             previousMessages: prevoiusMessage?.pages.flatMap((page) => page.messages) ?? [],
         }
-
-      
     },
     onSuccess: async(stream) => {
      setIsLoading(false)
@@ -176,25 +174,23 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
      }
     },
     onError: ({error,__, context}) => {
-        if (messageRevertMonitor) {
-            // Revert local state only if there is no model response
+        // if (messageRevertMonitor) {
+        //     // Revert local state only if there is no model response
+        //     utils.getFileMessages.setData(
+        //       { fileId },
+        //       { messages: context?.previousMessages ?? [] }
+        //     );
+        //   }
             utils.getFileMessages.setData(
-              { fileId },
-              { messages: context?.previousMessages ?? [] }
-            );
-          }
-            // utils.getFileMessages.setData(
-            //     {fileId},
-            //     {messages: context?.previousMessages ?? []}
-            // )
+                {fileId},
+                {messages: context?.previousMessages ?? []}
+            )
       },
         onSettled: async() => {
             setIsLoading(false)
             /////// wait for database creating complete ///////
-            const isCompleted =  getBackgroundCompleted()
-                     
+            const isCompleted =  getBackgroundCompleted()       
                 await utils.getFileMessages.invalidate({fileId})
-            
         
         }
    })
