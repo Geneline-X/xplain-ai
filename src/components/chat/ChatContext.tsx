@@ -173,7 +173,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
      }
     },
     onError: ({error,__, context}) => {
-        if (!context?.hasModelResponse) {
+        if (!messageRevertMonitor) {
             // Revert local state only if there is no model response
             utils.getFileMessages.setData(
               { fileId },
