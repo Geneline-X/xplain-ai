@@ -156,26 +156,22 @@ export const POST = async(req: NextRequest) => {
               // Store each chunk in the array
                text += chunk.text()
             }
-
                 console.log("this is the text generated ", text)
-
             controller.close();
+
               // Initialize the queue with the message data
               messageQueue.push({ message, text, userId, fileId });
 
             // Process the message queue after returning the streaming response
-          processQueue();
-
+            processQueue();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
           }
         },
       })
-      
             // Return the streaming response immediately
        const streamingResponse = new StreamingTextResponse(responseStream);
-       
         return streamingResponse;    
   } catch (error) {
     console.log(error)
