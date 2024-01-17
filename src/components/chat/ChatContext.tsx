@@ -192,10 +192,9 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
             setIsLoading(false)
             /////// wait for database creating complete ///////
             const isCompleted =  getBackgroundCompleted()
-                    
-            if(isCompleted){   
+                     
                 await utils.getFileMessages.invalidate({fileId})
-            }
+            
         
         }
    })
