@@ -114,7 +114,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <Dialog open={isOpen} onOpenChange={(v) => !v && setIsOpen(false)}>
+      {!disabled ?<Dialog open={isOpen} onOpenChange={(v) => !v && setIsOpen(false)}>
         {/* Mobile-specific upload UI */}
         <div className="bg-white rounded-lg p-4">
           {selectedFile && (
@@ -133,13 +133,13 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
                 </div>
               ) : null}
             </div>
-          ) : !disabled ? (
-            <Button disabled={disabled} onClick={handleFileUpload} className="w-full bg-blue-500 text-white">
+          ) : (
+            <Button disabled={disabled} onClick={handleFileUpload} className="w-full ml-5 bg-blue-500 text-white">
               Upload
             </Button>
-          ): null}
+          )}
           </div>
-        </Dialog>
+        </Dialog>: null}
     </div>
     )
 }
