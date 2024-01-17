@@ -34,7 +34,7 @@ export const getMainMonimeSessionData = () => {
 let isBackgroundCompletedPromise: Promise<any> | null = null;
 
 export const setBackgroundCompleted = (isBackgroundCompleted: boolean) => {
-  isBackgroundCompletedPromise =  Promise.resolve({isBackgroundCompleted})
+  isBackgroundCompletedPromise =  Promise.resolve(isBackgroundCompleted)
   return isBackgroundCompletedPromise
 }
 
