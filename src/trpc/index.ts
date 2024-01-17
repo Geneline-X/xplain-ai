@@ -84,7 +84,7 @@ export const appRouter = router({
     const subscriptionPlan = await getUserSubscriptionPlan()
 
     console.log("this is the subscription plan ",subscriptionPlan)
-    if (true) {
+    if (!subscriptionPlan.isSubscribed) {
         // Use Monime API to create a checkout session
          try {
             const idempotencyKey = v4();
