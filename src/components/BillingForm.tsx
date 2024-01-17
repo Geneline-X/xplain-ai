@@ -74,7 +74,7 @@ const BillingForm = ({subScriptionPlan}: BillingFormProps) => {
 
                 {subScriptionPlan.isSubscribed ? (
                     <p className='rounded-full text-xs font-medium'>
-                        {subScriptionPlan.isCanceled ? "Your plan will be cancelled on ": "Your plan renews in"}
+                        {subScriptionPlan.isCanceled ? "Your plan will be cancelled on ": "Your plan renews "}
                         {timeUntilEnd}.
                     </p>
                 ):null}
