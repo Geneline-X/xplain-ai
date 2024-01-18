@@ -180,16 +180,18 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
               { messages: context?.previousMessages ?? [] }
             );
           }
-            // utils.getFileMessages.setData(
-            //     {fileId},
-            //     {messages: context?.previousMessages ?? []}
-            // )
+
+          // Toast after invalidation
+        return toast({
+            title: "Timeout Error",
+            description: "Please try sending the message again.",
+            variant: "destructive",
+        });
+    
       },
         onSettled: async() => {
             setIsLoading(false)
-            /////// wait for database creating complete ///////
-            const isCompletedData =  getBackgroundCompleted() 
-            console.log("this is the data object ", isCompletedData)      
+                
             await utils.getFileMessages.invalidate({fileId}) 
         }
    })
