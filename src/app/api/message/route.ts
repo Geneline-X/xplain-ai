@@ -45,7 +45,7 @@ const messageQueue: Array<{
   }
 }
 
-
+processQueue();
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
   try {
@@ -162,7 +162,7 @@ export const POST = async(req: NextRequest) => {
             // Initialize the queue with the message data
             messageQueue.push({ message, text, userId, fileId });
             // Process the message queue after returning the streaming response
-            processQueue();
+            
             
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
