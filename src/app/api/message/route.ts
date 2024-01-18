@@ -73,14 +73,7 @@ export const POST = async(req: NextRequest) => {
     })
 
     if(!file) return new Response("NotFound", {status: 404})
-    const createMessage = await db.message.create({
-          data: {
-            text: message,
-              isUserMessage: true,
-              userId,
-              fileId,
-          }
-          })
+    
     
 
     /// nlp part of the app //////
@@ -177,6 +170,15 @@ export const POST = async(req: NextRequest) => {
         },
       })
 
+      const createMessage = await db.message.create({
+        data: {
+          text: message,
+            isUserMessage: true,
+            userId,
+            fileId,
+        }
+        })
+        
       const streamMessage = await db.message.create({
         data: {
             text,
