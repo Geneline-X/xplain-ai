@@ -47,6 +47,10 @@ const messageQueue: Array<{
   }
 }
 
+// Initialize the queue with the message data
+//messageQueue.push({ message, text, userId, fileId });
+// Process the message queue after returning the streaming response
+//processQueue();
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
   try {
@@ -172,23 +176,9 @@ export const POST = async(req: NextRequest) => {
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
                text += chunk.text() 
-              
-                await db.message.update({
-                where: {
-                  id: messageId
-                }, 
-                data: {
-                  text: {concat: text } as any}
-              })
-
             }
                 console.log("this is the text generated ", text)
             controller.close();
-
-              // Initialize the queue with the message data
-             //messageQueue.push({ message, text, userId, fileId });
-            // Process the message queue after returning the streaming response
-            //processQueue();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
@@ -197,6 +187,13 @@ export const POST = async(req: NextRequest) => {
       })
         const streamResponse = new StreamingTextResponse(responseStream);
 
+        await db.message.update({
+          where: {
+            id: messageId
+          }, 
+          data: {
+            text: {concat: text } as any}
+        })
             // Return the streaming response immediately
         return streamResponse
           
