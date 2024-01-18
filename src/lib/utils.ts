@@ -33,8 +33,11 @@ export const getMainMonimeSessionData = () => {
 ///// waiting for background message process //////
 let isBackgroundCompletedPromise: Promise<any> | null = null;
 
-export const setBackgroundCompleted = (isBackgroundCompleted: boolean) => {
-  isBackgroundCompletedPromise =  Promise.resolve(isBackgroundCompleted)
+export const setBackgroundCompleted = ({streamMessage, createMessage}: any) => {
+  isBackgroundCompletedPromise =  Promise.resolve({
+    streamMessage,
+    createMessage
+  })
   return isBackgroundCompletedPromise
 }
 
