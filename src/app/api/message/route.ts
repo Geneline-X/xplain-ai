@@ -173,13 +173,13 @@ export const POST = async(req: NextRequest) => {
 
         const streamResponse = new StreamingTextResponse(responseStream);
            // Wait for the streaming to finish before proceeding with database operations
-            await new Promise<void>((resolve) => {
-              responseStream.getReader().read().then(({ done }) => {
-                if (done) {
-                  resolve();
-                }
-              });
-            });
+            // await new Promise<void>((resolve) => {
+            //   responseStream.getReader().read().then(({ done }) => {
+            //     if (done) {
+            //       resolve();
+            //     }
+            //   });
+            // });
             // Perform your database operations here
               // const createMessage = await db.message.create({
               //   data: {
