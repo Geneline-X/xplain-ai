@@ -182,11 +182,11 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
           }
 
           // Toast after invalidation
-        // return toast({
-        //     title: "Timeout Error",
-        //     description: "Please try sending the message again.",
-        //     variant: "destructive",
-        // });
+        return toast({
+            title: "Timeout Error",
+            description: "Please try sending the message again.",
+            variant: "destructive",
+        });
     
       },
         onSettled: async() => {
