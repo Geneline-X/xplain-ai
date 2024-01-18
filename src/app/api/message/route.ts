@@ -158,26 +158,7 @@ export const POST = async(req: NextRequest) => {
             }
                 console.log("this is the text generated ", text)
             controller.close();
-              // Initialize the queue with the message data
-             // messageQueue.push({ message, text, userId, fileId });
-            // Process the message queue after returning the streaming response
-            //processQueue();
-          } catch (error) {
-            console.error("Error enqueuing chunks:", error);
-            controller.error(error);
-          }
-        },
-      })
-          try {
-            
-            // Perform database operations only after the streaming is completed
-            await new Promise<void>((resolve) => {
-              responseStream.getReader().read().then(({ done }) => {
-                if (done) {
-                  resolve();
-                }
-              });
-            });
+
             const createMessage = await db.message.create({
               data: {
                 text: message,
@@ -194,9 +175,17 @@ export const POST = async(req: NextRequest) => {
                   userId,
               }
             })
+              // Initialize the queue with the message data
+             // messageQueue.push({ message, text, userId, fileId });
+            // Process the message queue after returning the streaming response
+            //processQueue();
           } catch (error) {
-            console.log("this is the error", error)
+            console.error("Error enqueuing chunks:", error);
+            controller.error(error);
           }
+        },
+      })
+          
             // Return the streaming response immediately
             return new StreamingTextResponse(responseStream);
           
