@@ -158,6 +158,21 @@ export const POST = async(req: NextRequest) => {
             }
                 console.log("this is the text generated ", text)
             controller.close();
+
+            // Store the entire accumulated text in the database
+            try {
+              const streamMessage = await db.message.create({
+                data: {
+                  text,
+                  isUserMessage: false,
+                  userId,
+                  fileId,
+                },
+              });
+            } catch (error) {
+              console.error("Error storing the entire response in the database:", error);
+              // You may want to handle the error or retry storing the entire response
+            }
               // Initialize the queue with the message data
              // messageQueue.push({ message, text, userId, fileId });
             // Process the message queue after returning the streaming response
@@ -176,14 +191,6 @@ export const POST = async(req: NextRequest) => {
                   isUserMessage: true,
                   userId,
                   fileId,
-              }
-            })
-            const streamMessage = await db.message.create({
-              data: {
-                  text,
-                  isUserMessage: false,
-                  fileId,
-                  userId,
               }
             })
           } catch (error) {
