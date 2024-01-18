@@ -171,15 +171,6 @@ export const POST = async(req: NextRequest) => {
       })
 
           try {
-
-            const streamMessage = await db.message.create({
-              data: {
-                text,
-                isUserMessage: false,
-                userId,
-                fileId,
-              },
-            });
             const createMessage = await db.message.create({
               data: {
                 text: message,
@@ -188,6 +179,14 @@ export const POST = async(req: NextRequest) => {
                   fileId,
               }
             })
+            const streamMessage = await db.message.create({
+              data: {
+                text,
+                isUserMessage: false,
+                userId,
+                fileId,
+              },
+            });
           } catch (error) {
             console.log(error)
           }
