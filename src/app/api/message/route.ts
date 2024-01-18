@@ -174,12 +174,14 @@ export const POST = async(req: NextRequest) => {
             
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
-               text += chunk.text()    
+               text += chunk.text() 
+               
+               await db.message.update({
+                where: { id: streamMessage.id },
+                data: { text },
+              });
             }
-            await db.message.update({
-              where: { id: streamMessage.id },
-              data: { text },
-            });
+            
             console.log("this is the text generated ", text)
             controller.close();
           } catch (error) {
