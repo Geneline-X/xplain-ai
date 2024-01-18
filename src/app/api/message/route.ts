@@ -37,7 +37,7 @@ const messageQueue: Array<{
             userId,
         }
       })
-     await setBackgroundCompleted(true)
+     
     } catch (error) {
       console.error('Error in background processing:', error);
       /// adding a retry if this operation fail ////
@@ -161,9 +161,9 @@ export const POST = async(req: NextRequest) => {
             controller.close();
 
               // Initialize the queue with the message data
-             //messageQueue.push({ message, text, userId, fileId });
+             messageQueue.push({ message, text, userId, fileId });
             // Process the message queue after returning the streaming response
-            //processQueue();
+            processQueue();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
@@ -173,32 +173,31 @@ export const POST = async(req: NextRequest) => {
 
         const streamResponse = new StreamingTextResponse(responseStream);
            // Wait for the streaming to finish before proceeding with database operations
-            // await new Promise<void>((resolve) => {
-            //   responseStream.getReader().read().then(({ done }) => {
-            //     if (done) {
-            //       resolve();
-            //     }
-            //   });
-            // });
+            await new Promise<void>((resolve) => {
+              responseStream.getReader().read().then(({ done }) => {
+                if (done) {
+                  resolve();
+                }
+              });
+            });
             // Perform your database operations here
-              const createMessage = await db.message.create({
-                data: {
-                  text: message,
-                    isUserMessage: true,
-                    userId,
-                    fileId,
-                }
-              })
-              const streamMessage = await db.message.create({
-                data: {
-                    text,
-                    isUserMessage: false,
-                    fileId,
-                    userId,
-                }
-              })
+              // const createMessage = await db.message.create({
+              //   data: {
+              //     text: message,
+              //       isUserMessage: true,
+              //       userId,
+              //       fileId,
+              //   }
+              // })
+              // const streamMessage = await db.message.create({
+              //   data: {
+              //       text,
+              //       isUserMessage: false,
+              //       fileId,
+              //       userId,
+              //   }
+              // })
             // Return the streaming response immediately
-            
             return streamResponse
           
   } catch (error) {
