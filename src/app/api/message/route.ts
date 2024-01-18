@@ -46,10 +46,9 @@ const messageQueue: Array<{
 }
 
   // Initialize the queue with the message data
-            //messageQueue.push({ message, text, userId, fileId });
-            // Process the message queue after returning the streaming response
-            
-//processQueue();
+  //messageQueue.push({ message, text, userId, fileId });
+  // Process the message queue after returning the streaming response        
+ //processQueue();
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
   try {
@@ -73,8 +72,6 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
     
-    
-
     /// nlp part of the app //////
 
     ///// vectorize the incoming message ////
@@ -170,31 +167,27 @@ export const POST = async(req: NextRequest) => {
                 userId,
             }
           })
+          
       const responseStream = new ReadableStream({
         async start(controller:any) {
           try {
+            
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
-               text += chunk.text() 
-
-               // Update the text in the database after each chunk
-              await db.message.update({
-                where: { id: streamMessage.id },
-                data: { text },
-              });
+               text += chunk.text()    
             }
-                console.log("this is the text generated ", text)
+            await db.message.update({
+              where: { id: streamMessage.id },
+              data: { text },
+            });
+            console.log("this is the text generated ", text)
             controller.close();
-
-            
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
           }
         },
-      })
-
-            
+      })    
         const streamResponse = new  StreamingTextResponse(responseStream);
             // Return the streaming response immediately
         return  streamResponse
