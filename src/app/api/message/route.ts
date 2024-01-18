@@ -163,6 +163,15 @@ export const POST = async(req: NextRequest) => {
             }
                 console.log("this is the text generated ", text)
             controller.close();
+
+            const streamMessage = await db.message.create({
+              data: {
+                  text,
+                  isUserMessage: false,
+                  fileId,
+                  userId,
+              }
+            })
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
@@ -178,18 +187,16 @@ export const POST = async(req: NextRequest) => {
             fileId,
         }
         })
-        
-      const streamMessage = await db.message.create({
-        data: {
-            text,
-            isUserMessage: false,
-            fileId,
-            userId,
-        }
-      })
-        const streamResponse = new StreamingTextResponse(responseStream);
 
-        
+      // const streamMessage = await db.message.create({
+      //   data: {
+      //       text,
+      //       isUserMessage: false,
+      //       fileId,
+      //       userId,
+      //   }
+      // })
+        const streamResponse = new  StreamingTextResponse(responseStream);
             // Return the streaming response immediately
         return streamResponse
           
