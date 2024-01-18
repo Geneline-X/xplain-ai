@@ -41,16 +41,11 @@ const messageQueue: Array<{
     } catch (error) {
       console.error('Error in background processing:', error);
       /// adding a retry if this operation fail ////
-       messageQueue.unshift({ message, text, userId, fileId });
-       await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
 }
 
-// Initialize the queue with the message data
-//messageQueue.push({ message, text, userId, fileId });
-// Process the message queue after returning the streaming response
-//processQueue();
+
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
   try {
@@ -164,14 +159,11 @@ export const POST = async(req: NextRequest) => {
                 console.log("this is the text generated ", text)
             controller.close();
 
-            const streamMessage = await db.message.create({
-              data: {
-                  text,
-                  isUserMessage: false,
-                  fileId,
-                  userId,
-              }
-            })
+            // Initialize the queue with the message data
+            messageQueue.push({ message, text, userId, fileId });
+            // Process the message queue after returning the streaming response
+            processQueue();
+            
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
@@ -179,23 +171,6 @@ export const POST = async(req: NextRequest) => {
         },
       })
 
-      const createMessage = await db.message.create({
-        data: {
-          text: message,
-            isUserMessage: true,
-            userId,
-            fileId,
-        }
-        })
-
-      // const streamMessage = await db.message.create({
-      //   data: {
-      //       text,
-      //       isUserMessage: false,
-      //       fileId,
-      //       userId,
-      //   }
-      // })
         const streamResponse = new  StreamingTextResponse(responseStream);
             // Return the streaming response immediately
         return streamResponse
