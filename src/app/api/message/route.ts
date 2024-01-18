@@ -77,6 +77,14 @@ export const POST = async(req: NextRequest) => {
               fileId,
           }
           })
+    const streamMessage = await db.message.create({
+      data: {
+          text: "",
+          isUserMessage: false,
+          fileId,
+          userId,
+      }
+    })
 
     /// nlp part of the app //////
 
@@ -156,14 +164,7 @@ export const POST = async(req: NextRequest) => {
        const resultFromChat = await chat.sendMessageStream(msg);
       
       let text = ''
-      const streamMessage = await db.message.create({
-        data: {
-            text: "",
-            isUserMessage: false,
-            fileId,
-            userId,
-        }
-      })
+      
       const messageId = streamMessage.id
       const responseStream = new ReadableStream({
         async start(controller:any) {
