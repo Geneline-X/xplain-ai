@@ -70,15 +70,6 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
 
-    // Perform your database operations here
-    const createMessage = await db.message.create({
-      data: {
-        text: message,
-          isUserMessage: true,
-          userId,
-          fileId,
-      }
-    })
 
     /// nlp part of the app //////
 
@@ -181,13 +172,22 @@ export const POST = async(req: NextRequest) => {
       })
 
            // Wait for the streaming to finish before proceeding with database operations
-            await new Promise<void>((resolve) => {
-              responseStream.getReader().read().then(({ done }) => {
-                if (done) {
-                  resolve();
+            // await new Promise<void>((resolve) => {
+            //   responseStream.getReader().read().then(({ done }) => {
+            //     if (done) {
+            //       resolve();
+            //     }
+            //   });
+            // });
+            // Perform your database operations here
+              const createMessage = await db.message.create({
+                data: {
+                  text: message,
+                    isUserMessage: true,
+                    userId,
+                    fileId,
                 }
-              });
-            });
+              })
               const streamMessage = await db.message.create({
                 data: {
                     text,
