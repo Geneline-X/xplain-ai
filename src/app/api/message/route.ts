@@ -168,22 +168,35 @@ export const POST = async(req: NextRequest) => {
           }
         },
       })
-          const createMessage = await db.message.create({
-            data: {
-              text: message,
-                isUserMessage: true,
-                userId,
-                fileId,
-            }
-          })
-          const streamMessage = await db.message.create({
-            data: {
-                text,
-                isUserMessage: false,
-                fileId,
-                userId,
-            }
-          })
+          try {
+            
+            // Perform database operations only after the streaming is completed
+            await new Promise<void>((resolve) => {
+              responseStream.getReader().read().then(({ done }) => {
+                if (done) {
+                  resolve();
+                }
+              });
+            });
+            const createMessage = await db.message.create({
+              data: {
+                text: message,
+                  isUserMessage: true,
+                  userId,
+                  fileId,
+              }
+            })
+            const streamMessage = await db.message.create({
+              data: {
+                  text,
+                  isUserMessage: false,
+                  fileId,
+                  userId,
+              }
+            })
+          } catch (error) {
+            console.log("this is the error", error)
+          }
             // Return the streaming response immediately
             return new StreamingTextResponse(responseStream);
           
