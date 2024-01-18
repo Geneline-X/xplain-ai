@@ -70,6 +70,16 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
 
+    // Perform your database operations here
+    const createMessage = await db.message.create({
+      data: {
+        text: message,
+          isUserMessage: true,
+          userId,
+          fileId,
+      }
+    })
+
     /// nlp part of the app //////
 
     ///// vectorize the incoming message ////
@@ -160,9 +170,9 @@ export const POST = async(req: NextRequest) => {
             controller.close();
 
               // Initialize the queue with the message data
-             messageQueue.push({ message, text, userId, fileId });
+             //messageQueue.push({ message, text, userId, fileId });
             // Process the message queue after returning the streaming response
-            processQueue();
+            //processQueue();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
@@ -170,6 +180,22 @@ export const POST = async(req: NextRequest) => {
         },
       })
 
+           // Wait for the streaming to finish before proceeding with database operations
+            await new Promise<void>((resolve) => {
+              responseStream.getReader().read().then(({ done }) => {
+                if (done) {
+                  resolve();
+                }
+              });
+            });
+              const streamMessage = await db.message.create({
+                data: {
+                    text,
+                    isUserMessage: false,
+                    fileId,
+                    userId,
+                }
+              })
             // Return the streaming response immediately
             return new StreamingTextResponse(responseStream);
           
