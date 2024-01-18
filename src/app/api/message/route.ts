@@ -171,6 +171,7 @@ export const POST = async(req: NextRequest) => {
         },
       })
 
+        const streamResponse = new StreamingTextResponse(responseStream);
            // Wait for the streaming to finish before proceeding with database operations
             // await new Promise<void>((resolve) => {
             //   responseStream.getReader().read().then(({ done }) => {
@@ -197,7 +198,8 @@ export const POST = async(req: NextRequest) => {
                 }
               })
             // Return the streaming response immediately
-            return new StreamingTextResponse(responseStream);
+            
+            return streamResponse
           
   } catch (error) {
     console.log(error)
