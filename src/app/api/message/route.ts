@@ -173,12 +173,12 @@ export const POST = async(req: NextRequest) => {
               controller.enqueue(chunk.text());
                text += chunk.text() 
               
-               const updateStream = await db.message.update({
+                await db.message.update({
                 where: {
                   id: messageId
                 }, 
                 data: {
-                  text: {set: text }}
+                  text: {concat: text } as any}
               })
 
             }
