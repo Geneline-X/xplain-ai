@@ -69,7 +69,14 @@ export const POST = async(req: NextRequest) => {
     })
 
     if(!file) return new Response("NotFound", {status: 404})
-
+    const createMessage = await db.message.create({
+          data: {
+            text: message,
+              isUserMessage: true,
+              userId,
+              fileId,
+          }
+          })
 
     /// nlp part of the app //////
 
@@ -149,56 +156,48 @@ export const POST = async(req: NextRequest) => {
        const resultFromChat = await chat.sendMessageStream(msg);
       
       let text = ''
+      const streamMessage = await db.message.create({
+        data: {
+            text: "",
+            isUserMessage: false,
+            fileId,
+            userId,
+        }
+      })
+      const messageId = streamMessage.id
       const responseStream = new ReadableStream({
         async start(controller:any) {
           try {
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
-              // Store each chunk in the array
-               text += chunk.text()
+               text += chunk.text() 
+              
+               const updateStream = await db.message.update({
+                where: {
+                  id: messageId
+                }, 
+                data: {
+                  text: {set: text }}
+              })
+
             }
                 console.log("this is the text generated ", text)
             controller.close();
 
               // Initialize the queue with the message data
-             messageQueue.push({ message, text, userId, fileId });
+             //messageQueue.push({ message, text, userId, fileId });
             // Process the message queue after returning the streaming response
-            processQueue();
+            //processQueue();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
           }
         },
       })
-
         const streamResponse = new StreamingTextResponse(responseStream);
-           // Wait for the streaming to finish before proceeding with database operations
-            // await new Promise<void>((resolve) => {
-            //   responseStream.getReader().read().then(({ done }) => {
-            //     if (done) {
-            //       resolve();
-            //     }
-            //   });
-            // });
-            // Perform your database operations here
-              // const createMessage = await db.message.create({
-              //   data: {
-              //     text: message,
-              //       isUserMessage: true,
-              //       userId,
-              //       fileId,
-              //   }
-              // })
-              // const streamMessage = await db.message.create({
-              //   data: {
-              //       text,
-              //       isUserMessage: false,
-              //       fileId,
-              //       userId,
-              //   }
-              // })
+
             // Return the streaming response immediately
-            return streamResponse
+        return streamResponse
           
   } catch (error) {
     console.log(error)
