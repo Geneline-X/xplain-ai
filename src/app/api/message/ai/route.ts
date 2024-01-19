@@ -35,7 +35,7 @@ export const POST = async(req: NextRequest) => {
               fileId,
           }
     })
-    return new Response(JSON.stringify({message:"AI message inserted"}), {status: 201})
+    return new Response(JSON.stringify({message:"AI message inserted"}), {status: 200})
  
           
   } catch (error) {

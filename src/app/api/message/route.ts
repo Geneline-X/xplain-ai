@@ -71,7 +71,7 @@ export const POST = async(req: NextRequest) => {
     })
 
     if(!file) return new Response("NotFound", {status: 404})
-    
+
     
     /// nlp part of the app //////
 
@@ -150,7 +150,7 @@ export const POST = async(req: NextRequest) => {
        //   const msg = `how to add`;
        const resultFromChat = await chat.sendMessageStream(msg);
       
-      let text = ''
+      // let text = ''
           // Perform your database operations here
           const createMessage = await db.message.create({
             data: {
@@ -160,14 +160,14 @@ export const POST = async(req: NextRequest) => {
                 fileId,
             }
           })
-          const streamMessage = await db.message.create({
-            data: {
-                text,
-                isUserMessage: false,
-                fileId,
-                userId,
-            }
-          })
+          // const streamMessage = await db.message.create({
+          //   data: {
+          //       text,
+          //       isUserMessage: false,
+          //       fileId,
+          //       userId,
+          //   }
+          // })
           
       const responseStream = new ReadableStream({
         async start(controller:any) {
@@ -175,14 +175,14 @@ export const POST = async(req: NextRequest) => {
             
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
-               text += chunk.text() 
+              //  text += chunk.text() 
             }
-            await db.message.update({
-              where: { id: streamMessage.id },
-              data: { text },
-            });
+            // await db.message.update({
+            //   where: { id: streamMessage.id },
+            //   data: { text },
+            // });
             
-            console.log("this is the text generated ", text)
+            // console.log("this is the text generated ", text)
             controller.close();
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
