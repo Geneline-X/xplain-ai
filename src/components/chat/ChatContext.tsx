@@ -36,6 +36,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
 
 
    const backupMessage = useRef("")
+   const completeMessage = useRef<string>("")
 
    const {mutate: sendMessage} = useMutation({
     mutationFn: async ({message}: {message: string}) => {
@@ -109,6 +110,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
                 }
             )
           }
+          completeMessage.current = accResponse
           setMessageRevertMonitor(false)
         return response.body?.getReader()
 
@@ -183,16 +185,28 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
          
           // Toast after invalidation
         return toast({
-            title: "Timeout Error",
-            description: error,
+            title: "Connection Failed",
+            description: error.message || "couldn't connect.Try again",
             variant: "destructive",
         });
     
       },
         onSettled: async() => {
             setIsLoading(false)
-                
-            await utils.getFileMessages.invalidate({fileId}) 
+            const response = await fetch("/api/message/ai", {
+                method: "POST",
+                body: JSON.stringify({
+                    fileId,
+                    message:completeMessage,
+                }),
+            })
+            if(!response.ok){
+                throw new Error("Failed to send message")
+            }else{
+                let data = await response.json()
+                console.log({ResponseData:data})
+            }
+            // await utils.getFileMessages.invalidate({fileId}) 
         }
    })
 
