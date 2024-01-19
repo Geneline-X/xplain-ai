@@ -180,11 +180,11 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
               { messages: context?.previousMessages ?? [] }
             );
           }
-
+         
           // Toast after invalidation
         return toast({
             title: "Timeout Error",
-            description: "Please try sending the message again.",
+            description: error,
             variant: "destructive",
         });
     
