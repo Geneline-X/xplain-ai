@@ -175,13 +175,13 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
      }
     },
     onError: ({error,__, context}) => {
-        if (messageRevertMonitor) {
-            // Revert local state only if there is no model response
-            utils.getFileMessages.setData(
-              { fileId },
-              { messages: context?.previousMessages ?? [] }
-            );
-          }
+        // if (messageRevertMonitor) {
+        //     // Revert local state only if there is no model response
+        //     utils.getFileMessages.setData(
+        //       { fileId },
+        //       { messages: context?.previousMessages ?? [] }
+        //     );
+        //   }
          
           // Toast after invalidation
         return toast({
