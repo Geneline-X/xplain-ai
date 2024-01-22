@@ -1,12 +1,12 @@
 "use client"
-import { ArrowRight, Menu } from 'lucide-react'
+import { ArrowRight, Gem, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 interface Props {}
 
-const MobileNav = ({ isAuth }: {isAuth: boolean}) => {
+const MobileNav = ({ isAuth, isSubscribed }: {isAuth: boolean, isSubscribed: boolean}) => {
 
     const [isOpen, setOpen] = useState<boolean>(false)
 
@@ -76,13 +76,32 @@ const MobileNav = ({ isAuth }: {isAuth: boolean}) => {
                                Dashboard 
                             </Link>
                         </li>
+                        {!isSubscribed ? (
+                            <>
+                                <li className='my-3 h-px w-full bg-gray-300' />
+                                <li>
+                                <Link href='/pricing' className='flex items-center w-full font-semibold'>
+                                    Upgrade <Gem className='text-orange-600 h-4 w-4 ml-1.5' />
+                                </Link>
+                                </li>
+                            </>
+                        ) : (
+                            <>
+                            <li className='my-3 h-px w-full bg-gray-300' />
+                            <li>
+                                <Link href='/dashboard/billing'>
+                                    Manage Subscription
+                                </Link>
+                            </li>
+                         </>
+                        )}
                         <li className='my-3 h-px w-full bg-gray-300'/>
                         <li>
                             <Link 
                             href='/sign-out'
                             className='flex items-center w-full font-semibold'
                             >
-                               Sign out 
+                               Sign out
                             </Link>
                         </li>
                       </>

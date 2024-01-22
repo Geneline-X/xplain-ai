@@ -1,15 +1,53 @@
+"use client"
 import { cn } from '@/lib/utils'
 import { ExtendedMessage } from '@/types/message'
 import React, { forwardRef } from 'react'
 import { Icons } from '../Icons'
 import ReactMarkdown from "react-markdown"
 import { format } from 'date-fns'
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose other styles as well
+import rehypeRaw from 'rehype-raw';
+import { Copy } from 'lucide-react'
+import remarkGfm from 'remark-gfm';
+
+// const renderers = {
+//   code: ({ language='python', value }:any) => {
+//     return (
+//       <SyntaxHighlighter language={language} style={dark}>
+//         {value}
+//       </SyntaxHighlighter>
+//     );
+//   },
+// };
+
+// const processMessage = (message:string) => {
+//   const processedHtml = remark()
+//     .use(remarkGfm)
+//     .use(rehypeHighlight)
+//     .processSync(message)
+//     .toString();
+
+//   return processedHtml;
+// };
+
 interface MessageProps {
     message: ExtendedMessage
     isNextMesageSamePerson: boolean
 }
 
 const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesageSamePerson}, ref) => {
+  
+  const [isCopied, setIsCopied] = useState(false);
+
+
+  const handleCopy = () => {
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 1500); // Reset the copy state after 1.5 seconds
+  };
+
   return (
   <div ref={ref} className={cn('flex items-end', {
     "justify-end": message.isUserMessage
@@ -38,19 +76,46 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
            {typeof message.text === "string" ? (
             <ReactMarkdown className={cn("prose", {
                 "text-zinc-50": message.isUserMessage
-               })}>
+               })} 
+               remarkPlugins={[remarkGfm]}
+               components={{
+                a: ({ node, ...props }) => (
+                  <a {...props} className="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                    {props.children}
+                  </a>
+                ),
+                
+                }}
+               >
                  {message.text}
                </ReactMarkdown>
            ): (
             message.text
            )}
-           {message.id !== 'loadieng-message' ? (
+           {message.id !== 'loading-message' ? (
+            <>
             <div className={cn("text-xs select-none mt-2 w-full txt-right", {
                 "text-zinc-500": !message.isUserMessage,
                 "text-orange-300": message.isUserMessage,
             })}>
                 {format(new Date(message.createAt), "HH:mm")}
             </div>
+            <div className='flex justify-end'>
+              <CopyToClipboard text={message.text as string} onCopy={handleCopy}>
+                <button className={cn('text-xs flex cursor-pointer focus:outline-none',{
+                  "text-orange-500":!message.isUserMessage,
+                  "text-zinc-100": message.isUserMessage,
+                })}>
+                  {isCopied ? 'Copied!' : (
+                  <>
+                    <Copy className='mr-2 w-4 h-4'/>Copy
+                  </>
+                  )}
+                </button>
+              </CopyToClipboard>
+            </div>
+            </>
+            
            ): null}
         </div>
     </div>

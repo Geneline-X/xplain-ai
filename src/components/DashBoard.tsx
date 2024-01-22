@@ -9,11 +9,8 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { Button } from './ui/button'
 import { useSearchParams } from 'next/navigation'
-import SSE from 'sse'
-import io from 'socket.io-client';
-import useSocket from '@/lib/hooks/useSocket'
 import { getUserSubscriptionPlan } from '@/lib/stripe'
-
+import MobileUploadButton from './MobileUploadButton'
 interface PageProps{
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
 }
@@ -44,7 +41,15 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
           <h1 className='mt-3 font-bold text-5xl text-gray-900'>
             My Files
           </h1>
-          <UploadButton isSubscribed={subscriptionPlan.isSubscribed}/>
+          {/* Display MobileUploadButton only on small screens */}
+          <div className="flex sm:hidden items-center justify-center">
+            <MobileUploadButton isSubscribed={subscriptionPlan.isSubscribed} />
+          </div>
+
+          {/* Display UploadButton on larger screens */}
+          <div className="hidden sm:block">
+            <UploadButton isSubscribed={subscriptionPlan.isSubscribed} />
+          </div>
        </div>
 
        {/* display all user first */}

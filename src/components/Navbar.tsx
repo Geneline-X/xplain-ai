@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import UserAccountNav from './UserAccountNav'
 import MobileNav from './MobileNav'
+import { getUserSubscriptionPlan } from '@/lib/stripe'
 
 interface Props {}
 
@@ -14,6 +15,7 @@ const Navbar = async() => {
 
   const { getUser } = getKindeServerSession()
   const user = await getUser()
+  const subscriptionPlan = await getUserSubscriptionPlan()
   return (
     <nav className='sticky h-14 inset-x-0 top-0 z-30 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all'>
       <MaxWidthWrapper>
@@ -23,8 +25,8 @@ const Navbar = async() => {
           <div className='flex items-center space-x-2'>
             <Image
               src="/logo-pic.jpg"
-              width={50}
-              height={50}
+              width={40}
+              height={40}
               alt="Logo"
               quality={100}
               className='rounded-full'
@@ -37,7 +39,7 @@ const Navbar = async() => {
             
 
             {/* todo: add mobile navbar */}
-            <MobileNav isAuth={!!user}/>
+            <MobileNav isAuth={!!user} isSubscribed={subscriptionPlan.isSubscribed}/>
             <div className='hidden items-center space-x-4 sm:flex'>
                 
                 {!user ?<>
@@ -59,7 +61,7 @@ const Navbar = async() => {
                     size: "sm"
                    })}>Dashboard</Link>
                    <UserAccountNav 
-                    name={!user.given_name || user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
+                    name={!user.given_name || !user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
                     email={user.email ?? ""}
                     imageUrl={user.picture ?? ""}
                    />

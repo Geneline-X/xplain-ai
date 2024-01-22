@@ -23,6 +23,7 @@ export const appRouter = router({
     const user = await getUser()
     if(!user?.id || !user?.email){
         throw new TRPCError({code: "UNAUTHORIZED"})
+        
     }
 
     // Check in the database
@@ -69,8 +70,6 @@ export const appRouter = router({
   createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
     const { userId } = ctx
 
-    const billingUrl = absoluteUrl("/dashboard/billing")
-
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
 
     const dbUser = await db.user.findFirst({
@@ -85,7 +84,7 @@ export const appRouter = router({
     const subscriptionPlan = await getUserSubscriptionPlan()
 
     console.log("this is the subscription plan ",subscriptionPlan)
-    if (!subscriptionPlan.isSubscribed && !dbUser.monimeCustomerId) {
+    if (!subscriptionPlan.isSubscribed) {
         // Use Monime API to create a checkout session
          try {
             const idempotencyKey = v4();
@@ -106,8 +105,8 @@ export const appRouter = router({
                       "value": "100"
                     }
                   },
-                  cancelUrl:  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/pricing?status=cancel`: `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
-                  receiptUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/dashboard?status=success`: `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
+                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
+                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
                 }),
               });
 

@@ -71,8 +71,6 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                 })
             }
 
-
-
             clearInterval(progressInterval)
             setUploadProgress(100)
 
@@ -131,9 +129,16 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
         </DropZone>
     )
 }
+
+interface MobileUploadButtonProps {
+  isSubscribed: boolean;
+}
+
+
 const UploadButton = ({isSubscribed}: {isSubscribed:boolean}) => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={(v) => {
         if(!v){
             setIsOpen(v)
@@ -147,6 +152,8 @@ const UploadButton = ({isSubscribed}: {isSubscribed:boolean}) => {
             <UploadDropzone isSubscribed={isSubscribed}/>
         </DialogContent>
     </Dialog>
+
+  </>
   )
 }
 

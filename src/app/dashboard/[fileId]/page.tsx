@@ -20,7 +20,7 @@ const Page = async({params}: PageProps) => {
 
     const user = await getUser()
     if(!user || !user.id) {
-        redirect(`/auth-callback?origin=dashboard/${fileId}`)
+       return redirect(`/auth-callback?origin=dashboard/${fileId}`)
     }
 
     //// make database call ///
@@ -43,7 +43,7 @@ const Page = async({params}: PageProps) => {
           </div>
        </div>
 
-       <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
+       <div className="shrink-0 flex-[0.85] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
          <ChatWrapper fileId={file.id}/>
        </div>
      </div>
