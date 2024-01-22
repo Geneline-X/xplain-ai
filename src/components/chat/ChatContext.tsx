@@ -40,6 +40,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
 
    const {mutate: sendMessage} = useMutation({
     mutationFn: async ({message}: {message: string}) => {
+
         const response = await fetch("/api/message", {
             method: "POST",
             body: JSON.stringify({
@@ -70,16 +71,18 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
                 (old) => {
                   if(!old) return {pages: [], pageParams: []}
 
-                  let isAiResponseCreated = old.pages.some((page) => page.messages.some((message) => message.id === "ai-response"))
+                  let isAiResponseCreated = old.pages.some((page) => page.messages.some((message) => message.id.startsWith("ai-response")))
                   let updatedPages = old.pages.map((page) => {
                     if(page === old.pages[0]){
                         let updatedMessages
 
                         if(!isAiResponseCreated){
+                            const aiResponseId = `ai-response-${new Date().toISOString()}`;
+
                            updatedMessages = [
                             {
                                 createAt: new Date().toISOString(),
-                                id: "ai-response",
+                                id: aiResponseId,
                                 text: accResponse,
                                 isUserMessage: false
                             },
@@ -87,7 +90,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
                            ]
                         } else {
                             updatedMessages = page.messages.map((message) => {
-                                if(message.id === "ai-response"){
+                                if(message.id.startsWith("ai-response")){
                                     return {
                                         ...message,
                                         text: accResponse
@@ -110,9 +113,11 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
                 }
             )
           }
-          completeMessage.current = accResponse
+          
           setMessageRevertMonitor(false)
-        return response.body?.getReader()
+
+         
+         return response.body?.getReader()
 
     },
     ///// optimistic updates ///
@@ -126,6 +131,9 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         //// step 2 ////
         const prevoiusMessage = utils.getFileMessages.getInfiniteData()
           
+        // Generate a unique ID for the user message outside the optimistic update
+        const userMessageId = `user-message-${new Date().toISOString()}`;
+
       //// step 3 /////
       utils.getFileMessages.setInfiniteData(
         {fileId, limit: INFINITE_QUERY_LIMIT},
@@ -144,7 +152,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
            latestPages.messages = [
             {
                 createAt: new Date().toISOString(),
-                id: crypto.randomUUID(),
+                id: userMessageId,
                 text: message,
                 isUserMessage: true
             },
@@ -165,7 +173,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         }
     },
     onSuccess: async(stream) => {
-     setIsLoading(false)
+     
      if(!stream){
         return toast({
             title: "There was a problem sending this message",
@@ -173,16 +181,16 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
             variant: "destructive"
         })
      }
+      
+     
     },
     onError: ({error,__, context}) => {
-        // if (messageRevertMonitor) {
-        //     // Revert local state only if there is no model response
-        //     utils.getFileMessages.setData(
-        //       { fileId },
-        //       { messages: context?.previousMessages ?? [] }
-        //     );
-        //   }
+        setIsLoading(false)
          
+          utils.getFileMessages.setData(
+            { fileId },
+            { messages: context?.previousMessages ?? [] }
+          );
           // Toast after invalidation
         return toast({
             title: "Connection Failed",
@@ -192,21 +200,10 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
     
       },
         onSettled: async() => {
-            setIsLoading(false)
-            const response = await fetch("/api/message/ai", {
-                method: "POST",
-                body: JSON.stringify({
-                    fileId,
-                    message:completeMessage,
-                }),
-            })
-            if(!response.ok){
-                throw new Error("Failed to send message")
-            }else{
-                let data = await response.json()
-                console.log({ResponseData:data})
-            }
-            // await utils.getFileMessages.invalidate({fileId}) 
+            console.log('onSettled is called');
+            setIsLoading(false);
+            await utils.getFileMessages.invalidate({ fileId });
+            console.log('invalidate is done');
         }
    })
 

@@ -61,7 +61,7 @@ const Navbar = async() => {
                     size: "sm"
                    })}>Dashboard</Link>
                    <UserAccountNav 
-                    name={!user.given_name || user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
+                    name={!user.given_name || !user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
                     email={user.email ?? ""}
                     imageUrl={user.picture ?? ""}
                    />

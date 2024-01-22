@@ -14,27 +14,6 @@ const ChatInput = ({isDisabled} : ChatInputProps) => {
 
     const { addMessage, handleInputChange, isLoading, message} = useContext(ChatContex)
 
-    // useEffect(() => {
-    //   // Establish a WebSocket connection
-    //   const socket = new WebSocket('ws://localhost:8082'); // Update with your server details
-  
-    //   // Add event listener for WebSocket messages
-    //   socket.addEventListener('message', (event) => {
-    //     const data = JSON.parse(event.data);
-  
-    //     // Handle the WebSocket message data
-    //     console.log('Received WebSocket message:', data);
-  
-    //     // Update your context state with the received message
-       
-    //   });
-  
-    //   return () => {
-    //     // Close the WebSocket connection when the component unmounts
-    //     socket.close();
-    //   };
-    // }, [])
-
   
     const textareaRef = useRef<HTMLTextAreaElement>(null)
   return (
@@ -50,6 +29,7 @@ const ChatInput = ({isDisabled} : ChatInputProps) => {
                     onChange={handleInputChange}
                     value={message}
                     maxRows={4}
+                    disabled={isLoading || isDisabled}
                     autoFocus
                     onKeyDown={(e) => {
                         if(e.key === "Enter" && !e.shiftKey){

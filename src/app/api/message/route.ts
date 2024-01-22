@@ -7,51 +7,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
-import { setBackgroundCompleted } from "@/lib/utils";
+import { getCachedOrFetchBlob } from "@/lib/utils";
 
-const messageQueue: Array<{
-    message: string;
-    text: string;
-    userId: string;
-    fileId: string;
-  }> = [];
-
-  async function processQueue() {
-  while (messageQueue.length > 0) {
-    const { message, text, userId, fileId } = messageQueue.shift()!;
-    try {
-      // Perform your database operations here
-      const createMessage = await db.message.create({
-        data: {
-          text: message,
-            isUserMessage: true,
-            userId,
-            fileId,
-        }
-      })
-      const streamMessage = await db.message.create({
-        data: {
-            text,
-            isUserMessage: false,
-            fileId,
-            userId,
-        }
-      })
-     
-    } catch (error) {
-      console.error('Error in background processing:', error);
-      /// adding a retry if this operation fail ////
-    }
-  }
-}
-
-  // Initialize the queue with the message data
-  //messageQueue.push({ message, text, userId, fileId });
-  // Process the message queue after returning the streaming response        
- //processQueue();
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
   try {
+
     const body = await req.json()
     const { getUser } = getKindeServerSession()
     const user = await  getUser()
@@ -72,6 +33,18 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
 
+    const createMessage = await db.message.create({
+      data: {
+        text: message,
+          isUserMessage: true,
+          userId,
+          fileId,
+      }
+    })
+
+    const blob = await getCachedOrFetchBlob(
+      `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
+    );
     
     /// nlp part of the app //////
 
@@ -120,11 +93,12 @@ export const POST = async(req: NextRequest) => {
             },
         });
 
-        const responseBlob = await fetch(
-            `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
-          );
-        const blob = await responseBlob.blob();
-  
+        // const response = await fetch(
+        //     `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
+        //   );
+        //   const blob = await response.blob()
+          
+        
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
 
@@ -150,49 +124,41 @@ export const POST = async(req: NextRequest) => {
        //   const msg = `how to add`;
        const resultFromChat = await chat.sendMessageStream(msg);
       
-      // let text = ''
+      let text = ''
           // Perform your database operations here
-          const createMessage = await db.message.create({
-            data: {
-              text: message,
-                isUserMessage: true,
-                userId,
-                fileId,
-            }
-          })
-          // const streamMessage = await db.message.create({
-          //   data: {
-          //       text,
-          //       isUserMessage: false,
-          //       fileId,
-          //       userId,
-          //   }
-          // })
-          
+         
       const responseStream = new ReadableStream({
         async start(controller:any) {
           try {
             
             for await (const chunk of resultFromChat.stream) {
               controller.enqueue(chunk.text());
-              //  text += chunk.text() 
+               text += chunk.text() 
             }
-            // await db.message.update({
-            //   where: { id: streamMessage.id },
-            //   data: { text },
-            // });
+            const streamMessage = await db.message.create({
+              data: {
+                  text,
+                  isUserMessage: false,
+                  fileId,
+                  userId,
+              }
+            })
             
             // console.log("this is the text generated ", text)
             controller.close();
+
+           
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
             controller.error(error);
           }
         },
       })    
-        const streamResponse = new StreamingTextResponse(responseStream);
-            // Return the streaming response immediately
-        return  streamResponse
+
+
+    
+      return  new StreamingTextResponse(responseStream);
+            // Return the streaming response immediately     
           
   } catch (error) {
     console.log(error)
