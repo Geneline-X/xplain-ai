@@ -17,7 +17,7 @@ export default function Home() {
         Chat with your <span className="text-orange-600">documents</span> in seconds
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-        Cph allows you to have converstaions with any PDF document. Simply upload your file and start asking questions right away.
+        CPH allows you to have converstaions with any PDF document. Simply upload your file and start asking questions right away.
       </p>
 
       <Link className={buttonVariants({
