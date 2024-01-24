@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Providers from '@/components/Providers'
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "react-loading-skeleton/dist/skeleton.css"
 import "simplebar-react/dist/simplebar.min.css"
 
