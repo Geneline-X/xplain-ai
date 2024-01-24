@@ -182,8 +182,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         })
      }
       
-     await utils.getFileMessages.invalidate({ fileId });
-           
+          
     },
     onError: ({error,__, context}) => {
         setIsLoading(false)
