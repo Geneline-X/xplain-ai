@@ -102,7 +102,7 @@ export const appRouter = router({
                   bulk: {
                     amount: {
                       "currency": "SLE",
-                      "value": "100"
+                      "value": "1000"
                     }
                   },
                   cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,

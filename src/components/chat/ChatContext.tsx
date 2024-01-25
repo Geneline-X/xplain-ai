@@ -52,72 +52,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
             throw new Error("Failed to send message")
         }
 
-        const decoder =  new TextDecoder()
-        const reader = response?.body?.getReader();
-        let accResponse = ''
-        while (true) {
-            const obj = await reader?.read();
-            if (obj?.done) {
-              break;
-            }
-            // Process the chunk (value) received from the server
-            const chunkValue = decoder.decode(obj?.value);
-            accResponse += chunkValue
-            console.log("This is stream chuck message", accResponse)
-
-            //// append chunck to message ////
-            utils.getFileMessages.setInfiniteData(
-                {fileId, limit: INFINITE_QUERY_LIMIT},
-                (old) => {
-                  if(!old) return {pages: [], pageParams: []}
-
-                  let isAiResponseCreated = old.pages.some((page) => page.messages.some((message) => message.id.startsWith("ai-response")))
-                  let updatedPages = old.pages.map((page) => {
-                    if(page === old.pages[0]){
-                        let updatedMessages
-
-                        if(!isAiResponseCreated){
-                            const aiResponseId = `ai-response-${new Date().toISOString()}`;
-
-                           updatedMessages = [
-                            {
-                                createAt: new Date().toISOString(),
-                                id: aiResponseId,
-                                text: accResponse,
-                                isUserMessage: false
-                            },
-                            ...page.messages
-                           ]
-                        } else {
-                            updatedMessages = page.messages.map((message) => {
-                                if(message.id.startsWith("ai-response")){
-                                    return {
-                                        ...message,
-                                        text: accResponse
-                                    }
-                                }
-                                return message
-                            })
-                        }
-
-                        return {
-                            ...page,
-                            messages: updatedMessages
-                        }
-                        
-                    }
-                    return page
-                  })
-
-                  return {...old, pages: updatedPages}
-                }
-            )
-          }
-          
-          setMessageRevertMonitor(false)
-
-         
-         return response.body?.getReader()
+         return response.body
 
     },
     ///// optimistic updates ///
@@ -131,9 +66,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         //// step 2 ////
         const prevoiusMessage = utils.getFileMessages.getInfiniteData()
           
-        // Generate a unique ID for the user message outside the optimistic update
-        const userMessageId = `user-message-${new Date().toISOString()}`;
-
+       
       //// step 3 /////
       utils.getFileMessages.setInfiniteData(
         {fileId, limit: INFINITE_QUERY_LIMIT},
@@ -152,7 +85,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
            latestPages.messages = [
             {
                 createAt: new Date().toISOString(),
-                id: userMessageId,
+                id: crypto.randomUUID(),
                 text: message,
                 isUserMessage: true
             },
@@ -181,29 +114,83 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
             variant: "destructive"
         })
      }
-      
-     
-    },
-    onError: ({error,__, context}) => {
+
+     const reader = stream.getReader()
+     const decoder = new TextDecoder()
+     let done = false
+
+     //accumulated response
+     let accResponse = ""
+
+     while(!done){
+        const { value, done:doneReading } = await reader.read()
+        done = doneReading
+        const chunckValue = decoder.decode(value)
+
+        accResponse += chunckValue
+
+        /// append chunck to the actual message /////
+        utils.getFileMessages.setInfiniteData({fileId, limit: INFINITE_QUERY_LIMIT}, 
+            (old:any) => {
+              if(!old) return { pages: [], pageParams: []}
+            
+              let isAiResponseCreated = old.pages.some((page:any) => page.messages.some((message:any) => message.id === 'ai-response'))
+              let updatedPages = old.pages.map((page:any) => {
+                if(page === old.pages[0]){
+                    let updatedMessages 
+                    if(!isAiResponseCreated){
+                        updatedMessages = [
+                            {
+                                creatAt: new Date().toISOString(),
+                                id:'ai-response',
+                                text:accResponse,
+                                isUserMessage: false
+                            },
+                            ...page.messages
+                        ]
+                    } else{
+                        updatedMessages = page.messages.map((message:any) => {
+                            if(message.id === 'ai-response'){
+                                return {
+                                    ...message,
+                                    text: accResponse
+                                }
+                            }
+                            return message
+                        }
+                      )
+                    }
+
+                    return {
+                        ...page,
+                        messages: updatedMessages
+                    }
+                }
+                return page
+              }
+             )
+             return {...old, pages: updatedPages}
+            }
+        )
+    }  
+    
+    setIsLoading(false)
+},
+    onError: ({_,__, context}) => {
         setIsLoading(false)
-         
+         setMessage(backupMessage.current)
           utils.getFileMessages.setData(
             { fileId },
             { messages: context?.previousMessages ?? [] }
           );
-          // Toast after invalidation
-        return toast({
-            title: "Connection Failed",
-            description: error.message || "couldn't connect.Try again",
-            variant: "destructive",
-        });
+       
     
       },
         onSettled: async() => {
-            console.log('onSettled is called');
+          
             setIsLoading(false);
             await utils.getFileMessages.invalidate({ fileId });
-            console.log('invalidate is done');
+           
         }
    })
 

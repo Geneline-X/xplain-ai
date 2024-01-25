@@ -98,7 +98,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
                 "text-zinc-500": !message.isUserMessage,
                 "text-orange-300": message.isUserMessage,
             })}>
-                {format(new Date(message.createAt), "HH:mm")}
+                {format(new Date(), "HH:mm")}
             </div>
             <div className='flex justify-end'>
               <CopyToClipboard text={message.text as string} onCopy={handleCopy}>

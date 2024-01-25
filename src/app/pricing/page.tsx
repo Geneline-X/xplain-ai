@@ -18,11 +18,11 @@ const pricingItems = [
     quota: 10,
     features: [
       {
-        text: '5 pages per PDF',
+        text: '25 pages per PDF',
         footnote: 'The maximum amount of pages per PDF-file.',
       },
       {
-        text: '4MB file size limit',
+        text: '32MB file size limit',
         footnote: 'The maximum file size of a single PDF file.',
       },
       {
@@ -45,11 +45,11 @@ const pricingItems = [
     quota: PLANS.find((p) => p.slug === 'pro')!.quota,
     features: [
       {
-        text: '25 pages per PDF',
+        text: 'Infinte pages per PDF',
         footnote: 'The maximum amount of pages per PDF-file.',
       },
       {
-        text: '16MB file size limit',
+        text: '1Gb file size limit',
         footnote: 'The maximum file size of a single PDF file.',
       },
       {

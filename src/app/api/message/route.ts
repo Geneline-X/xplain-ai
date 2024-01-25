@@ -84,21 +84,37 @@ export const POST = async(req: NextRequest) => {
       });
 
        // Start the chat with the user's prompt
-      let chat = llm.startChat({
-        history: [
-            ...formattedPrevMessages,
-         ],
-            generationConfig: {
-                maxOutputTokens: 2048,
+       let chat
+       if(formattedPrevMessages.length === 0){
+        chat = llm.startChat({
+          history: [
+            {
+              role: "user",
+              parts: "Hello, I want to chat with you.",
             },
-        });
-
-        // const response = await fetch(
-        //     `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
-        //   );
-        //   const blob = await response.blob()
+            {
+              role: "model",
+              parts: "Great to meet you. What would you like to know?",
+            },
+            {
+              role: "user",
+              parts: "Hello, I want to chat with you.",
+            },
+           ],
+              generationConfig: {
+                  maxOutputTokens: 2048,
+              },
+          });
+       }else{
+        chat = llm.startChat({
           
-        
+              generationConfig: {
+                  maxOutputTokens: 2048,
+              },
+          });
+       }
+       
+
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
 
