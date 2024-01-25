@@ -140,7 +140,7 @@ export const ourFileRouter: FileRouter = {
   freePlanUploader: f({ pdf: { maxFileSize: "4MB" } })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),
-  proPlanUploader: f({ pdf: { maxFileSize: "32MB" } })
+  proPlanUploader: f({ pdf: { maxFileSize: "1GB" } })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),
 };

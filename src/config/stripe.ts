@@ -15,10 +15,10 @@ export const PLANS = [
     {
         name: "Pro",
         slug: "pro",
-        quota: 50,
-        pagesPerPdf: 100,
+        quota: 500,
+        pagesPerPdf: 10000000,
         price: {
-            amount: 1,
+            amount: 10,
             priceIds: {
                 test: "ssafsa", //// put the pricing key from stripe
                 production: ""
