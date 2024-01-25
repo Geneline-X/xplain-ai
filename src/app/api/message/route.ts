@@ -61,7 +61,7 @@ export const POST = async(req: NextRequest) => {
     const result = await model.embedContent(message);
     const messageEmbedding = result.embedding.values;
 
-    const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 4,vector: messageEmbedding, includeValues:true})
+    const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true})
 
     const llm = genAI.getGenerativeModel({model: "gemini-pro"})
 
