@@ -59,7 +59,7 @@ const ChatWrapper = ({fileId}:ChatWrapperProps) => {
           <XCircle className='h-8 w-8 text-red-500'/>
           <h3 className='font-semibold text-xl'>Too many pages in PDF...</h3>
           <p className='text-zinc-500 text-sm'>
-            Your <span className="font-medium">Free</span> plan supports up to 5 pages per PDF.
+            Your <span className="font-medium">Free</span> plan supports up to 25 pages per PDF.
           </p>
           <Link href='/dashboard' className={buttonVariants({
             variant: "secondary",
