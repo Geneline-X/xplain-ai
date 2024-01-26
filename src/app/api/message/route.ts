@@ -9,6 +9,8 @@ import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
 
+export const maxDuration = 60
+
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
   try {
