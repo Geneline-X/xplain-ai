@@ -35,15 +35,6 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
 
-    const createMessage = await db.message.create({
-      data: {
-        text: message,
-          isUserMessage: true,
-          userId,
-          fileId,
-      }
-    })
-
     const blob = await getCachedOrFetchBlob(
       `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
     );
@@ -54,9 +45,9 @@ export const POST = async(req: NextRequest) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const pinecone = new Pinecone({
         apiKey: process.env.PINECONE_API_KEY!,
-        environment: 'gcp-starter',
+        environment: 'us-west-2',
     })
-    const pineconeIndex = pinecone.Index("cph");
+    const pineconeIndex = pinecone.Index("cph-serverless");
 
     const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
@@ -144,6 +135,14 @@ export const POST = async(req: NextRequest) => {
        //   const msg = `how to add`;
        const resultFromChat = await chat.sendMessageStream(msg);
       
+       const createMessage = await db.message.create({
+            data: {
+              text: message,
+                isUserMessage: true,
+                userId,
+                fileId,
+            }
+         })
       let text = ''
           // Perform your database operations here
          

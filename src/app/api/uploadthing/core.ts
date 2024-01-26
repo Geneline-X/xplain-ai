@@ -2,11 +2,8 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { db } from "@/db";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { getPineconeClient } from "../../../lib/pinecone";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai"
-import { Pinecone, PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe"
 import {PLANS} from "@/config/stripe"
 ///// maybe i will add redis and bull for quick response ////
@@ -82,9 +79,9 @@ const onUploadComplete = async({metadata, file}: {
 
     const pinecone = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY!,
-       environment: 'gcp-starter',
+       environment: 'us-west-2',
     })
-    const pineconeIndex = pinecone.Index("cph");
+    const pineconeIndex = pinecone.Index("cph-serverless");
 
     // Vectorize and index the entire documents using gemini /////
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
