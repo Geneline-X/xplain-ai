@@ -125,17 +125,20 @@ export const POST = async(req: NextRequest) => {
         });
 
             // Search for corresponding pages in the PDFLoader
-        const pageContents = pageNumbers.map((pageNumber) => {
-            if (pageNumber !== null && pageNumber >= 0 && pageNumber < pageLevelDocs.length) {
-            return pageLevelDocs[pageNumber].pageContent // Assuming getText() method to get text content from the page
-            }
-            return null;
-        });
+        // const pageContents = pageNumbers.map((pageNumber) => {
+        //     if (pageNumber !== null && pageNumber >= 0 && pageNumber < pageLevelDocs.length) {
+        //     return pageLevelDocs[pageNumber].pageContent // Assuming getText() method to get text content from the page
+        //     }
+        //     return null;
+        // });
 
-        const context = pageContents.filter((content) => content !== null).join('\n\n');
+        // const context = pageContents.filter((content) => content !== null).join('\n\n');
 
+        // Get the text content from all pages and concatenate them
+          const allPageContents = pageLevelDocs.flatMap((page) => page.pageContent); // Assuming getText() method to get text content from the page
+          const context = allPageContents.join('\n\n');
 
-        const msg = `${message} ${similarEmbeddings.matches.join("")} ${pageContents} ${context}`;
+        const msg = `${message} ${similarEmbeddings.matches.join("")} ${context}`;
    
        //   const msg = `how to add`;
        const resultFromChat = await chat.sendMessageStream(msg);
