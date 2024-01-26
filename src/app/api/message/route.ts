@@ -133,7 +133,6 @@ export const POST = async(req: NextRequest) => {
         // });
 
         // const context = pageContents.filter((content) => content !== null).join('\n\n');
-
         // Get the text content from all pages and concatenate them
           const allPageContents = pageLevelDocs.flatMap((page) => page.pageContent); // Assuming getText() method to get text content from the page
           const context = allPageContents.join('\n\n');
