@@ -120,7 +120,14 @@ export const POST = async(req: NextRequest) => {
        //   const msg = `how to add`;
        const resultFromChat = await chat.sendMessageStream(msg);
       
-       
+       const createMessage = await db.message.create({
+        data: {
+          text: message,
+            isUserMessage: true,
+            userId,
+            fileId,
+        }
+     })
       let text = ''
           // Perform your database operations here
          
@@ -132,14 +139,7 @@ export const POST = async(req: NextRequest) => {
               controller.enqueue(chunk.text());
                text += chunk.text() 
             }
-            const createMessage = await db.message.create({
-              data: {
-                text: message,
-                  isUserMessage: true,
-                  userId,
-                  fileId,
-              }
-           })
+            
             const streamMessage = await db.message.create({
               data: {
                   text,
