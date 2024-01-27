@@ -90,27 +90,13 @@ export const POST = async(req: NextRequest) => {
        let chat
        if(formattedPrevMessages.length === 0){
         chat = llm.startChat({
-          history: [
-            {
-              role: "user",
-              parts: "Hello, I want to chat with you.",
-            },
-            {
-              role: "model",
-              parts: "Great to meet you. What would you like to know?",
-            },
-            {
-              role: "user",
-              parts: "Hello, I want to chat with you.",
-            },
-           ],
               generationConfig: {
                   maxOutputTokens: 2048,
               },
           });
        }else{
         chat = llm.startChat({
-          
+           history: formattedPrevMessages,
               generationConfig: {
                   maxOutputTokens: 2048,
               },
