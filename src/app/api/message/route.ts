@@ -96,7 +96,7 @@ export const POST = async(req: NextRequest) => {
           });
        }else{
         chat = llm.startChat({
-           history: formattedPrevMessages,
+           
               generationConfig: {
                   maxOutputTokens: 2048,
               },
