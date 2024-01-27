@@ -9,7 +9,7 @@ import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
 
-export const maxDuration = 60
+export const maxDuration = 300
 type MessageType = {
     id: string;
     text: string;
