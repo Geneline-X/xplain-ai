@@ -10,9 +10,19 @@ import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
 
 export const maxDuration = 60
-
+type MessageType = {
+    id: string;
+    text: string;
+    isUserMessage: boolean;
+    createAt: Date;
+    updatedAt: Date;
+    userId: string | null;
+    fileId: string | null;
+}
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
+    let createMessage: MessageType | undefined = undefined;
+
   try {
 
     const body = await req.json()
@@ -123,14 +133,14 @@ export const POST = async(req: NextRequest) => {
        
       let text = ''
           // Perform your database operations here
-          const createMessage = await db.message.create({
-            data: {
-              text: message,
-                isUserMessage: true,
-                userId,
-                fileId,
-            }
-         })
+        createMessage = await db.message.create({
+          data: {
+            text: message,
+              isUserMessage: true,
+              userId,
+              fileId,
+          }
+        })
 
       const responseStream = new ReadableStream({
         async start(controller:any) {
@@ -167,6 +177,18 @@ export const POST = async(req: NextRequest) => {
           
   } catch (error) {
     console.log(error)
+     // Check if createMessage is defined before accessing its properties
+     if (createMessage) {
+      try {
+        await db.message.delete({
+            where: {
+                id: createMessage?.id
+            }
+          });
+      } catch (error) {
+        console.error("Error deleting message:", error);
+      }
+  }
     return new Response(JSON.stringify({message: error}), {status: 500})
   }
 }
