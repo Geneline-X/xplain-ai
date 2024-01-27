@@ -41,14 +41,6 @@ export const POST = async(req: NextRequest) => {
     
     /// nlp part of the app //////
 
-    const createMessage = await db.message.create({
-      data: {
-        text: message,
-          isUserMessage: true,
-          userId,
-          fileId,
-      }
-   })
     ///// vectorize the incoming message ////
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const pinecone = new Pinecone({
@@ -131,7 +123,15 @@ export const POST = async(req: NextRequest) => {
        
       let text = ''
           // Perform your database operations here
-         
+          const createMessage = await db.message.create({
+            data: {
+              text: message,
+                isUserMessage: true,
+                userId,
+                fileId,
+            }
+         })
+
       const responseStream = new ReadableStream({
         async start(controller:any) {
           try {
