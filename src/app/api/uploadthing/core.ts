@@ -3,7 +3,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { db } from "@/db";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Pinecone } from "@pinecone-database/pinecone";
+import { Pinecone } from '@pinecone-database/pinecone';
 import { getUserSubscriptionPlan } from "@/lib/stripe"
 import {PLANS} from "@/config/stripe"
 ///// maybe i will add redis and bull for quick response ////
@@ -79,9 +79,11 @@ const onUploadComplete = async({metadata, file}: {
 
     const pinecone = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY!,
-       environment: 'us-west-2',
+       environment: 'gcp-starter',
     })
-    const pineconeIndex = pinecone.Index("cph-serverless");
+
+    
+    const pineconeIndex = pinecone.Index("cph");
 
     // Vectorize and index the entire documents using gemini /////
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -98,13 +100,14 @@ const onUploadComplete = async({metadata, file}: {
 
         const pageId = `${createdFile.id}-page-${i}`;
 
-        // Upsert the embedding into Pinecone with the specified name space
-        const upsertResponse = await pineconeIndex.namespace(createdFile.id).upsert([
+        
+        const upsertResponse = await pineconeIndex.namespace(createdFile.id).upsert(
+          [
           {
             id: pageId,
             values: pageEmbedding,
-          },
-        ]);
+          }]
+        );
 
        
       })

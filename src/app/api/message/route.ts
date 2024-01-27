@@ -45,9 +45,9 @@ export const POST = async(req: NextRequest) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const pinecone = new Pinecone({
         apiKey: process.env.PINECONE_API_KEY!,
-        environment: 'us-west-2',
+        environment: 'gcp-starter',
     })
-    const pineconeIndex = pinecone.Index("cph-serverless");
+    const pineconeIndex = pinecone.Index("cph");
 
     const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
