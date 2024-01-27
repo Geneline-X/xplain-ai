@@ -88,7 +88,7 @@ export const POST = async(req: NextRequest) => {
 
        // Start the chat with the user's prompt
        let chat
-       if(formattedPrevMessages.length === 0){
+       if(prevMessages.length === 0){
         chat = llm.startChat({
           history: [
             {
