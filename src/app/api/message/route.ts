@@ -41,6 +41,14 @@ export const POST = async(req: NextRequest) => {
     
     /// nlp part of the app //////
 
+    const createMessage = await db.message.create({
+      data: {
+        text: message,
+          isUserMessage: true,
+          userId,
+          fileId,
+      }
+   })
     ///// vectorize the incoming message ////
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const pinecone = new Pinecone({
@@ -120,14 +128,7 @@ export const POST = async(req: NextRequest) => {
        //   const msg = `how to add`;
        const resultFromChat = await chat.sendMessageStream(msg);
       
-       const createMessage = await db.message.create({
-        data: {
-          text: message,
-            isUserMessage: true,
-            userId,
-            fileId,
-        }
-     })
+       
       let text = ''
           // Perform your database operations here
          
@@ -148,20 +149,19 @@ export const POST = async(req: NextRequest) => {
                   userId,
               }
             })
-            
             // console.log("this is the text generated ", text)
             controller.close();
-
-           
           } catch (error) {
             console.error("Error enqueuing chunks:", error);
+            await db.message.delete({
+              where: {
+                id: createMessage?.id
+              }
+            })
             controller.error(error);
           }
         },
       })    
-
-
-    
       return  new StreamingTextResponse(responseStream);
             // Return the streaming response immediately     
           
