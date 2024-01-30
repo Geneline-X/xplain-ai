@@ -55,9 +55,10 @@ export const POST = async(req: NextRequest) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const pinecone = new Pinecone({
         apiKey: process.env.PINECONE_API_KEY!,
-        environment: 'gcp-starter',
+        environment: 'apw5-4e34-81fa',
+        projectId: 'xon8qzk'
     })
-    const pineconeIndex = pinecone.Index("cph");
+    const pineconeIndex = pinecone.Index("cph-serverless");
 
     const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
@@ -79,10 +80,11 @@ export const POST = async(req: NextRequest) => {
         take: 6
     })
 
-   const formattedPrevMessages = prevMessages.map((msg:any) => {
+  
+   const formattedPrevMessages = prevMessages.map((msg:MessageType) => {
         return {
           role: msg.isUserMessage ? "user" : "model",
-          parts: msg.text as string,
+          parts: msg.text,
         };
       });
 
@@ -96,20 +98,18 @@ export const POST = async(req: NextRequest) => {
           });
        }else{
         chat = llm.startChat({
-           
+          history: formattedPrevMessages,
               generationConfig: {
                   maxOutputTokens: 2048,
               },
           });
        }
        
-
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
 
-          
-          const allPageContents = pageLevelDocs.flatMap((page) => page.pageContent); // Assuming getText() method to get text content from the page
-          const context = allPageContents.join('\n\n');
+        const allPageContents = pageLevelDocs.flatMap((page) => page.pageContent); // Assuming getText() method to get text content from the page
+        const context = allPageContents.join('\n\n');
 
         const msg = `${message} ${similarEmbeddings.matches.join("")} ${context}`;
    

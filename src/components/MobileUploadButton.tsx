@@ -1,5 +1,4 @@
 "use client"
-
 import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
@@ -10,7 +9,9 @@ import { useUploadThing } from '@/lib/uploadthing'
 import { useToast } from './ui/use-toast'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
-
+import { PDFDocument } from 'pdf-lib';
+import { PLANS } from '@/config/stripe'
+import { readFile } from 'fs'
 interface MobileUploadButtonProps {
     isSubscribed: boolean
 }
@@ -28,32 +29,126 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
   const { mutate: startPolling } = trpc.getFile.useMutation({
     onSuccess: (file) => {
       router.push(`dashboard/${file.id}`);
+       return toast({
+        title: 'Upload Successful!',
+        description: 'Your file has been uploaded.',
+      });
+    },
+    onError: () => {
+     return toast({
+        title: 'Upload Failed During Polling',
+        description: 'An error occurred while processing the uploaded file.',
+        variant: 'destructive',
+      });
     },
     retry: true,
     retryDelay: 500,
   });
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFile(event?.target?.files?.[0]! ?? null);
-    setIsOpen(true);
+  const handleFileChange = async(event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event?.target?.files?.[0]! ?? null
+      if (selectedFile && selectedFile.type !== 'application/pdf') {
+      toast({
+        title: 'Invalid File Type',
+        description: 'Please upload a PDF file.',
+        variant: 'destructive',
+      });
+      // Clear the selectedFile state to empty the input
+       setSelectedFile(null);
+      return;
+    }
+    try {
+
+      const readFile = (file:File) => {
+
+        return new Promise((resolve, reject) => {
+      
+          const reader = new FileReader();
+      
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+      
+          reader.readAsArrayBuffer(file);
+        });
+      }
+  
+      const arrayBuffer:any = await readFile(selectedFile);
+
+      const pdf = await PDFDocument.load(arrayBuffer);
+
+      const numPages = pdf.getPageCount();
+      const MAX_PAGE_COUNT_FREE = 25
+      // Check page count against plan limit
+      if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
+        // Show toast and redirect to pricing page
+        toast({
+          title: "Too Many Pages",
+          description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+          variant: "destructive",
+        });
+        router.push("/pricing"); // Replace with your pricing page URL
+        return;
+      }
+      if(numPages < MAX_PAGE_COUNT_FREE && !isSubscribed){
+        // No page limit exceeded, proceed with setting state and opening modal
+          setSelectedFile(selectedFile);
+          setIsOpen(true);
+      }
+      if(isSubscribed){
+        // No page limit exceeded, proceed with setting state and opening modal
+          setSelectedFile(selectedFile);
+          setIsOpen(true);
+      }
+    } catch (error) {
+      // Handle PDF reading error
+      toast({
+        title: "Error Reading PDF",
+        description: "An error occurred while reading the PDF file. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+     // Check file size
+     const MAX_FILE_SIZE_BYTES = 32 * 1024 * 1024;
+     if (selectedFile.size > MAX_FILE_SIZE_BYTES && !isSubscribed) { // Assuming you have a MAX_FILE_SIZE constant
+      toast({
+        title: "File Too Large",
+        description: `File size exceeds the maximum allowed size of 32MB.`,
+        variant: "destructive",
+      });
+      setSelectedFile(null);
+      router.push('/pricing')
+      return;
+    }
+    if(selectedFile.size < MAX_FILE_SIZE_BYTES && !isSubscribed){
+      setSelectedFile(selectedFile);
+      setIsOpen(true);
+    }
+    if(isSubscribed){
+      setSelectedFile(selectedFile);
+      setIsOpen(true);
+    }
+    
   };
 
   const handleFileUpload = async () => {
     setIsUploading(true);
     const progressInterval = startSimulatedProgress();
     try {
+      
       const res = await startUpload([selectedFile!]);
       // ... handle upload response and polling
       if(!res){
+        ////// Need to apply the logic for redirecting //////
         toast({
             title: "something is wrong",
             description: "Please try again later",
             variant: "destructive"
         })
-     }
-
-     const [fileResponse] = res || [];
-     const key = fileResponse?.key
+     }else{
+      const [fileResponse] = res || [];
+      const key = fileResponse?.key
 
      if(!key) {
         toast({
@@ -62,22 +157,23 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
             variant: "destructive"
         })
     }
-
         clearInterval(progressInterval)
         setUploadProgress(100)
         startPolling({key})
+     }
 
-    } catch (error) {
+    } catch (error:any) {
       toast({
         title: 'Upload Failed',
-        description: 'Please try again later',
-        variant: 'destructive',
+         description: 'An error occurred', // Provide more specific error information
+         variant: 'destructive',
       });
       console.error(error);
     } finally {
       clearInterval(progressInterval);
       setUploadProgress(100);
       setSelectedFile(null); // Clear selected file after upload
+      setIsUploading(false);
     }
   };
 
@@ -99,9 +195,10 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
 
   const handleUploadClicked = () => {
      document?.getElementById('mobile-file-input')?.click()
+     
      setDisabled(false)
   }
-
+  
   return (
     <div className="relative">
       <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full mb-3">

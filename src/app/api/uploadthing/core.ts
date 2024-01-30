@@ -58,9 +58,9 @@ const onUploadComplete = async({metadata, file}: {
     const loader = new PDFLoader(blob);
     const pageLevelDocs = await loader.load();
     const pageAmnt = pageLevelDocs.length;
-
+    
     const {subscriptionPlan} = metadata
-
+    
     const { isSubscribed} = subscriptionPlan
     const isProExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf
     
@@ -75,54 +75,55 @@ const onUploadComplete = async({metadata, file}: {
           id: createdFile.id,
         }
       })
-    }
-
-    const pinecone = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY!,
-       environment: 'gcp-starter',
-    })
-
-    
-    const pineconeIndex = pinecone.Index("cph");
-
-    // Vectorize and index the entire documents using gemini /////
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "embedding-001" });
-    
-    // Vectorize each page and store the embeddings in an array
-    const embeddingsArray = await Promise.all(
-      pageLevelDocs.map(async (page, i) => {
-        const pageText = page.pageContent;
-
-        // Embed the individual page using model.embedContent
-        const result = await model.embedContent(pageText);
-        const pageEmbedding = result.embedding.values;
-
-        const pageId = `${createdFile.id}-page-${i}`;
-
-        
-        const upsertResponse = await pineconeIndex.namespace(createdFile.id).upsert(
-          [
-          {
-            id: pageId,
-            values: pageEmbedding,
-          }]
-        );
-
-       
+    } else{
+      const pinecone = new Pinecone({
+        apiKey: process.env.PINECONE_API_KEY!,
+         environment: 'apw5-4e34-81fa',
+         projectId: 'xon8qzk'
       })
-    );
-
-    await db.file.update({
-      data: {
-        uploadStatus: 'SUCCESS'
-      },
-      where: {
-        id: createdFile.id,
-      }
-    })
-    console.log("PDF Vectorization and Pinecone Indexing complete!");
-
+  
+      
+      const pineconeIndex = pinecone.Index("cph-serverless");
+      
+      // Vectorize and index the entire documents using gemini /////
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({ model: "embedding-001" });
+      
+      // Vectorize each page and store the embeddings in an array
+      const embeddingsArray = await Promise.all(
+        pageLevelDocs.map(async (page, i) => {
+          const pageText = page.pageContent;
+  
+          // Embed the individual page using model.embedContent
+          const result = await model.embedContent(pageText);
+          const pageEmbedding = result.embedding.values;
+  
+          const pageId = `${createdFile.id}-page-${i}`;
+  
+          
+          const upsertResponse = await pineconeIndex.namespace(createdFile.id).upsert(
+            [
+            {
+              id: pageId,
+              values: pageEmbedding,
+            }]
+          );
+  
+         
+        })
+      );
+  
+      await db.file.update({
+        data: {
+          uploadStatus: 'SUCCESS'
+        },
+        where: {
+          id: createdFile.id,
+        }
+      })
+      console.log("PDF Vectorization and Pinecone Indexing complete!");
+  
+    }
   } catch (error) {
     // Handle errors
     await db.file.update({

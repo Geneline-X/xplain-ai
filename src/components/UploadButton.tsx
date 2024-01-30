@@ -10,6 +10,7 @@ import { useUploadThing } from '@/lib/uploadthing'
 import { useToast } from './ui/use-toast'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
+import { PDFDocument } from 'pdf-lib';
 
 interface Props {}
 
@@ -27,7 +28,18 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
     const {mutate: startPolling} = trpc.getFile.useMutation({
         onSuccess: (file) => {
             router.push(`dashboard/${file.id}`)
+            return toast({
+              title: 'Upload Successful!',
+              description: 'Your file has been uploaded.',
+            });
         },
+        onError: () => {
+          return toast({
+             title: 'Upload Failed During Polling',
+             description: 'An error occurred while processing the uploaded file.',
+             variant: 'destructive',
+           });
+         },
         retry: true,
         retryDelay: 500
     })
@@ -47,34 +59,115 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
     }
     return (
         <DropZone multiple={false} onDrop={async(acceptedFile) => {
-            setIsUpLoading(true)
-            const progressInterval = startSimulatedProgress()
-
+              const file = acceptedFile[0]
+             if (file && file?.type! !== 'application/pdf') {
+              toast({
+                title: 'Invalid File Type',
+                description: 'Please upload a PDF file.',
+                variant: 'destructive',
+              });
+              // Clear the selectedFile state to empty the input
+              setIsUpLoading(false)
+              acceptedFile = []
+              return;
+            }
             //// handle the file uploading ////
-            const res = await startUpload(acceptedFile)
-            if(!res){
-                toast({
-                    title: "something is wrong",
-                    description: "Please try again later",
-                    variant: "destructive"
-                })
+           try {
+
+            const readFile = (file:File) => {
+
+              return new Promise((resolve, reject) => {
+            
+                const reader = new FileReader();
+            
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            
+                reader.readAsArrayBuffer(file);
+              });
             }
-           
-            const [fileResponse] = res || [];
-            const key = fileResponse?.key
+        
+            const arrayBuffer:any = await readFile(file);
+      
+            const pdf = await PDFDocument.load(arrayBuffer);
 
-            if(!key) {
-                toast({
-                    title: "something is wrong",
-                    description: "Please try again later",
-                    variant: "destructive"
-                })
+            const numPages = pdf.getPageCount();
+            const MAX_PAGE_COUNT_FREE = 25
+            // Check page count against plan limit
+            if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
+              // Show toast and redirect to pricing page
+              toast({
+                title: "Too Many Pages",
+                description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+                variant: "destructive",
+              });
+              router.push("/pricing"); // Replace with your pricing page URL
+              return;
             }
-
-            clearInterval(progressInterval)
-            setUploadProgress(100)
-
-            startPolling({key})
+            if(numPages < MAX_PAGE_COUNT_FREE && !isSubscribed){
+              setIsUpLoading(true)
+              const progressInterval = startSimulatedProgress()
+              const res = await startUpload(acceptedFile)
+              if(!res){
+                  toast({
+                      title: "something is wrong",
+                      description: "Please try again later",
+                      variant: "destructive"
+                  })
+              }else{
+                const [fileResponse] = res || [];
+                const key = fileResponse?.key
+    
+                if(!key) {
+                    toast({
+                        title: "something is wrong",
+                        description: "Please try again later",
+                        variant: "destructive"
+                    })
+                }
+    
+                clearInterval(progressInterval)
+                setUploadProgress(100)
+    
+                startPolling({key})
+              }
+            }
+            if(isSubscribed){
+              setIsUpLoading(true)
+              const progressInterval = startSimulatedProgress()
+              const res = await startUpload(acceptedFile)
+              if(!res){
+                  toast({
+                      title: "something is wrong",
+                      description: "Please try again later",
+                      variant: "destructive"
+                  })
+              }else{
+                const [fileResponse] = res || [];
+                const key = fileResponse?.key
+    
+                if(!key) {
+                    toast({
+                        title: "something is wrong",
+                        description: "Please try again later",
+                        variant: "destructive"
+                    })
+                }
+    
+                clearInterval(progressInterval)
+                setUploadProgress(100)
+    
+                startPolling({key})
+              }
+            }
+           } catch (error) {
+            toast({
+              title: 'Upload Failed',
+              description: 'An error occurred', // Provide more specific error information
+              variant: 'destructive',
+            });
+            console.error(error);
+           }    
         }}>
              {({getRootProps, getInputProps, acceptedFiles}) => (
                <div {...getRootProps()} className='border h-64 m-4 border-dashed border-gray-300 rounded-lg'>
