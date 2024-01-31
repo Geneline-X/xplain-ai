@@ -32,7 +32,7 @@ const Navbar = async() => {
               className='rounded-full'
             />
             <Link href="/" className='flex z-40 font-semibold'>
-              <span>ChatFlowPdfHub.</span>
+              <span>ChatflowPdfHub.</span>
             </Link>
           </div>
           
