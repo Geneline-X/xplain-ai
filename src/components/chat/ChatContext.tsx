@@ -19,6 +19,7 @@ export const ChatContex = createContext<StreamResponseType>({
     message: "",
     handleInputChange: () => {},
     isLoading: false
+    
 })
 
 interface Props {
@@ -28,8 +29,9 @@ interface Props {
 export const ChatContextProvider = ({fileId, children}: Props) => {
    const [message, setMessage] = useState<string>("")
 
-   const [messageRevertMonitor, setMessageRevertMonitor] = useState(true)
+   const [accumulatedResponseLength, setAccumulatedResponseLength] = useState<number>(0);
    const [isLoading, setIsLoading] = useState<boolean>(false)
+   const [showLoadMore, setShowLoadMore] = useState<boolean>(false); // State to control Load More button visibility
 
    const utils = trpc.useContext()
    const { toast } = useToast()
@@ -38,15 +40,18 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
    const backupMessage = useRef("")
    const completeMessage = useRef<string>("")
 
-   const {mutate: sendMessage} = useMutation({
-    mutationFn: async ({message}: {message: string}) => {
+   const abortControllerRef = useRef(new AbortController());
 
+   const {mutate: sendMessage, reset} = useMutation({
+    mutationFn: async ({message}: {message: string}) => {
+        
         const response = await fetch("/api/message", {
             method: "POST",
             body: JSON.stringify({
                 fileId,
                 message
             }),
+           
         })
         if(!response.ok){
             throw new Error("Failed to send message")
@@ -128,6 +133,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         const chunckValue = decoder.decode(value)
 
         accResponse += chunckValue
+        setAccumulatedResponseLength(prevLength => prevLength + chunckValue.length);
 
         /// append chunck to the actual message /////
         utils.getFileMessages.setInfiniteData({fileId, limit: INFINITE_QUERY_LIMIT}, 
@@ -175,6 +181,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
     }  
     
     setIsLoading(false)
+
 },
     onError: ({_,__, context}) => {
         setIsLoading(false)
@@ -194,6 +201,14 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         }
    })
 
+   // Add useEffect to check if accumulated response length exceeds threshold
+  const THRESHOLD_LENGTH = 1024
+   useEffect(() => {
+    if (accumulatedResponseLength > THRESHOLD_LENGTH) {
+        setShowLoadMore(true)
+    }
+  }, [accumulatedResponseLength]);
+
    const addMessage = () => {
     sendMessage({message})
    }
@@ -201,12 +216,20 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
      setMessage(e.target.value)
    }
 
+   // Handle Load More button click event
+    const handleLoadMore = async() => {
+        // Perform additional logic here to resume the stream with loadMore=true query parameter
+        // For example, you can make another request to the backend with the loadMore=true query parameter
+        // and handle the response accordingly
+        setIsLoading(true)
+    };
+
    return (
     <ChatContex.Provider value={{
         addMessage,
         message,
         handleInputChange,
-        isLoading
+        isLoading 
     }}>
         {children}
     </ChatContex.Provider>

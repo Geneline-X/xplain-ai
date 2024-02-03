@@ -206,3 +206,35 @@ while (messageQueue.length > 0) {
   }
 }
 }
+
+export function prioritizeContext(pageLevelDocs:any[], keywords:any = []) {
+  try {
+        // Handle empty input gracefully
+      if (!pageLevelDocs.length) {
+        return '';
+      }
+
+      const relevantPages = pageLevelDocs.filter(page => {
+        // Case-insensitive keyword matching
+        return keywords.some((keyword:string) => page.pageContent.toLowerCase().includes(keyword.toLowerCase()));
+      });
+
+      // Prioritize relevant pages with keyword concentration
+      const sortedPages = relevantPages.sort((pageA, pageB) => {
+        const keywordCountA = keywords.filter((keyword:any) => pageA.pageContent.toLowerCase().includes(keyword.toLowerCase())).length;
+        const keywordCountB = keywords.filter((keyword:any) => pageB.pageContent.toLowerCase().includes(keyword.toLowerCase())).length;
+        return keywordCountB - keywordCountA; // Descending order
+      });
+
+       // Extract prioritized content
+      const prioritizedContent = sortedPages.flatMap(page => page.pageContent).join('\n\n');
+      if (prioritizedContent.length < 100) {
+        const additionalPages = pageLevelDocs.filter(page => !relevantPages.includes(page));
+        const additionalContent = additionalPages.flatMap(page => page.pageContent).join('\n\n');
+        return `${prioritizedContent}\n\n${additionalContent}`;
+      }
+      return prioritizedContent;
+  } catch (error) {
+    
+  }
+}

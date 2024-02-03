@@ -6,6 +6,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from '@pinecone-database/pinecone';
 import { getUserSubscriptionPlan } from "@/lib/stripe"
 import {PLANS} from "@/config/stripe"
+
 ///// maybe i will add redis and bull for quick response ////
 
 
@@ -65,7 +66,7 @@ const onUploadComplete = async({metadata, file}: {
     const isProExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf
     
     const isFreeExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf
-    
+    // (isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)
     if((isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)){
       await db.file.update({
         data: {
@@ -81,8 +82,6 @@ const onUploadComplete = async({metadata, file}: {
          environment: 'apw5-4e34-81fa',
          projectId: 'xon8qzk'
       })
-  
-      
       const pineconeIndex = pinecone.Index("cph-serverless");
       
       // Vectorize and index the entire documents using gemini /////
@@ -90,29 +89,49 @@ const onUploadComplete = async({metadata, file}: {
       const model = genAI.getGenerativeModel({ model: "embedding-001" });
       
       // Vectorize each page and store the embeddings in an array
-      const embeddingsArray = await Promise.all(
-        pageLevelDocs.map(async (page, i) => {
-          const pageText = page.pageContent;
-  
-          // Embed the individual page using model.embedContent
-          const result = await model.embedContent(pageText);
-          const pageEmbedding = result.embedding.values;
-  
-          const pageId = `${createdFile.id}-page-${i}`;
-  
-          
-          const upsertResponse = await pineconeIndex.namespace(createdFile.id).upsert(
-            [
-            {
-              id: pageId,
-              values: pageEmbedding,
-            }]
-          );
-  
-         
-        })
-      );
-  
+    
+      // Process pages in batches
+      const batchSize = 10; 
+
+      // Function to process a batch of pages concurrently
+      const processBatch = async (batch:any, startIndex:number):Promise<any> => {
+          try {
+              const upsertPromises = batch.map(async (page:any, index:number) => {
+                const pageIndex = startIndex + index;
+                const pageText = page.pageContent;
+
+                // Embed the individual page using model.embedContent
+                const result = await model.embedContent(pageText);
+                const pageEmbedding = result.embedding.values;
+
+                const pageId = `${createdFile.id}-page-${pageIndex}`;
+
+                // Store the embedding for the page
+                return pineconeIndex.namespace(createdFile.id).upsert([
+                    {
+                        id: pageId,
+                        values: pageEmbedding,
+                    }
+                ]);
+            });
+
+            // Wait for all upsert operations in the batch to complete
+            return Promise.all(upsertPromises);
+          } catch (error:any) {
+            // Handle the error gracefully
+              console.error('Error occurred during batch processing:', error.message);
+              // You can choose to log the error, retry the operation, or take other appropriate actions
+
+              // Retry the operation for the failed batch
+              return processBatch(batch, startIndex);
+          }
+      };
+      const totalPages = pageLevelDocs.length;
+      for (let i = 0; i < totalPages; i += batchSize) {
+          const batch = pageLevelDocs.slice(i, i + batchSize);
+          await processBatch(batch, i);
+      }
+      
       await db.file.update({
         data: {
           uploadStatus: 'SUCCESS'

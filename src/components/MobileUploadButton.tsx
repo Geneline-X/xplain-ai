@@ -95,6 +95,13 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
           setIsOpen(true);
       }
       if(isSubscribed){
+        if(numPages > 30){
+          toast({
+            title: "Too Many Pages",
+            description: `Your PDF has ${numPages} pages, which will take longer time to process. Please wait for upload to complete.`,
+            variant: "default",
+          });
+        }
         // No page limit exceeded, proceed with setting state and opening modal
           setSelectedFile(selectedFile);
           setIsOpen(true);
@@ -231,7 +238,8 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
               ) : null}
             </div>
           ) : (
-            <Button disabled={disabled} onClick={handleFileUpload} className="w-full bg-orange-500 text-white">
+            // messing around //
+            <Button disabled={!selectedFile ? true : false} onClick={handleFileUpload} className="w-full bg-orange-500 text-white">
               Upload <Upload className='w-4 h-4 ml-2'/>
             </Button>
           )}

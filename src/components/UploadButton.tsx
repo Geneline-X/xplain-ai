@@ -105,6 +105,13 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
               return;
             }
             if(numPages < MAX_PAGE_COUNT_FREE && !isSubscribed){
+              if(numPages > 30){
+                toast({
+                  title: "Too Many Pages",
+                  description: `Your PDF has ${numPages} pages, which will take longer time to process. Please wait for upload to complete.`,
+                  variant: "default",
+                });
+              }
               setIsUpLoading(true)
               const progressInterval = startSimulatedProgress()
               const res = await startUpload(acceptedFile)
@@ -114,6 +121,8 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                       description: "Please try again later",
                       variant: "destructive"
                   })
+                  setIsUpLoading(false)
+                  acceptedFile = []
               }else{
                 const [fileResponse] = res || [];
                 const key = fileResponse?.key
@@ -124,6 +133,8 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                         description: "Please try again later",
                         variant: "destructive"
                     })
+                    setIsUpLoading(false)
+                  acceptedFile = []
                 }
     
                 clearInterval(progressInterval)
@@ -133,6 +144,13 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
               }
             }
             if(isSubscribed){
+              if(numPages > 30){
+                toast({
+                  title: "Too Many Pages",
+                  description: `Your PDF has ${numPages} pages, which will take longer time to process. Please wait for upload to complete.`,
+                  variant: "default",
+                });
+              }
               setIsUpLoading(true)
               const progressInterval = startSimulatedProgress()
               const res = await startUpload(acceptedFile)
@@ -142,6 +160,8 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                       description: "Please try again later",
                       variant: "destructive"
                   })
+                  setIsUpLoading(false)
+                  acceptedFile = []
               }else{
                 const [fileResponse] = res || [];
                 const key = fileResponse?.key

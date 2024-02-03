@@ -5,9 +5,10 @@ import { NextRequest } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
-import {StreamingTextResponse, GoogleGenerativeAIStream } from "ai"
+import {StreamingTextResponse, GoogleGenerativeAIStream, streamToResponse } from "ai"
 import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
+import { prioritizeContext } from "@/lib/utils";
 
 export const maxDuration = 300
 type MessageType = {
@@ -19,8 +20,12 @@ type MessageType = {
     userId: string | null;
     fileId: string | null;
 }
+
+
 export const POST = async(req: NextRequest) => {
     //// this is the endpoint
+    const Url = new URL(req.url)
+    const loadMoreFlag = Url.searchParams.get('loadMore')
     let createMessage: MessageType | undefined = undefined;
 
   try {
@@ -50,7 +55,6 @@ export const POST = async(req: NextRequest) => {
     );
     
     /// nlp part of the app //////
-
     ///// vectorize the incoming message ////
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const pinecone = new Pinecone({
@@ -69,7 +73,6 @@ export const POST = async(req: NextRequest) => {
 
     const llm = genAI.getGenerativeModel({model: "gemini-pro"})
 
-
     const prevMessages = await db.message.findMany({
         where: {
             fileId
@@ -80,46 +83,31 @@ export const POST = async(req: NextRequest) => {
         take: 6
     })
 
-  
-   const formattedPrevMessages = prevMessages.map((msg:MessageType) => {
+     const formattedPrevMessages = prevMessages.map((msg:MessageType) => {
         return {
           role: msg.isUserMessage ? "user" : "model",
           parts: msg.text,
         };
       });
-
+    
        // Start the chat with the user's prompt
-       let chat
-       if(formattedPrevMessages.length === 0){
-        chat = llm.startChat({
-              generationConfig: {
-                  maxOutputTokens: 2048,
-              },
-          });
+        let chat: any;
+        ///// start the model chatting ////
+         if(formattedPrevMessages.length === 0){
+            chat = llm.startChat({
+                  generationConfig: {
+                      maxOutputTokens: 2048,
+                  },
+              });
        }else{
-        chat = llm.startChat({
-          history: formattedPrevMessages,
-              generationConfig: {
-                  maxOutputTokens: 2048,
-              },
-          });
-       }
-       
-        const loader = new PDFLoader(blob);
-        const pageLevelDocs = await loader.load();
-
-        const allPageContents = pageLevelDocs.flatMap((page) => page.pageContent); // Assuming getText() method to get text content from the page
-        const context = allPageContents.join('\n\n');
-
-        const msg = `${message} ${similarEmbeddings.matches.join("")} ${context}`;
-   
-       //   const msg = `how to add`;
-       const resultFromChat = await chat.sendMessageStream(msg);
-      
-       
-      let text = ''
-          // Perform your database operations here
-        createMessage = await db.message.create({
+          chat = llm.startChat({
+            // history: formattedPrevMessages,
+                generationConfig: {
+                    maxOutputTokens: 2048,
+                },
+            });
+         }
+         createMessage = await db.message.create({
           data: {
             text: message,
               isUserMessage: true,
@@ -128,53 +116,53 @@ export const POST = async(req: NextRequest) => {
           }
         })
 
-      const responseStream = new ReadableStream({
-        async start(controller:any) {
-          try {
-            
-            for await (const chunk of resultFromChat.stream) {
-              controller.enqueue(chunk.text());
-               text += chunk.text() 
+      let context:any
+        const loader = new PDFLoader(blob);
+        const pageLevelDocs = await loader.load();
+        const numPages = pageLevelDocs.length
+        if(numPages > 30){
+          context = prioritizeContext(pageLevelDocs, message)
+        }else{
+          const allPageContent = pageLevelDocs.flatMap((page) => page.pageContent)
+           context = allPageContent.join('\n\n')
+        }
+        
+        const msg = `${message} ${similarEmbeddings.matches.join("")} ${context}`;
+        const resultFromChat = await chat.sendMessageStream(msg);
+        let text = ''
+        const responseStream = new ReadableStream({
+          async start(controller) {
+            try {
+                  for await(const chunk of resultFromChat.stream) {
+                    controller.enqueue(chunk.text());
+                    text += chunk.text() 
+                  }
+                  // If previous database call exists, update the existing message
+                  const streamMessage = await db.message.create({
+                    data: {
+                      text,
+                      isUserMessage: false,
+                      fileId,
+                      userId,
+                    },
+                  });
+                
+                  controller.close();
+              } catch (error) {
+              // Handle errors
+              console.error("Error enqueuing chunks:", error);
+              await db.message.delete({ where: { id: createMessage?.id } });
+              controller.error(error);
             }
-            
-            const streamMessage = await db.message.create({
-              data: {
-                  text,
-                  isUserMessage: false,
-                  fileId,
-                  userId,
-              }
-            })
-            // console.log("this is the text generated ", text)
-            controller.close();
-          } catch (error) {
-            console.error("Error enqueuing chunks:", error);
-            await db.message.delete({
-              where: {
-                id: createMessage?.id
-              }
-            })
-            controller.error(error);
           }
-        },
-      })    
+        })
+
       return  new StreamingTextResponse(responseStream);
             // Return the streaming response immediately     
           
   } catch (error) {
     console.log(error)
-     // Check if createMessage is defined before accessing its properties
-     if (createMessage) {
-      try {
-        await db.message.delete({
-            where: {
-                id: createMessage?.id
-            }
-          });
-      } catch (error) {
-        console.error("Error deleting message:", error);
-      }
-  }
+    
     return new Response(JSON.stringify({message: error}), {status: 500})
   }
 }
