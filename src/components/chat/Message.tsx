@@ -48,6 +48,10 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
     setTimeout(() => setIsCopied(false), 1500); // Reset the copy state after 1.5 seconds
   };
 
+  const currentTime = new Date();
+ const formattedTime = `${currentTime.getHours()}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
+
+
   return (
   <div ref={ref} className={cn('flex items-end', {
     "justify-end": message.isUserMessage
@@ -98,7 +102,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
                 "text-zinc-500": !message.isUserMessage,
                 "text-orange-300": message.isUserMessage,
             })}>
-                {format(new Date(message?.createAt), "HH:mm")}
+                {formattedTime}
             </div>
             <div className='flex justify-end'>
               <CopyToClipboard text={message.text as string} onCopy={handleCopy}>
