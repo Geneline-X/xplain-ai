@@ -50,6 +50,14 @@ export const POST = async(req: NextRequest) => {
 
     if(!file) return new Response("NotFound", {status: 404})
 
+    createMessage = await db.message.create({
+      data: {
+        text: message,
+          isUserMessage: true,
+          userId,
+          fileId,
+      }
+    })
     const blob = await getCachedOrFetchBlob(
       `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
     );
@@ -101,20 +109,13 @@ export const POST = async(req: NextRequest) => {
               });
        }else{
           chat = llm.startChat({
-            // history: formattedPrevMessages,
+             history: formattedPrevMessages,
                 generationConfig: {
                     maxOutputTokens: 2048,
                 },
             });
          }
-         createMessage = await db.message.create({
-          data: {
-            text: message,
-              isUserMessage: true,
-              userId,
-              fileId,
-          }
-        })
+         
 
       let context:any
         const loader = new PDFLoader(blob);
