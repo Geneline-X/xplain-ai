@@ -18,6 +18,7 @@ export default function Home() {
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
         CPH allows you to have conversations with any PDF document. Simply upload your file and start asking questions right away.
+        <strong className="block mt-2 font-bold">For better response use context words from the PDF.</strong>
       </p>
 
       <Link className={buttonVariants({
