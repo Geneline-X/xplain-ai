@@ -122,7 +122,7 @@ export const POST = async(req: NextRequest) => {
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
         const numPages = pageLevelDocs.length
-        if(numPages > 50){
+        if(numPages > 40){
           context = prioritizeContext(pageLevelDocs, message)
         }else{
           const allPageContent = pageLevelDocs.flatMap((page) => page.pageContent)
