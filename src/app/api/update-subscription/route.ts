@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // 3. Redirect to Desired Page: 
     console.log("this is near the redirecting")
-    return NextResponse.redirect('https://cph-nine.vercel.app/dashboard');
+    return new Response(JSON.stringify({message: "subscription successfull"}))
    
 } catch (error) {
     // 4. Error Handling:
