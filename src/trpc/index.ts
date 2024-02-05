@@ -105,8 +105,8 @@ export const appRouter = router({
                       "value": "1000"
                     }
                   },
-                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
-                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
+                  cancelUrl:  `https:cph-nine.vercel.app/api/monime-redirect-cancel`,
+                  receiptUrl:  `https:cph-nine.vercel.app/api/monime-redirect`
                 }),
               });
 

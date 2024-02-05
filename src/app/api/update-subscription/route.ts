@@ -8,9 +8,9 @@ import { getMainMonimeSessionData } from '@/lib/utils';
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     // 1. Access Payment Data:
-    console.log("this is the start of the request")
+    
              const monimeSessionData = await getMainMonimeSessionData()
-              console.log("this is the session data in the post ", monimeSessionData)
+             console.log("this is the session data in the post ", monimeSessionData)
 
           console.log("this is the stored monimedata ", monimeSessionData)
       // Extract relevant data from Monime response
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // 3. Redirect to Desired Page: 
     console.log("this is near the redirecting")
-    return new Response(JSON.stringify({message: "subscription created"}))
+    return NextResponse.redirect('https:cph-nine.vercel.app/dashboard');
    
 } catch (error) {
     // 4. Error Handling:
