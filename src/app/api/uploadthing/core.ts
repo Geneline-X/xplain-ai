@@ -7,8 +7,7 @@ import { Pinecone } from '@pinecone-database/pinecone';
 import { getUserSubscriptionPlan } from "@/lib/stripe"
 import {PLANS} from "@/config/stripe"
 
-///// maybe i will add redis and bull for quick response ////
-
+export const maxDuration = 300;
 
 const f = createUploadthing();
 
