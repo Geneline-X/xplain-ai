@@ -105,8 +105,8 @@ export const appRouter = router({
                       "value": "1000"
                     }
                   },
-                  cancelUrl:  `/api/monime-redirect-cancel`,
-                  receiptUrl:  `/api/monime-redirect`
+                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
+                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
                 }),
               });
 
