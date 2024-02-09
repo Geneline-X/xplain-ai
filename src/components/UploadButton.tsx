@@ -21,6 +21,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
     const [uploadProgress, setUploadProgress] = useState<number>(0)
 
     const { toast} = useToast()
+    //// I will have to implement the logic for all kind of file /////
     const {startUpload} = useUploadThing(
       isSubscribed ? 'proPlanUploader': 'freePlanUploader'
     )

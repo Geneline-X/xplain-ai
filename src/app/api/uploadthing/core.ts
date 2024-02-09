@@ -90,7 +90,7 @@ const onUploadComplete = async({metadata, file}: {
       // Vectorize each page and store the embeddings in an array
     
       // Process pages in batches
-      const batchSize = 10; 
+      const batchSize = 50; 
 
       // Function to process a batch of pages concurrently
       const processBatch = async (batch:any, startIndex:number):Promise<any> => {

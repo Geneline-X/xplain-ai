@@ -5,8 +5,8 @@ import { NextRequest } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
-import {StreamingTextResponse, GoogleGenerativeAIStream, streamToResponse } from "ai"
-import { ReadableStream, WritableStream } from "web-streams-polyfill/ponyfill";
+import { StreamingTextResponse } from "ai"
+import { ReadableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
 import { prioritizeContext } from "@/lib/utils";
 
@@ -23,9 +23,7 @@ type MessageType = {
 
 
 export const POST = async(req: NextRequest) => {
-    //// this is the endpoint
-    const Url = new URL(req.url)
-    const loadMoreFlag = Url.searchParams.get('loadMore')
+    
     let createMessage: MessageType | undefined = undefined;
 
   try {
@@ -49,8 +47,7 @@ export const POST = async(req: NextRequest) => {
     })
 
     if(!file) return new Response("NotFound", {status: 404})
-
-    
+     
     const blob = await getCachedOrFetchBlob(
       `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
     );
@@ -108,16 +105,15 @@ export const POST = async(req: NextRequest) => {
                       maxOutputTokens: 2048,
                   },
               });
-       }else{
-          chat = llm.startChat({
-             history: formattedPrevMessages,
-                generationConfig: {
-                    maxOutputTokens: 2048,
-                },
-            });
-         }
+          }else{
+              chat = llm.startChat({
+                history: formattedPrevMessages,
+                    generationConfig: {
+                        maxOutputTokens: 2048,
+                    },
+                });
+            }
          
-
       let context:any
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
