@@ -99,7 +99,7 @@ export const POST = async(req: NextRequest) => {
       })
         let chat: any;
         ///// start the model chatting ////
-         if(formattedPrevMessages.length === 0){
+         if(formattedPrevMessages.length === 0 || formattedPrevMessages[formattedPrevMessages.length - 1].role === "user"){
             chat = llm.startChat({
                   generationConfig: {
                       maxOutputTokens: 2048,
