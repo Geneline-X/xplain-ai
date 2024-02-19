@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { Button } from './ui/button'
 import { useSearchParams } from 'next/navigation'
-import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { getUserSubscriptionPlan } from '@/lib/monime'
 import MobileUploadButton from './MobileUploadButton'
 interface PageProps{
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>

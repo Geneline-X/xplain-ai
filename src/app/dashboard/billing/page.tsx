@@ -1,5 +1,5 @@
 
-import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { getUserSubscriptionPlan } from '@/lib/monime'
 import React from 'react'
 import BillingForm from '@/components/BillingForm'
 interface Props {}

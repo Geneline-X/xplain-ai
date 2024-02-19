@@ -1,6 +1,6 @@
 "use client"
 import { useEffect } from 'react'
-import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { getUserSubscriptionPlan } from '@/lib/monime'
 import React from 'react'
 import { useToast } from './ui/use-toast'
 import { trpc } from '@/app/_trpc/client'

@@ -18,7 +18,7 @@ const pricingItems = [
     quota: 10,
     features: [
       {
-        text: '25 pages per PDF',
+        text: '10 pages per PDF',
         footnote: 'The maximum amount of pages per PDF-file.',
       },
       {
@@ -101,7 +101,7 @@ const Page = async() => {
                       </h3>
                       <p className='text-gray-500'>{tagline}</p>
                       <p className='my-5 font-display text-6xl font-semibold'>sle  {price}</p>
-                      <p className='text-gray-500'>per Hour</p>
+                      {plan === "Pro" && <p className='text-gray-500'>for 3 Hours</p>}
                     </div>
                     <div className='flex h-20 items-center justify-center border-b border-t border-gray-200 bg-gray-50'>
                        <div className='flex items-center space-x-1'>

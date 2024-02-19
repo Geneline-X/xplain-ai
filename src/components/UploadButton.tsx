@@ -93,7 +93,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
             const pdf = await PDFDocument.load(arrayBuffer);
 
             const numPages = pdf.getPageCount();
-            const MAX_PAGE_COUNT_FREE = 25
+            const MAX_PAGE_COUNT_FREE = 10
             // Check page count against plan limit
             if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
               // Show toast and redirect to pricing page
@@ -202,7 +202,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                            </span>{" "}
                            or drag and drop
                         </p>
-                        <p className='text-sm text-zinc-500'>PDF (up to {isSubscribed? "1GB" : "32MB"})</p>
+                        <p className='text-sm text-zinc-500'>PDF (up to {isSubscribed? "infinite pages" : "10 pages"})</p>
                        </div>
 
                        {acceptedFiles && acceptedFiles[0] ? (

@@ -3,8 +3,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
+import { LoginLink, RegisterLink, getKindeServerSession, } from '@kinde-oss/kinde-auth-nextjs/server'
+export default async function Home() {
 
-export default function Home() {
+  const { getUser } = getKindeServerSession()
+  const user = await getUser()
+
   return (
     <>
     <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
@@ -21,12 +25,25 @@ export default function Home() {
         <strong className="block mt-2 font-bold">For better response use context words from the PDF.</strong>
       </p>
 
+      {!user ?<>
+        <RegisterLink className={
+          buttonVariants({ size: "lg", className: "mt-5"})}>
+          Get Started <ArrowRight className='ml-1.5 h-5 w-5'/>
+        </RegisterLink>
+      </>: <>
       <Link className={buttonVariants({
         size: "lg",
         className: "mt-5"
-      })} href="/sign-up" target="_blank">
-        Get Started <ArrowRight className="ml-2 h-5 w-5"/>
+      })} href="/dashboard">
+        Dashboard <ArrowRight className="ml-2 h-5 w-5"/>
       </Link>
+      </>}
+      {/* <Link className={buttonVariants({
+        size: "lg",
+        className: "mt-5"
+      })} href="/dashboard" target="_blank">
+        Get Started <ArrowRight className="ml-2 h-5 w-5"/>
+      </Link> */}
     </MaxWidthWrapper>
 
       {/* value proposition section */}

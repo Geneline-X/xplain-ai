@@ -5,7 +5,8 @@ import { TRPCError } from "@trpc/server"
 import { z } from 'zod';
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
 import { absoluteUrl, setMainMonimeSessionData } from '@/lib/utils';
-import { getUserSubscriptionPlan, } from '@/lib/stripe';
+import { getUserSubscriptionPlan, } from '@/lib/monime';
+import { getStripeUserSubscriptionPlan, stripe } from '@/lib/stripe';
 import { PLANS } from '@/config/stripe';
 import { v4 } from 'uuid'
 interface KindeUser {
@@ -67,6 +68,57 @@ export const appRouter = router({
       console.log('This is the new updated user', newUser);
 
   }),
+  createStripeSession: PrivateProcedure.mutation(async({ctx}) => {
+    const { userId } = ctx
+
+    if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
+
+    const billingUrl = 'http://localhost:3000/dashboard'
+    const dbUser = await db.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!dbUser) throw new TRPCError({ code: 'UNAUTHORIZED' })
+
+    const subscriptionPlan = await getStripeUserSubscriptionPlan()
+
+    if (
+      subscriptionPlan.isSubscribed &&
+      dbUser.monimeCustomerId
+    ) {
+      const stripeSession =
+        await stripe.billingPortal.sessions.create({
+          customer: dbUser.monimeCustomerId,
+          return_url: `${billingUrl}/billing`,
+        })
+
+      return { url: stripeSession.url }
+    }
+
+    const stripeSession =
+      await stripe.checkout.sessions.create({
+        success_url: billingUrl,
+        cancel_url: billingUrl,
+        payment_method_types: ['card', 'paypal'],
+        mode: 'subscription',
+        billing_address_collection: 'auto',
+        line_items: [
+          {
+            price: PLANS.find(
+              (plan) => plan.name === 'Pro'
+            )?.price.priceIds.test,
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          userId: userId,
+        },
+      })
+
+    return { url: stripeSession.url }
+  }),
   createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
     const { userId } = ctx
 
@@ -102,7 +154,7 @@ export const appRouter = router({
                   bulk: {
                     amount: {
                       "currency": "SLE",
-                      "value": "1000"
+                      "value": "500"
                     }
                   },
                   cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,

@@ -238,3 +238,12 @@ export function prioritizeContext(pageLevelDocs:any[], keywords:any = []) {
     
   }
 }
+
+// Helper functions for file type identification
+export function isPdfFileType(fileType: string): boolean {
+  return fileType === 'application/pdf';
+}
+
+export function isPptxFileType(fileType: string): boolean {
+  return fileType === 'application/vnd.ms-powerpoint' || fileType.startsWith('application/vnd.openxmlformats-officedocument.presentationml.');
+}

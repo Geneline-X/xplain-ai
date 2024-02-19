@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       const createTime = new Date();
     
       // Set the subscription period in hours (adjust as needed)
-      const subscriptionPeriodHours = 1; // 1 hour for example
+      const subscriptionPeriodHours = 3; // 1 hour for example
     
       // Calculate the end time by adding the subscription period to the createTime
       const subscriptionEndTime = new Date(createTime.getTime() + subscriptionPeriodHours * 60 * 60 * 1000);

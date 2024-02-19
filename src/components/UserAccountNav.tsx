@@ -1,4 +1,4 @@
-import { getUserSubscriptionPlan } from '@/lib/stripe';
+import { getUserSubscriptionPlan } from '@/lib/monime';
 import React from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Button } from './ui/button';

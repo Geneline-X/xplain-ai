@@ -3,7 +3,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 import { redirect } from 'next/navigation'
 import { db } from '@/db'
 import DashBoard from '@/components/DashBoard'
-import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { getUserSubscriptionPlan } from '@/lib/monime'
 
 interface Props {}
 

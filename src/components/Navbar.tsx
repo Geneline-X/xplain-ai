@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import UserAccountNav from './UserAccountNav'
 import MobileNav from './MobileNav'
-import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { getUserSubscriptionPlan } from '@/lib/monime'
 
 interface Props {}
 

@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from '@pinecone-database/pinecone';
-import { getUserSubscriptionPlan } from "@/lib/stripe"
+import { getUserSubscriptionPlan } from "@/lib/monime"
 import {PLANS} from "@/config/stripe"
 
 export const maxDuration = 300;
