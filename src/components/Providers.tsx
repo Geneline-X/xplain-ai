@@ -11,7 +11,7 @@ const Providers = ({children}: PropsWithChildren) => {
     const [trpcClient] = useState(()=> trpc.createClient({
         links: [
             httpBatchLink({
-                url: '/api/trpc',
+                url: 'https://cph-nine.vercel.app/api/trpc',
             })
         ]
     }))

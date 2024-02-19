@@ -73,7 +73,7 @@ export const appRouter = router({
 
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
 
-    const billingUrl = 'http://localhost:3000/dashboard'
+    const billingUrl = 'https://cph-nine.vercel.app/dashboard'
     const dbUser = await db.user.findFirst({
         where: {
             id: userId
