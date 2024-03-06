@@ -46,7 +46,6 @@ const UserAccountNav = async({email, imageUrl, name}: UserAccountNavProps) => {
                     )}
 
                 </div>
-
             </div>
 
             <DropdownMenuSeparator/>
@@ -67,15 +66,11 @@ const UserAccountNav = async({email, imageUrl, name}: UserAccountNavProps) => {
                         </Link> 
                     )}
                 </DropdownMenuItem>
-
                 <DropdownMenuSeparator/>
-
                 <DropdownMenuItem className='cursor-pointer'>
                     <LogoutLink>Log out</LogoutLink>
                 </DropdownMenuItem>
         </DropdownMenuContent>
-
-       
     </DropdownMenu>
   )
 }
