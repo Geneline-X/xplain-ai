@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import { LoginLink, RegisterLink, getKindeServerSession, } from '@kinde-oss/kinde-auth-nextjs/server'
+
 export default async function Home() {
 
   const { getUser } = getKindeServerSession()
@@ -14,14 +15,14 @@ export default async function Home() {
     <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
       <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
         <p className="text-sm font-semibold text-gray-700">
-           ChatflowPdfHub is now public
+           Shinsei AI is now public
         </p>
       </div>
       <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
         Chat with your <span className="text-orange-600">documents</span> in seconds
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-        CPH allows you to have conversations with any PDF document. Simply upload your file and start asking questions right away.
+       Shinsei AI allows you to have conversations with any PDF document. Simply upload your file and start asking questions right away.
         <strong className="block mt-2 font-bold">For better response use context words from the PDF.</strong>
       </p>
 
@@ -87,7 +88,7 @@ export default async function Home() {
             <h2 className="mt-2 font-bold tex--4xl text-gray-900 sm:text-5xl">
               Start Chatting in minutes
             </h2>
-            <p className="mt-4 text-lg text-gray-600">Chatting with your pdf files has never been easier with CPH</p>
+            <p className="mt-4 text-lg text-gray-600">Chatting with your pdf files has never been easier with Shinsei AI</p>
           </div>
         </div>
 
@@ -116,7 +117,7 @@ export default async function Home() {
               <span className="text-sm font-medium text-orange-600">Step 3</span>
               <span className="text-xl font-semibold">Start asking questions</span>
               <span className="mt-2 text-zinc-700">
-               It&apos;s that simple. Try out CPH today - it really takes less than a minute. 
+               It&apos;s that simple. Try out Shinsei AI today - it really takes less than a minute. 
               </span>
             </div>
           </li>

@@ -46,9 +46,9 @@ export const getBackgroundCompleted = () => {
 }
 
 export function constructMetaData({
-  title =  "ChatFlowPdfHub - the SaaS for students",
-  description = "ChatFlowPdfHub is a software that makes chatting with your PDF files easy.",
-  image = "/logo-pic.jpg",
+  title =  "Shinsei AI - the SaaS for interacting with your pdf files",
+  description = "Shinsei AI is a software that makes chatting with your PDF files easy.",
+  image = "/app-logo.jpg",
   icons = "/favicon.ico",
   noIndex = false
 }: {

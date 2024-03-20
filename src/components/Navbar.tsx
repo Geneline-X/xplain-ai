@@ -8,6 +8,7 @@ import Image from 'next/image'
 import UserAccountNav from './UserAccountNav'
 import MobileNav from './MobileNav'
 import { getUserSubscriptionPlan } from '@/lib/monime'
+import { NavLogo } from '@/app/Icons'
 
 interface Props {}
 
@@ -23,16 +24,8 @@ const Navbar = async() => {
            
               {/* Logo */}
           <div className='flex items-center space-x-2'>
-            <Image
-              src="/logo-pic.jpg"
-              width={40}
-              height={40}
-              alt="Logo"
-              quality={100}
-              className='rounded-full'
-            />
-            <Link href="/" className='flex z-40 font-semibold'>
-              <span>ChatflowPdfHub.</span>
+            <Link href="/" className='flex z-40 font-semibold text-3xl'>
+               <NavLogo/>
             </Link>
           </div>
           
