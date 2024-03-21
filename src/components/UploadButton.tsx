@@ -76,7 +76,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
            try {
 
             const readFile = (file:File) => {
-
+              
               return new Promise((resolve, reject) => {
             
                 const reader = new FileReader();

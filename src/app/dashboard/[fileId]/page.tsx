@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 import { db } from '@/db'
 import PdfRenderer from '@/components/PdfRenderer'
@@ -32,6 +32,7 @@ const Page = async({params}: PageProps) => {
     })
 
     if(!file) notFound()
+    
 
   return (
     <div className='flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)]'>

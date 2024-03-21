@@ -23,6 +23,7 @@ const Page = async() => {
     }
     
     const subscriptionPlan = await getUserSubscriptionPlan()
+    
   return (
     <>
     <DashBoard subscriptionPlan={subscriptionPlan}/>

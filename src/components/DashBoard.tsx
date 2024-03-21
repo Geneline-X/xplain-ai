@@ -11,6 +11,11 @@ import { Button } from './ui/button'
 import { useSearchParams } from 'next/navigation'
 import { getUserSubscriptionPlan } from '@/lib/monime'
 import MobileUploadButton from './MobileUploadButton'
+import { PDFDocument } from 'pdf-lib';
+import { useToast } from './ui/use-toast'
+import { useRouter } from 'next/navigation'
+import { readFile } from '@/lib/utils'
+
 interface PageProps{
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
 }
@@ -18,7 +23,11 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
 
   const searchParams = useSearchParams()
 
+  const router = useRouter()
+
+    const { toast} = useToast()
     const [currentDeletingFile, setCurrentDeletingFile] = useState<string | null>(null)
+    const [loadingFiles, setLoadingFiles] = useState<{ [key: string]: boolean }>({}) // Track loading state for each file
 
     const { data: files, isLoading } = trpc.getUserFiles.useQuery()
 
@@ -34,6 +43,34 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
             setCurrentDeletingFile(null)
         }
     })
+
+    const handleClickFile = async (file: any) => {
+      try {
+        const response = await fetch(`https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`)
+        const blob = await response.blob()
+        const arrayBuffer: any = await readFile(blob)
+        const pdf = await PDFDocument.load(arrayBuffer)
+        const numPages = pdf.getPageCount()
+        const MAX_PAGE_COUNT_FREE = 10
+  
+        // Check page count against plan limit
+        if (numPages > MAX_PAGE_COUNT_FREE && !subscriptionPlan.isSubscribed) {
+          // Show toast and redirect to pricing page
+          toast({
+            title: "Too Many Pages",
+            description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+            variant: "destructive",
+          })
+          router.push("/pricing")
+          return
+        } else {
+          router.push(`/dashboard/${file.id}`)
+          return
+        }
+      } catch (error) {
+        console.log("this is the error", error)
+      }
+    }
 
   return (
     <main className='mx-auto max-w-7xl md:p-10'>
@@ -60,12 +97,21 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
              .sort((a,b) => new Date(b.createAt).getTime() - new Date(a.createAt).getTime())
              .map((file, index) => (
                 <li key={file.id} className='col-span-1 divide-y divide-gray-200 rouonded-lg bg-white shadow transition hover:shadow-lg'>
-                   <Link href={`/dashboard/${file.id}`} className='flex flex-col gap-2 '>
+                   <Link onClick={async(e) => {
+                    e.preventDefault()
+                    setLoadingFiles(prevState => ({ ...prevState, [file.id]: true })) // Set loading state to true for this file
+                    handleClickFile(file)
+
+                   }} href={`/dashboard/${file.id}`} className='flex flex-col gap-2 '>
                     <div className="pt-6 flex w-full items-center justify-between space-x-6">
                        <div className='h-10 w-10 ml-2 flex-shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-orange-700'/>
                        <div className="flex-1 truncate">
                           <div className="flex items-center space-x-3">
-                            <h3 className='truncate text-lg font-medium text-zinc-900'>{file.name}</h3>
+                             {loadingFiles[file.id] ? ( // Display loader-spinner if loading
+                              <Loader2 color='orange' className='h-10 w-10 animate-spin' />
+                            ) : (
+                              <h3 className='truncate text-lg font-medium text-zinc-900'>{file.name}</h3>
+                            )}
                           </div>
                        </div>
                     </div>
