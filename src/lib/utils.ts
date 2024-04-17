@@ -50,15 +50,18 @@ export function constructMetaData({
   description = "Shinsei AI is a software that makes chatting with your PDF files easy.",
   image = "/app-logo.jpg",
   icons = "/favicon.ico",
-  noIndex = false
+  noIndex = false,
+  manifest="/manifest.json"
 }: {
   title?: string
+  manifest?: string
   description?: string
   image?: string
   icons?: string
   noIndex?:boolean
 } = {}) : Metadata {
   return {
+    manifest,
     title,
     description,
     openGraph: {

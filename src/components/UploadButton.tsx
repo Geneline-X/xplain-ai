@@ -4,13 +4,14 @@ import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
 import DropZone  from "react-dropzone"
-import { Cloud, File, Loader2 } from 'lucide-react'
+import { Cloud, File as LucideFile, Loader2 } from 'lucide-react'
 import { Progress } from './ui/progress'
 import { useUploadThing } from '@/lib/uploadthing'
 import { useToast } from './ui/use-toast'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
 import { PDFDocument } from 'pdf-lib';
+import { readFile } from '@/lib/utils'
 
 interface Props {}
 
@@ -62,38 +63,158 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
         <DropZone multiple={false} onDrop={async(acceptedFile) => {
               const file = acceptedFile[0]
              if (file && file?.type! !== 'application/pdf') {
-              toast({
-                title: 'Invalid File Type',
-                description: 'Please upload a PDF file.',
-                variant: 'destructive',
-              });
-              // Clear the selectedFile state to empty the input
-              setIsUpLoading(false)
-              acceptedFile = []
-              return;
+              const fileName = file?.name;
+              const fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
+              const newFileName = `${fileNameWithoutExtension}.pdf`;
+                toast({
+                  title: 'Processing',
+                  description: 'Please be patient we are processing the file.',
+                  variant: 'default',
+                });
+                  const formData = new FormData()
+                  formData.append('file', file)
+                  formData.append('instructions', `
+                    {
+                      "parts": [
+                        {
+                          "file": "file"
+                        }
+                      ]
+                    }
+                  `)
+              
+                try {
+                  
+                  setIsUpLoading(true)
+                  // Send the POST request to the API route
+                const response = await fetch('/api/document-to-pdf', {
+                  method: 'POST',
+                  body: formData,
+                  
+                })
+        
+                if (!response.ok) {
+                    toast({
+                      title: 'Conversion failed',
+                      description: 'Please try again.',
+                      variant: 'destructive',
+                    });
+                    throw new Error('Conversion failed')
+                }
+                // Process the response (assuming your API returns the converted PDF data)
+                const convertedPdfData = await response.blob()
+                console.log("this is the converted file to pdf ", convertedPdfData)
+                const convertedPdfFile = new File([convertedPdfData], newFileName, { type: 'application/pdf' });
+
+                console.log("this is the pdf file ", convertedPdfFile)
+                const arrayBuffer:any = await readFile(convertedPdfFile);
+      
+                const pdf = await PDFDocument.load(arrayBuffer);
+
+                const numPages = pdf.getPageCount();
+                console.log("this is the num ", numPages)
+
+                const MAX_PAGE_COUNT_FREE = 10
+                // Check page count against plan limit
+                if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
+                  // Show toast and redirect to pricing page
+                  toast({
+                    title: "Too Many Pages",
+                    description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+                    variant: "destructive",
+                  });
+                  router.push("/pricing"); // Replace with your pricing page URL
+                  return;
+                }
+                if(numPages < MAX_PAGE_COUNT_FREE && !isSubscribed){
+                  setIsUpLoading(true)
+                  const progressInterval = startSimulatedProgress()
+                  const res = await startUpload([convertedPdfFile])
+                  if(!res){
+                      toast({
+                          title: "something is wrong",
+                          description: "Please try again later",
+                          variant: "destructive"
+                      })
+                      setIsUpLoading(false)
+                      acceptedFile = []
+                  }else{
+                    const [fileResponse] = res || [];
+                    const key = fileResponse?.key
+        
+                    if(!key) {
+                        toast({
+                            title: "something is wrong",
+                            description: "Please try again later",
+                            variant: "destructive"
+                        })
+                        setIsUpLoading(false)
+                      acceptedFile = []
+                    }
+        
+                    clearInterval(progressInterval)
+                    setUploadProgress(100)
+        
+                    startPolling({key})
+                  }
+                }
+
+                if(isSubscribed){
+                  if(numPages > 30){
+                    toast({
+                      title: "Too Many Pages",
+                      description: `Your PDF has ${numPages} pages, which will take longer time to process. Please wait for upload to complete.`,
+                      variant: "default",
+                    });
+                  }
+                  setIsUpLoading(true)
+                  const progressInterval = startSimulatedProgress()
+                  const res = await startUpload([convertedPdfFile])
+                  if(!res){
+                      toast({
+                          title: "something is wrong",
+                          description: "Please try again later",
+                          variant: "destructive"
+                      })
+                      setIsUpLoading(false)
+                      acceptedFile = []
+                  }else{
+                    const [fileResponse] = res || [];
+                    const key = fileResponse?.key
+        
+                    if(!key) {
+                        toast({
+                            title: "something is wrong",
+                            description: "Please try again later",
+                            variant: "destructive"
+                        })
+                    }
+        
+                    clearInterval(progressInterval)
+                    setUploadProgress(100)
+        
+                    startPolling({key})
+                  }
+                }
+            
+                } catch (error) {
+                  toast({
+                    title: 'Upload Failed',
+                    description: 'An error occurred', // Provide more specific error information
+                    variant: 'destructive',
+                  });
+                  console.error(error);
+              }
             }
             //// handle the file uploading ////
            try {
 
-            const readFile = (file:File) => {
-              
-              return new Promise((resolve, reject) => {
-            
-                const reader = new FileReader();
-            
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            
-                reader.readAsArrayBuffer(file);
-              });
-            }
-        
             const arrayBuffer:any = await readFile(file);
       
             const pdf = await PDFDocument.load(arrayBuffer);
 
             const numPages = pdf.getPageCount();
-            const MAX_PAGE_COUNT_FREE = 10
+            const MAX_PAGE_COUNT_FREE = 50
             // Check page count against plan limit
             if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
               // Show toast and redirect to pricing page
@@ -208,7 +329,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                        {acceptedFiles && acceptedFiles[0] ? (
                        <div className='max-w-xs bg-white flex items-center rounded-md overflow-hidden outline-[1px] outline-zinc-200 divide-x divide-zinc-200'>
                            <div className='px-3 py-2 h-full grid place-items-center'>
-                            <File className='h-4 w-4 text-orange-500 '/>
+                            <LucideFile className='h-4 w-4 text-orange-500 '/>
                            </div>
                            <div className="px-3 py-2 h-full text-sm truncate">
                              {acceptedFiles[0].name}

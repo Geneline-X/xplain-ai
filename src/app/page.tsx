@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import { LoginLink, RegisterLink, getKindeServerSession, } from '@kinde-oss/kinde-auth-nextjs/server'
+import ContactForm from "@/components/ContactForm";
 
 export default async function Home() {
 
@@ -137,6 +138,11 @@ export default async function Home() {
           </div>
         </div>
             
+      </div>
+
+      {/* ContactForm Section */}
+      <div className="mb-5">
+        <ContactForm/>
       </div>
     </>
   )

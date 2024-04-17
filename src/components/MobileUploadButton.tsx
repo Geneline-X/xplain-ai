@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
 import DropZone  from "react-dropzone"
-import { Cloud, File, Loader2, Upload } from 'lucide-react'
+import { Cloud, File as LucideFile, Loader2, Upload } from 'lucide-react'
 import { Progress } from './ui/progress'
 import { useUploadThing } from '@/lib/uploadthing'
 import { useToast } from './ui/use-toast'
@@ -11,7 +11,7 @@ import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
 import { PDFDocument } from 'pdf-lib';
 import { PLANS } from '@/config/stripe'
-import { readFile } from 'fs'
+import { readFile } from '@/lib/utils'
 interface MobileUploadButtonProps {
     isSubscribed: boolean
 }
@@ -47,16 +47,14 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
 
   const handleFileChange = async(event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = event?.target?.files?.[0]! ?? null
-      if (selectedFile && selectedFile.type !== 'application/pdf') {
-      toast({
-        title: 'Invalid File Type',
-        description: 'Please upload a PDF file.',
-        variant: 'destructive',
-      });
-      // Clear the selectedFile state to empty the input
-       setSelectedFile(null);
-      return;
-    }
+
+      if(selectedFile && selectedFile.type !== "application/pdf"){
+        toast({
+          title: "Invalid file type",
+           description: "we only process pdf for now",
+           variant: "destructive"
+        })
+      }
     try {
 
       const readFile = (file:File) => {
@@ -223,7 +221,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
         <div className="bg-white rounded-lg p-4">
           {selectedFile && (
             <div className="flex items-center mb-4">
-              <File className="w-6 h-6 mr-2 text-blue-500" />
+              <LucideFile className="w-6 h-6 mr-2 text-blue-500" />
               <span className="text-sm">{selectedFile.name}</span>
             </div>
           )}
