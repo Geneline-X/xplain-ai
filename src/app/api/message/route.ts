@@ -3,7 +3,7 @@ import { SendMessageValidators } from "@/lib/validators/SendMessageValidator";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextRequest } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { StreamingTextResponse } from "ai"
 import { ReadableStream } from "web-streams-polyfill/ponyfill";

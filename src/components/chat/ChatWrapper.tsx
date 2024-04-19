@@ -51,7 +51,27 @@ const ChatWrapper = ({fileId}:ChatWrapperProps) => {
       </div>
     </div>
   )
+const CustomQuestions = () => {
 
+  const customQuestions = [
+    "What is the main topic of the PDF?",
+    "How many pages does the PDF have?",
+    "Is there a table of contents?",
+    // Add more questions as needed
+  ];
+
+  return (
+    <div className="mb-4">
+      <h2 className="font-semibold text-lg mb-2">Common Questions</h2>
+      <ul className="space-y-2">
+        {customQuestions.map((question, index) => (
+          <li key={index} className="text-gray-600">{question}</li>
+        ))}
+      </ul>
+    </div>
+  );
+  
+}
 
   return (
     <ChatContextProvider fileId={fileId}>
@@ -59,7 +79,6 @@ const ChatWrapper = ({fileId}:ChatWrapperProps) => {
         <div className='flex-1 justify-between flex flex-col mb-28'>
           <Messages fileId={fileId}/>
         </div>
-
         <ChatInput/>
       </div>
   </ChatContextProvider>

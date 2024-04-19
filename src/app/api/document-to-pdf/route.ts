@@ -8,7 +8,6 @@ export const POST = async (req: NextRequest, res: any) => {
     // Ensure the request contains a file
     const formData = await req.formData();
 
-    console.log("this is the format data ", formData)
     if (!formData.has('file')) {
       throw new Error('Missing file in request');
     }
@@ -23,7 +22,7 @@ export const POST = async (req: NextRequest, res: any) => {
 
      // Generate a temporary filename
      const tempFilename = `${tmpdir()}/converted-${Math.random().toString(36).substring(2, 15)}.pdf`;
-
+      
       // Write the stream data to a temporary file
        await fs.writeFile(tempFilename, response.data);
 
@@ -31,12 +30,12 @@ export const POST = async (req: NextRequest, res: any) => {
       
        // Stream the PDF data to the client in chunks
        await fs.unlink(tempFilename);
-       console.log(tempFilename)
-       console.log(fileData)
+       
+       
         return new Response(fileData, {status: 200, 
         headers: {
-          'Content-Type': 'application/pdf',
-          },
+          "Content-type": "application/pdf"
+        } 
         })
        // Clean up the temporary file after usage (optional)
        

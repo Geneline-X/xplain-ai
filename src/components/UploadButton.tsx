@@ -20,6 +20,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
     const router = useRouter()
     const [isUpLoading, setIsUpLoading] = useState<boolean | null>(false)
     const [uploadProgress, setUploadProgress] = useState<number>(0)
+    const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
     const { toast} = useToast()
     //// I will have to implement the logic for all kind of file /////
@@ -62,6 +63,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
     return (
         <DropZone multiple={false} onDrop={async(acceptedFile) => {
               const file = acceptedFile[0]
+              //// check if for the file type is not eqaul to pdf /////
              if (file && file?.type! !== 'application/pdf') {
               const fileName = file?.name;
               const fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -86,6 +88,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                 try {
                   
                   setIsUpLoading(true)
+                  setIsProcessing(true)
                   // Send the POST request to the API route
                 const response = await fetch('/api/document-to-pdf', {
                   method: 'POST',
@@ -101,6 +104,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                     });
                     throw new Error('Conversion failed')
                 }
+                setIsProcessing(false)
                 // Process the response (assuming your API returns the converted PDF data)
                 const convertedPdfData = await response.blob()
                 console.log("this is the converted file to pdf ", convertedPdfData)
@@ -112,8 +116,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                 const pdf = await PDFDocument.load(arrayBuffer);
 
                 const numPages = pdf.getPageCount();
-                console.log("this is the num ", numPages)
-
+                
                 const MAX_PAGE_COUNT_FREE = 10
                 // Check page count against plan limit
                 if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
@@ -197,12 +200,8 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                   }
                 }
             
-                } catch (error) {
-                  toast({
-                    title: 'Upload Failed',
-                    description: 'An error occurred', // Provide more specific error information
-                    variant: 'destructive',
-                  });
+                } catch (error:any) {
+                  
                   console.error(error);
               }
             }
@@ -303,13 +302,10 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
               }
             }
            } catch (error) {
-            toast({
-              title: 'Upload Failed',
-              description: 'An error occurred', // Provide more specific error information
-              variant: 'destructive',
-            });
+            
             console.error(error);
-           }    
+           }
+               
         }}>
              {({getRootProps, getInputProps, acceptedFiles}) => (
                <div {...getRootProps()} className='border h-64 m-4 border-dashed border-gray-300 rounded-lg'>
@@ -323,10 +319,9 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                            </span>{" "}
                            or drag and drop
                         </p>
-                        <p className='text-sm text-zinc-500'>PDF (up to {isSubscribed? "infinite pages" : "10 pages"})</p>
+                        <p className='text-sm text-zinc-500'>Document Files (up to {isSubscribed? "infinite pages" : "10 pages"})</p>
                        </div>
-
-                       {acceptedFiles && acceptedFiles[0] ? (
+                       {acceptedFiles && acceptedFiles[0] &&!isProcessing ? (
                        <div className='max-w-xs bg-white flex items-center rounded-md overflow-hidden outline-[1px] outline-zinc-200 divide-x divide-zinc-200'>
                            <div className='px-3 py-2 h-full grid place-items-center'>
                             <LucideFile className='h-4 w-4 text-orange-500 '/>
@@ -334,8 +329,15 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                            <div className="px-3 py-2 h-full text-sm truncate">
                              {acceptedFiles[0].name}
                             </div>
+                            
                        </div>
                     ) : null}
+                    { isProcessing ? (
+                      <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
+                          <Loader2 className='text-orange-500 h-10 w-10 animate-spin'/>
+                          Processing your file please wait...
+                      </div>
+                    ):null}
 
                     {isUpLoading ? (
                        <div className='w-full mt-4 max-w-xs mx-auto'>
@@ -356,7 +358,16 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                        
                     ): null}
 
-                    <input {...getInputProps} type="file" id='dropzone-file' className='hidden' />
+                    <input 
+                      {...getInputProps} 
+                      type="file" id='dropzone-file' 
+                      className='hidden' 
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        event.preventDefault(); 
+                        
+                      }}
+                    />
                     </label> 
                  </div>
                </div>

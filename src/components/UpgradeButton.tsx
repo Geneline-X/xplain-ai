@@ -9,7 +9,7 @@ const UpgradeButton = () => {
       
       const { mutate: createMonimeSession, isLoading} = trpc.createMonimeSession.useMutation({
         onSuccess: (data) => {
-            console.log(data)
+           
             const url = data?.url ?? '/dashboard/billing';
              window.location.href = url;
         }

@@ -20,13 +20,12 @@ export default async function Home() {
         </p>
       </div>
       <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
-        Chat with your <span className="text-orange-600">documents</span> in seconds
+        Unlock the knowledge within any <span className="text-orange-600">documents</span> in seconds.
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-       Shinsei AI allows you to have conversations with any PDF document. Simply upload your file and start asking questions right away.
-        <strong className="block mt-2 font-bold">For better response use context words from the PDF.</strong>
+        Shinsei AI lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
+        <strong className="block mt-2 font-bold">Use keywords from the document for optimal results.</strong>
       </p>
-
       {!user ?<>
         <RegisterLink className={
           buttonVariants({ size: "lg", className: "mt-5"})}>
@@ -40,12 +39,7 @@ export default async function Home() {
         Dashboard <ArrowRight className="ml-2 h-5 w-5"/>
       </Link>
       </>}
-      {/* <Link className={buttonVariants({
-        size: "lg",
-        className: "mt-5"
-      })} href="/dashboard" target="_blank">
-        Get Started <ArrowRight className="ml-2 h-5 w-5"/>
-      </Link> */}
+      
     </MaxWidthWrapper>
 
       {/* value proposition section */}
@@ -87,9 +81,9 @@ export default async function Home() {
         <div className="mb-12 px-6 lg:px-8">
           <div className="mx-auto max-w-2xl sm:text-center ">
             <h2 className="mt-2 font-bold tex--4xl text-gray-900 sm:text-5xl">
-              Start Chatting in minutes
+              Unlock Document Knowledge Instantly.
             </h2>
-            <p className="mt-4 text-lg text-gray-600">Chatting with your pdf files has never been easier with Shinsei AI</p>
+            <p className="mt-4 text-lg text-gray-600">Stop struggling to find information in your documents. Shinsei AI lets you chat with any document type and get answers in seconds.</p>
           </div>
         </div>
 
@@ -98,18 +92,18 @@ export default async function Home() {
           <li className="md:flex">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
               <span className="text-sm font-medium text-orange-600">Step 1</span>
-              <span className="text-xl font-semibold">Sign up for an account</span>
+              <span className="text-xl font-semibold">Sign up for an account.</span>
               <span className="mt-2 text-zinc-700">
-                Either starting out with a free plan or choose our <Link href="/pricing" className="text-orange-700 underline underline-offset-2">pro plan</Link> 
+                Either starting out with a free plan or choose our. <Link href="/pricing" className="text-orange-700 underline underline-offset-2">pro plan</Link> 
               </span>
             </div>
           </li>
           <li className="md:flex">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
               <span className="text-sm font-medium text-orange-600">Step 2</span>
-              <span className="text-xl font-semibold">Upload your PDF file</span>
+              <span className="text-xl font-semibold">Upload any document (PDF, PPTX, DOCX, etc.).</span>
               <span className="mt-2 text-zinc-700">
-               We&apos;ll process your file and make it ready for you to chat with
+              Shinsei AI will automatically process it, using industry-standard encryption to keep your information safe. The processed data is then readily accessible through chat.
               </span>
             </div>
           </li>
@@ -118,7 +112,7 @@ export default async function Home() {
               <span className="text-sm font-medium text-orange-600">Step 3</span>
               <span className="text-xl font-semibold">Start asking questions</span>
               <span className="mt-2 text-zinc-700">
-               It&apos;s that simple. Try out Shinsei AI today - it really takes less than a minute. 
+               Unleash the knowledge within your documents! Start asking questions and get answers in seconds. Try Shinsei AI today - it&apos;s faster than ever.
               </span>
             </div>
           </li>

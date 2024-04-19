@@ -51,8 +51,6 @@ const ContactForm = () => {
       const onSubmit = async(values: z.infer<typeof formSchema>) => {
         try {
            
-            console.log(values)
-            
             const response = await fetch("/api/receive-email-from-users", {
                 method: "POST",
                 body: JSON.stringify(values)

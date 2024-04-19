@@ -105,13 +105,13 @@ const Page = async() => {
                     </div>
                     <div className='flex h-20 items-center justify-center border-b border-t border-gray-200 bg-gray-50'>
                        <div className='flex items-center space-x-1'>
-                          <p>{quota.toLocaleString()} PDFs/mo included</p>
+                          <p>{quota.toLocaleString()} Files/mo included</p>
                           <Tooltip delayDuration={300}>
                              <TooltipTrigger className='cursor-default ml-1.5'>
                               <HelpCircle className='h-4 w-4 text-zinc-500'/>
                              </TooltipTrigger>
                              <TooltipContent className='w-80 p-2'>
-                                How many PDFs you can upload per month
+                                How many Files you can upload per month
                              </TooltipContent>
                           </Tooltip>
                        </div>
@@ -160,7 +160,7 @@ const Page = async() => {
                             className: "w-full",
                             variant: "secondary"
                           })}>
-                            {user ? "Upgrade now" : "Sign up"}
+                            {user ? "Dashboard" : "Sign up"}
                             <ArrowRight className='h-5 w-5 ml-1.5'/>
                           </Link>
                         ): user ? (

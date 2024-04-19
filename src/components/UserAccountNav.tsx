@@ -49,7 +49,11 @@ const UserAccountNav = async({email, imageUrl, name}: UserAccountNavProps) => {
             </div>
 
             <DropdownMenuSeparator/>
-
+                <DropdownMenuItem asChild>
+                    <Link href='/'>
+                        Home
+                    </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link href='/dashboard'>
                         Dashboard
