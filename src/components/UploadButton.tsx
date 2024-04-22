@@ -107,10 +107,10 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                 setIsProcessing(false)
                 // Process the response (assuming your API returns the converted PDF data)
                 const convertedPdfData = await response.blob()
-                console.log("this is the converted file to pdf ", convertedPdfData)
+               
                 const convertedPdfFile = new File([convertedPdfData], newFileName, { type: 'application/pdf' });
 
-                console.log("this is the pdf file ", convertedPdfFile)
+               
                 const arrayBuffer:any = await readFile(convertedPdfFile);
       
                 const pdf = await PDFDocument.load(arrayBuffer);
