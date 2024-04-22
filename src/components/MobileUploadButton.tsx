@@ -25,6 +25,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
   const { toast } = useToast();
   const { startUpload } = useUploadThing(isSubscribed ? 'proPlanUploader' : 'freePlanUploader');
   const [disabled, setDisabled] = useState<boolean>(true)
+  const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
   const { mutate: startPolling } = trpc.getFile.useMutation({
     onSuccess: (file) => {
@@ -49,92 +50,93 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
       const selectedFile = event?.target?.files?.[0]! ?? null
 
       if(selectedFile && selectedFile.type !== "application/pdf"){
+        
+        const fileName = selectedFile?.name;
+        const fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
+        const newFileName = `${fileNameWithoutExtension}.pdf`;
         toast({
-          title: "Invalid file type",
-           description: "we only process pdf for now",
-           variant: "destructive"
-        })
-      }
-    try {
-
-      const readFile = (file:File) => {
-
-        return new Promise((resolve, reject) => {
-      
-          const reader = new FileReader();
-      
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = error => reject(error);
-      
-          reader.readAsArrayBuffer(file);
+          title: 'Processing',
+          description: 'Please be patient we are processing the file.',
+          variant: 'default',
         });
-      }
-  
-      const arrayBuffer:any = await readFile(selectedFile);
 
-      const pdf = await PDFDocument.load(arrayBuffer);
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('instructions', `
+          {
+            "parts": [
+              {
+                "file": "file"
+              }
+            ]
+          }
+        `)
 
-      const numPages = pdf.getPageCount();
-      const MAX_PAGE_COUNT_FREE = 10
-      // Check page count against plan limit
-      if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
-        // Show toast and redirect to pricing page
-        toast({
-          title: "Too Many Pages",
-          description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
-          variant: "destructive",
-        });
-        router.push("/pricing"); // Replace with your pricing page URL
-        return;
-      }
-      if(numPages < MAX_PAGE_COUNT_FREE && !isSubscribed){
-        // No page limit exceeded, proceed with setting state and opening modal
-          setSelectedFile(selectedFile);
-          setIsOpen(true);
-      }
-      if(isSubscribed){
-        if(numPages > 30){
-          toast({
-            title: "Too Many Pages",
-            description: `Your PDF has ${numPages} pages, which will take longer time to process. Please wait for upload to complete.`,
-            variant: "default",
-          });
+        try {
+          
+            setIsUploading(true)
+            setIsProcessing(true)
+                  // Send the POST request to the API route
+            const response = await fetch('/api/document-to-pdf', {
+              method: 'POST',
+              body: formData,
+              
+            })
+
+            if (!response.ok) {
+              toast({
+                title: 'Conversion failed',
+                description: 'Please try again.',
+                variant: 'destructive',
+              });
+              throw new Error('Conversion failed')
+              
+          }
+          setIsProcessing(false)
+
+          const convertedPdfData = await response.blob()
+               
+          const convertedPdfFile = new File([convertedPdfData], newFileName, { type: 'application/pdf' });
+
+         console.log("this is the pdf File ", convertedPdfFile)
+          const arrayBuffer:any = await readFile(convertedPdfFile);
+
+          const pdf = await PDFDocument.load(arrayBuffer);
+
+          const numPages = pdf.getPageCount();
+
+          const MAX_PAGE_COUNT_FREE = 10
+          // Check page count against plan limit
+          if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
+            // Show toast and redirect to pricing page
+            toast({
+              title: "Too Many Pages",
+              description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+              variant: "destructive",
+            });
+            router.push("/pricing"); // Replace with your pricing page URL
+            return;
+          }
+
+          if(numPages < MAX_PAGE_COUNT_FREE && !isSubscribed){
+                setIsUploading(false)
+                console.log(convertedPdfFile)
+                setSelectedFile(convertedPdfFile)
+            }
+          
+
+          if(isSubscribed){
+            setIsUploading(false)
+            setSelectedFile(convertedPdfFile)
+          }
+
+        } catch (error) {
+          console.log("this is the error")
         }
-        // No page limit exceeded, proceed with setting state and opening modal
-          setSelectedFile(selectedFile);
-          setIsOpen(true);
+      }else{
+        setSelectedFile(selectedFile)
       }
-    } catch (error) {
-      // Handle PDF reading error
-      toast({
-        title: "Error Reading PDF",
-        description: "An error occurred while reading the PDF file. Please try again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-     // Check file size
-     const MAX_FILE_SIZE_BYTES = 32 * 1024 * 1024;
-     if (selectedFile.size > MAX_FILE_SIZE_BYTES && !isSubscribed) { // Assuming you have a MAX_FILE_SIZE constant
-      toast({
-        title: "File Too Large",
-        description: `File size exceeds the maximum allowed size of 32MB.`,
-        variant: "destructive",
-      });
-      setSelectedFile(null);
-      router.push('/pricing')
-      return;
-    }
-    if(selectedFile.size < MAX_FILE_SIZE_BYTES && !isSubscribed){
-      setSelectedFile(selectedFile);
-      setIsOpen(true);
-    }
-    if(isSubscribed){
-      setSelectedFile(selectedFile);
-      setIsOpen(true);
-    }
-    
+        
   };
 
   const handleFileUpload = async () => {
@@ -168,11 +170,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
      }
 
     } catch (error:any) {
-      toast({
-        title: 'Upload Failed',
-         description: 'An error occurred', // Provide more specific error information
-         variant: 'destructive',
-      });
+      
       console.error(error);
     } finally {
       clearInterval(progressInterval);
@@ -212,7 +210,6 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
       <input
         id="mobile-file-input"
         type="file"
-        accept="application/pdf"
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
@@ -234,6 +231,12 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
                     <span className="text-gray-600">Redirecting...</span>
                 </div>
               ) : null}
+              { isProcessing ? (
+                      <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
+                          <Loader2 className='text-orange-500 h-10 w-10 animate-spin'/>
+                          Processing your file please wait...
+                      </div>
+                ):null}
             </div>
           ) : (
             // messing around //
