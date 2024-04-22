@@ -49,6 +49,13 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
   const handleFileChange = async(event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = event?.target?.files?.[0]! ?? null
 
+      if (!selectedFile) {
+        // No file selected, reset everything
+        setSelectedFile(null);
+        setDisabled(true);
+        return;
+      }
+
       if(selectedFile && selectedFile.type !== "application/pdf"){
         
         const fileName = selectedFile?.name;
@@ -98,13 +105,12 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
                
           const convertedPdfFile = new File([convertedPdfData], newFileName, { type: 'application/pdf' });
 
-         console.log("this is the pdf File ", convertedPdfFile)
           const arrayBuffer:any = await readFile(convertedPdfFile);
 
           const pdf = await PDFDocument.load(arrayBuffer);
 
           const numPages = pdf.getPageCount();
-
+          console.log(numPages)
           const MAX_PAGE_COUNT_FREE = 10
           // Check page count against plan limit
           if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
@@ -133,9 +139,33 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
         } catch (error) {
           console.log("this is the error")
         }
-      }else{
-        setSelectedFile(selectedFile)
       }
+      try {
+        const arrayBuffer:any = await readFile(selectedFile);
+
+        const pdf = await PDFDocument.load(arrayBuffer);
+
+        const numPages = pdf.getPageCount();
+         console.log(numPages)
+        const MAX_PAGE_COUNT_FREE = 10
+
+        if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
+          // Show toast and redirect to pricing page
+          toast({
+            title: "Too Many Pages",
+            description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+            variant: "destructive",
+          });
+          router.push("/pricing"); // Replace with your pricing page URL
+          setSelectedFile(null)
+          return;
+        }
+        // Enable or disable the upload button based on subscription status
+        setDisabled(!isSubscribed && numPages > MAX_PAGE_COUNT_FREE);
+        setSelectedFile(selectedFile);
+        } catch (error) {
+          console.log(error)
+        }
         
   };
 
@@ -220,9 +250,10 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
             <div className="flex items-center mb-4">
               <LucideFile className="w-6 h-6 mr-2 text-blue-500" />
               <span className="text-sm">{selectedFile.name}</span>
+              
             </div>
           )}
-          {isUploading ? (
+          {isUploading && !isProcessing ? (
             <div className="flex items-center">
               <Progress value={uploadProgress} />
               {uploadProgress === 100 ? (
