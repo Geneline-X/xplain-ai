@@ -146,7 +146,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
         const pdf = await PDFDocument.load(arrayBuffer);
 
         const numPages = pdf.getPageCount();
-         console.log(numPages)
+       
         const MAX_PAGE_COUNT_FREE = 10
 
         if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
@@ -253,9 +253,9 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
               
             </div>
           )}
-          {isUploading && !isProcessing ? (
+          {isUploading ? (
             <div className="flex items-center">
-              <Progress value={uploadProgress} />
+             {!isProcessing? <Progress value={uploadProgress} />:null}
               {uploadProgress === 100 ? (
                 <div className="flex items-center">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
