@@ -1,63 +1,54 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("SUPABASE_DATABASE_URL")
+  directUrl    = env("SUPABASE_DIRECT_URL")
   relationMode = "prisma"
 }
 
 model User {
-  id String @id @unique
-  email String @unique
-  File File[]
-  Message Message[]
-
-  monimeCustomerId String? @unique @map(name: "monime_customer_id") // Adjusted mapping
-  monimeSubscriptionId String? @unique @map(name: "monime_subscription_id") // Adjusted mapping
-  monimeSessionId String? @map(name: "monime_session_id") // New field for Monime session ID
-  monimeUrl String? @map(name: "monime_url") // New field for Monime checkout URL
-  monimeCurrentPeriodsEnd DateTime? @map(name: "monime_current_period_end") // Adjusted mapping
+  id                      String    @id(map: "idx_28874_PRIMARY") @unique(map: "idx_28874_User_id_key") @db.VarChar(191)
+  email                   String    @unique(map: "idx_28874_User_email_key") @db.VarChar(191)
+  monimeCustomerId        String?   @unique(map: "idx_28874_User_monime_customer_id_key") @map("monime_customer_id") @db.VarChar(191)
+  monimeSubscriptionId    String?   @unique(map: "idx_28874_User_monime_subscription_id_key") @map("monime_subscription_id") @db.VarChar(191)
+  monimeSessionId         String?   @map("monime_session_id") @db.VarChar(191)
+  monimeUrl               String?   @map("monime_url") @db.VarChar(191)
+  monimeCurrentPeriodsEnd DateTime? @map("monime_current_period_end") @db.Timestamptz(6)
+  File                    File[]
+  Message                 Message[]
 }
 
-enum upLoadStatus {
+model File {
+  id           String            @id(map: "idx_28861_PRIMARY") @default(cuid()) @db.VarChar(191)
+  name         String            @db.VarChar(191)
+  uploadStatus File_uploadStatus @default(PENDING)
+  url          String            @db.VarChar(191)
+  key          String            @db.VarChar(191)
+  createAt     DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime          @updatedAt @db.Timestamptz(6)
+  userId       String?           @db.VarChar(191)
+  message      Message[]
+  User         User?             @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id            String   @id(map: "idx_28868_PRIMARY") @default(cuid()) @db.VarChar(191)
+  text          String
+  isUserMessage Boolean
+  createAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  userId        String?  @db.VarChar(191)
+  fileId        String?  @db.VarChar(191)
+  User          User?    @relation(fields: [userId], references: [id])
+  File          File?    @relation(fields: [fileId], references: [id])
+}
+
+enum File_uploadStatus {
   PENDING
   PROCESSING
   FAILED
   SUCCESS
-}
-model File {
-  id String @id @default(cuid())
-  name String 
-
-  uploadStatus upLoadStatus @default(PENDING)
-
-  url String
-  key String
-  message Message[]
-
-  createAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  User User? @relation(fields: [userId], references: [id])
-  userId String?
-}
-
-model Message {
-  id String @id @default(cuid())
-  text String @db.Text()
-
-  isUserMessage Boolean 
-
-  createAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  User User? @relation(fields: [userId], references: [id])
-  userId String?
-  File File? @relation(fields: [fileId], references: [id])
-  fileId String?
-
 }
