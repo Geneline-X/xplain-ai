@@ -36,25 +36,25 @@ export const getTokenPrice = async(address: string) => {
 /// app logo ////
 export const appLogo = 'https://i.postimg.cc/gcxV8R6L/app-logo.jpg'
 
-export const liveblocks = new Liveblocks({
-    secret: `${process.env.LIVEBLOCK_SECRET_API}`,
-});
+// export const liveblocks = new Liveblocks({
+//     secret: `${process.env.LIVEBLOCK_SECRET_API}`,
+// });
 
 type SessionProps = { 
     user: KindeUser;
     randomHex: string
 }
 /// function that create a session for the user /////
-export const createLiveBlockSession = ({user, randomHex}: SessionProps) => {
-    const session = liveblocks.prepareSession(user?.id, {
-    userInfo: {
-        name: `${user?.family_name} ${user?.family_name}`,
-        picture: user?.picture,
-        color: randomHex
-    },
-  });
-  return session
-}
+// export const createLiveBlockSession = ({user, randomHex}: SessionProps) => {
+//     const session = liveblocks.prepareSession(user?.id, {
+//     userInfo: {
+//         name: `${user?.family_name} ${user?.family_name}`,
+//         picture: user?.picture,
+//         color: randomHex
+//     },
+//   });
+//   return session
+// }
 
 // function that get similar embeddings of the message //
 export const getSimilarEmbeddings = async({file, message}: any) => {
