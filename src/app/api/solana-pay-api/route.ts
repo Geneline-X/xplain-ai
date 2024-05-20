@@ -1,4 +1,3 @@
-import { appLogo, getTokenPrice } from "@/lib/elegance";
 import { NextApiRequest, NextApiResponse } from "next";
 import { clusterApiUrl, Connection, Keypair, PublicKey, VersionedTransaction, Cluster, Transaction, SystemProgram, LAMPORTS_PER_SOL, } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';

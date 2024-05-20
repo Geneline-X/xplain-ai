@@ -6,8 +6,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js"
-import { establishConnection } from "@/lib/solana-pay-utils/establishConnection"
-import { appLogo } from "@/lib/elegance"
+import { establishConnection } from "../../../lib/solana-pay-utils/establishConnection"
 
 
 // API endpoint
@@ -27,12 +26,12 @@ import { appLogo } from "@/lib/elegance"
 // "res" is Text and Image that displays when wallet first scans
 export async function GET(res: NextApiResponse) {
 //   res.status(200).json({
-//     label: "Shinsei AI",
+//     label: "XPLAIN AI",
 //     icon: appLogo,
 //   })
 console.log("this is the get request in the api")
   return new Response(JSON.stringify({
-    label: "Shinsei AI",
+    label: "XPLAIN AI",
     icon: "https://i.postimg.cc/gcxV8R6L/app-logo.jpg",
   }), {status: 200})
 }
