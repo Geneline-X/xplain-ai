@@ -2,11 +2,9 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { db } from "@/db";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Pinecone } from '@pinecone-database/pinecone';
 import { getUserSubscriptionPlan } from "@/lib/monime"
 import {PLANS} from "@/config/stripe"
-
+import { processBatch, updateStatusInDb } from "@/lib/elegance";
 export const maxDuration = 300;
 
 const f = createUploadthing();
@@ -22,6 +20,7 @@ const middleware = async() => {
 
 }
 
+//  run this code after upload completed to upload thing
 const onUploadComplete = async({metadata, file}: {
   metadata: Awaited<ReturnType<typeof middleware>>
   file: {
@@ -61,97 +60,38 @@ const onUploadComplete = async({metadata, file}: {
     
     const {subscriptionPlan} = metadata
     
-    const { isSubscribed} = subscriptionPlan
+    const { isSubscribed } = subscriptionPlan
     const isProExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf
     
     const isFreeExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf
-    // (isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)
+   
     if((isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)){
-      await db.file.update({
-        data: {
-          uploadStatus: "FAILED"
-        },
-        where: {
-          id: createdFile.id,
-        }
-      })
+      await updateStatusInDb({uploadStatus:"FAILED", createdFile})
     } else{
-      const pinecone = new Pinecone({
-        apiKey: process.env.PINECONE_API_KEY!,
-         environment: 'apw5-4e34-81fa',
-         projectId: 'xon8qzk'
-      })
-      const pineconeIndex = pinecone.Index("cph-serverless");
-      
-      // Vectorize and index the entire documents using gemini /////
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-      const model = genAI.getGenerativeModel({ model: "embedding-001" });
-      
-      // Vectorize each page and store the embeddings in an array
-    
+
       // Process pages in batches
       const batchSize = 50; 
 
-      // Function to process a batch of pages concurrently
-      const processBatch = async (batch:any, startIndex:number):Promise<any> => {
-          try {
-              const upsertPromises = batch.map(async (page:any, index:number) => {
-                const pageIndex = startIndex + index;
-                const pageText = page.pageContent;
-
-                // Embed the individual page using model.embedContent
-                const result = await model.embedContent(pageText);
-                const pageEmbedding = result.embedding.values;
-
-                const pageId = `${createdFile.id}-page-${pageIndex}`;
-
-                // Store the embedding for the page
-                return pineconeIndex.namespace(createdFile.id).upsert([
-                    {
-                        id: pageId,
-                        values: pageEmbedding,
-                    }
-                ]);
-            });
-
-            // Wait for all upsert operations in the batch to complete
-            return Promise.all(upsertPromises);
-          } catch (error:any) {
-            // Handle the error gracefully
-              console.error('Error occurred during batch processing:', error.message);
-              // You can choose to log the error, retry the operation, or take other appropriate actions
-
-              // Retry the operation for the failed batch
-              return processBatch(batch, startIndex);
-          }
-      };
       const totalPages = pageLevelDocs.length;
-      for (let i = 0; i < totalPages; i += batchSize) {
-          const batch = pageLevelDocs.slice(i, i + batchSize);
-          await processBatch(batch, i);
+      for (let startIndex = 0; startIndex < totalPages; startIndex += batchSize) {
+        
+          // creating the batch //
+          const batch = pageLevelDocs.slice(startIndex, startIndex + batchSize);
+
+          // process the pages by batches ///
+          await processBatch({batch, startIndex, createdFile});
       }
       
-      await db.file.update({
-        data: {
-          uploadStatus: 'SUCCESS'
-        },
-        where: {
-          id: createdFile.id,
-        }
-      })
+      // update the file status to success
+      await updateStatusInDb({uploadStatus:"SUCCESS", createdFile})
+      
       console.log("PDF Vectorization and Pinecone Indexing complete!");
   
     }
   } catch (error) {
     // Handle errors
-    await db.file.update({
-      data: {
-        uploadStatus: 'FAILED'
-      },
-      where: {
-        id: createdFile.id,
-      }
-    })
+    await updateStatusInDb({uploadStatus:"FAILED", createdFile})
+    
     console.error("Error:", error);
   }
 }

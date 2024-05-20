@@ -264,14 +264,14 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
               ) : null}
               { isProcessing ? (
                       <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
-                          <Loader2 className='text-orange-500 h-10 w-10 animate-spin'/>
+                          <Loader2 className='text-blue-400 h-10 w-10 animate-spin'/>
                           Processing your file please wait...
                       </div>
                 ):null}
             </div>
           ) : (
             // messing around //
-            <Button disabled={!selectedFile ? true : false} onClick={handleFileUpload} className="w-full bg-orange-500 text-white">
+            <Button disabled={!selectedFile ? true : false} onClick={handleFileUpload} className="w-full bg-blue-400 text-white">
               Upload <Upload className='w-4 h-4 ml-2'/>
             </Button>
           )}

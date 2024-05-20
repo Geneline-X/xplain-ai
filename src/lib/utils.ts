@@ -1,10 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { Metadata } from "next"
 import { twMerge } from "tailwind-merge"
-import { pathToFileURL } from "url"
-import { createClient, ClientClosedError } from 'redis';
-import { promisify } from "util";
-import atExit from 'exit-hook'; // Import the atExit library
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -46,8 +42,8 @@ export const getBackgroundCompleted = () => {
 }
 
 export function constructMetaData({
-  title =  "Shinsei AI - the SaaS for interacting with your pdf files",
-  description = "Shinsei AI is a software that makes chatting with your PDF files easy.",
+  title =  "XPLAIN AI - the SaaS for interacting with your document(pdf,ppt,doc,etc) files",
+  description = "XPLAIN AI is a software that makes chatting with your Documents(pdf,ppt,doc,etc) files easy.",
   image = "/app-logo.jpg",
   icons = "/favicon.ico",
   noIndex = false,
@@ -93,53 +89,7 @@ export function constructMetaData({
 }
 
 
-//////This Code is Going to perform Caching of the pdf ///////
 
-   ///// using Redis but i am having some errors /////
-// const client =  createClient({
-//     password: process.env.REDIS_PASSWORD,
-//     socket: {
-//         host: 'redis-13762.c274.us-east-1-3.ec2.cloud.redislabs.com',
-//         port: 13762
-//     }
-// })
-
-// const getAsync = promisify(client.get).bind(client);
-// const setAsync = promisify(client.set).bind(client);
-
-// async function getCachedOrFetch(url: string): Promise<{ blob: Blob; fromCache: boolean }> {
-//   // Ensure connection before first use
-//   await client.connect();
-
-//   try {
-//     if (!client.isOpen) {
-//       await client.connect(); // Reconnect if needed
-//     }
-//     const cachedData = await getAsync(url);
-
-//   if (cachedData) {
-//     const blob = new Blob([cachedData]);
-//     return { blob, fromCache: true };
-//   }
-
-//   const responseBlob = await fetch(url);
-//   const blob = await responseBlob.blob();
-
-//   // Cache the response in Redis with a 5-minute expiration time (adjust as needed)
-//   await setAsync(url, await blob.arrayBuffer(), 'EX', 300); // 5 minutes in seconds
-
-//   return {blob, fromCache:false};
-//   } catch (error) {
-//     if (error instanceof ClientClosedError) {
-//       console.error("Redis client closed. Attempting reconnection...");
-//       await client.connect();
-//       // Retry the operation after reconnection
-//       return getCachedOrFetch(url);
-//     } else {
-//       throw error; // Re-throw other errors
-//     }
-//   }
-// }
 
 ///////// in-memory caching ////////////
   // Create an in-memory cache for blobs
@@ -155,6 +105,7 @@ export function constructMetaData({
     }
   }
 
+  // utility function //
 export const readFile = (file:Blob) => {
               
     return new Promise((resolve, reject) => {
@@ -222,6 +173,7 @@ while (messageQueue.length > 0) {
 }
 }
 
+/// priotize context ///
 export function prioritizeContext(pageLevelDocs:any[], keywords:any = []) {
   try {
         // Handle empty input gracefully
@@ -262,3 +214,20 @@ export function isPdfFileType(fileType: string): boolean {
 export function isPptxFileType(fileType: string): boolean {
   return fileType === 'application/vnd.ms-powerpoint' || fileType.startsWith('application/vnd.openxmlformats-officedocument.presentationml.');
 }
+
+
+export function generateRandomHex() {
+  const randomValue = Math.floor(Math.random() * 16777215); // Generate a random integer between 0 and 0xFFFFFF (inclusive)
+  return randomValue.toString(16).padStart(6, '0'); // Convert to hexadecimal string and pad with leading zeros if necessary
+}
+
+export const COLORS = [
+  "#E57373",
+  "#9575CD",
+  "#4FC3F7",
+  "#81C784",
+  "#FFF176",
+  "#FF8A65",
+  "#F06292",
+  "#7986CB",
+];

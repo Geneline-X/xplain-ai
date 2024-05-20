@@ -14,6 +14,7 @@ interface Props {}
 const pricingItems = [
   {
     plan: 'Free',
+    priceMonime: "0",
     tagline: 'For small side projects.',
     quota: 10,
     features: [
@@ -40,9 +41,62 @@ const pricingItems = [
     ],
   },
   {
-    plan: 'Pro',
+    plan: 'Pro-hour',
+    priceMonime: "100", // 500
     tagline: 'For larger projects with higher needs.',
-    quota: PLANS.find((p) => p.slug === 'pro')!.quota,
+    quota: PLANS.find((p) => p.slug === 'pro-hour')!.quota,
+    features: [
+      {
+        text: 'Infinte pages per PDF',
+        footnote: 'The maximum amount of pages per PDF-file.',
+      },
+      {
+        text: '1Gb file size limit',
+        footnote: 'The maximum file size of a single PDF file.',
+      },
+      {
+        text: 'Mobile-friendly interface',
+      },
+      {
+        text: 'Higher-quality responses',
+        footnote: 'Better algorithmic responses for enhanced content quality',
+      },
+      {
+        text: 'Priority support',
+      },
+    ],
+  },
+  {
+    plan: 'Pro-day',
+    priceMonime: "102", // 2000,
+    tagline: 'For larger projects with higher needs.',
+    quota: PLANS.find((p) => p.slug === 'pro-day')!.quota,
+    features: [
+      {
+        text: 'Infinte pages per PDF',
+        footnote: 'The maximum amount of pages per PDF-file.',
+      },
+      {
+        text: '1Gb file size limit',
+        footnote: 'The maximum file size of a single PDF file.',
+      },
+      {
+        text: 'Mobile-friendly interface',
+      },
+      {
+        text: 'Higher-quality responses',
+        footnote: 'Better algorithmic responses for enhanced content quality',
+      },
+      {
+        text: 'Priority support',
+      },
+    ],
+  },
+  {
+    plan: 'Pro-week',
+    priceMonime: "103", // 5000,
+    tagline: 'For larger projects with higher needs.',
+    quota: PLANS.find((p) => p.slug === 'pro-week')!.quota,
     features: [
       {
         text: 'Infinte pages per PDF',
@@ -70,6 +124,13 @@ const Page = async() => {
 
     const { getUser } = getKindeServerSession()
     const user = await getUser()
+
+    const handleCryptoPayment = (cryptocurrency: string) => {
+      // Redirect to crypto payment page and pass cryptocurrency as state
+      // Example: redirect to `/crypto-payment?crypto=${cryptocurrency}`
+    }
+
+    
   return (
     <>
      <MaxWidthWrapper className='mb-8 mt-24 text-center max-w-5xl'>
@@ -81,16 +142,16 @@ const Page = async() => {
         </div>
         <div className='pt-12 grid grid-cols-1 gap-10 lg:grid-cols-2'>
             <TooltipProvider>
-              {pricingItems.map(({plan, tagline, quota, features}) => {
+              {pricingItems.map(({plan, tagline, quota, features, priceMonime}) => {
                 const price = PLANS.find((p) => p.slug === plan.toLowerCase())?.price.amount || 0
 
                 return (
                     <div key={plan} className={cn("relative rounded-2xl bg-white shadow-lg", {
-                    "border-2 border-orange-600 shadow-orange-200": plan === 'Pro',
-                    "border border-gray-200": plan !== "Pro"
+                    "border-2 border-blue-500 shadow-blue-200": plan.startsWith("Pro"),
+                    "border border-gray-200": !plan.startsWith("Pro") 
                   })}>
-                    {plan === "Pro" && (
-                      <div className='absolute -top-5 left-0 right-0 mx-auto w-32 rounded-full bg-gradient-to-r from-orange-600 to-red-600 px-3 py-2 tx-sm font-medium text-white'>
+                    {plan.startsWith("Pro") && (
+                      <div className='absolute -top-5 left-0 right-0 mx-auto w-32 rounded-full bg-gradient-to-r from-blue-500 to-blue-500 px-3 py-2 tx-sm font-medium text-white'>
                         Upgrade now
                       </div>
                     )}
@@ -100,8 +161,12 @@ const Page = async() => {
                         {plan}
                       </h3>
                       <p className='text-gray-500'>{tagline}</p>
-                      <p className='my-5 font-display text-6xl font-semibold'>sle  {price}</p>
-                      {plan === "Pro" && <p className='text-gray-500'>for 3 Hours</p>}
+                      <p className='my-5 font-display text-6xl font-semibold'>SLE  {price}</p>
+                      {
+                      plan === "Pro-hour" ? <p className='text-gray-500'>for 3 Hours</p>:
+                      plan === "Pro-day" ? <p className='text-gray-500'>for a Day</p>:
+                      plan === "Pro-week" ? <p className='text-gray-500'>for a Week</p>: null
+                      }
                     </div>
                     <div className='flex h-20 items-center justify-center border-b border-t border-gray-200 bg-gray-50'>
                        <div className='flex items-center space-x-1'>
@@ -124,7 +189,7 @@ const Page = async() => {
                              {negative ? (
                               <Minus className='h-6 w-6 text-gray-300'/>
                              ): (
-                               <Check className='h-6 w-6 text-orange-500'/>
+                               <Check className='h-6 w-6 text-blue-400'/>
                              )}
                           </div>
                           {footnote ? (
@@ -163,8 +228,8 @@ const Page = async() => {
                             {user ? "Dashboard" : "Sign up"}
                             <ArrowRight className='h-5 w-5 ml-1.5'/>
                           </Link>
-                        ): user ? (
-                         <UpgradeButton/>
+                        ): user && priceMonime ? (
+                         <UpgradeButton price={priceMonime}/>
                         ): (
                           <Link href="/sign-in" className={buttonVariants({
                             className: "w-full"
@@ -172,13 +237,18 @@ const Page = async() => {
                             {user ? "Upgrade now" : "Sign up"}
                             <ArrowRight className='h-5 w-5 ml-1.5'/>
                           </Link>
-                        )}
+                        )}  
                     </div>
                   </div>
                 )
               })}
             </TooltipProvider>
         </div>
+        {/* <div className='flex justify-between mt-7'>
+          <Link href="/pricing/solana-pay" >
+             Pay Using Solana Token
+          </Link>
+        </div> */}
      </MaxWidthWrapper>
     </>
   )

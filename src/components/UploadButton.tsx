@@ -324,7 +324,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                        {acceptedFiles && acceptedFiles[0] &&!isProcessing ? (
                        <div className='max-w-xs bg-white flex items-center rounded-md overflow-hidden outline-[1px] outline-zinc-200 divide-x divide-zinc-200'>
                            <div className='px-3 py-2 h-full grid place-items-center'>
-                            <LucideFile className='h-4 w-4 text-orange-500 '/>
+                            <LucideFile className='h-4 w-4 text-blue-400 '/>
                            </div>
                            <div className="px-3 py-2 h-full text-sm truncate">
                              {acceptedFiles[0].name}
@@ -334,7 +334,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                     ) : null}
                     { isProcessing ? (
                       <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
-                          <Loader2 className='text-orange-500 h-10 w-10 animate-spin'/>
+                          <Loader2 className='text-blue-400 h-10 w-10 animate-spin'/>
                           Processing your file please wait...
                       </div>
                     ):null}

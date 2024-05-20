@@ -3,28 +3,17 @@ import { SendMessageValidators } from "@/lib/validators/SendMessageValidator";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextRequest } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { GoogleGenerativeAI, } from "@google/generative-ai";
-import { Pinecone } from "@pinecone-database/pinecone";
 import { StreamingTextResponse } from "ai"
 import { ReadableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
 import { prioritizeContext } from "@/lib/utils";
+import { llm } from "@/lib/gemini";
+import { getSimilarEmbeddings } from "@/lib/elegance";
 
 export const maxDuration = 300
-type MessageType = {
-    id: string;
-    text: string;
-    isUserMessage: boolean;
-    createAt: Date;
-    updatedAt: Date;
-    userId: string | null;
-    fileId: string | null;
-}
 
 
 export const POST = async(req: NextRequest) => {
-    
-    let createMessage: MessageType | undefined = undefined;
 
   try {
 
@@ -38,7 +27,7 @@ export const POST = async(req: NextRequest) => {
 
     const { fileId ,message } = SendMessageValidators.parse(body)
 
-    console.log(message)
+
     const file = await db.file.findFirst({
         where: {
             id: fileId,
@@ -53,24 +42,10 @@ export const POST = async(req: NextRequest) => {
     );
     
     /// nlp part of the app //////
-    ///// vectorize the incoming message ////
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const pinecone = new Pinecone({
-        apiKey: process.env.PINECONE_API_KEY!,
-        environment: 'apw5-4e34-81fa',
-        projectId: 'xon8qzk'
-    })
-    const pineconeIndex = pinecone.Index("cph-serverless");
-
-    const model = genAI.getGenerativeModel({ model: "embedding-001" });
-
-    const result = await model.embedContent(message);
-    const messageEmbedding = result.embedding.values;
-
-    const similarEmbeddings = await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true})
-
-    const llm = genAI.getGenerativeModel({model: "gemini-pro"})
-
+    
+    // get similar embeddings from pinecode database
+    const similarEmbeddings = await getSimilarEmbeddings({file, message})
+    
     const prevMessages = await db.message.findMany({
         where: {
             fileId
@@ -81,15 +56,15 @@ export const POST = async(req: NextRequest) => {
         take: 6
     })
 
-     const formattedPrevMessages = prevMessages.map((msg:MessageType) => {
+     const formattedPrevMessages = prevMessages.map((msg:any) => {
         return {
           role: msg.isUserMessage ? "user" : "model",
           parts: msg.text,
         };
       });
     
-       // Start the chat with the user's prompt
-       createMessage = await db.message.create({
+       // Start the chat with the user's prompt //
+      let createMessage = await db.message.create({
         data: {
           text: message,
             isUserMessage: true,
@@ -103,15 +78,15 @@ export const POST = async(req: NextRequest) => {
             chat = llm.startChat({
                   generationConfig: {
                       maxOutputTokens: 2048,
-                  },
+                },
               });
           }else{
               chat = llm.startChat({
                 history: formattedPrevMessages,
                     generationConfig: {
-                        maxOutputTokens: 2048,
-                    },
-                });
+                      maxOutputTokens: 2048,
+                  },
+              });
             }
          
       let context:any
@@ -156,7 +131,7 @@ export const POST = async(req: NextRequest) => {
         })
 
       return  new StreamingTextResponse(responseStream);
-            // Return the streaming response immediately     
+      // Return the streaming response immediately     
           
   } catch (error) {
     console.log(error)

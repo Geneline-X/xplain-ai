@@ -4,8 +4,8 @@
     "display": "standalone",
     "scope": "/",
     "start_url": "/",
-    "name": "Shinsei-AI ",
-    "short_name": "Shinsei-AI",
+    "name": "XPLAIN-AI ",
+    "short_name": "XPLAIN-AI",
     "description": "This app allows users to chat with their documents files",
     "icons": [
         {

@@ -81,7 +81,7 @@ const MobileNav = ({ isAuth, isSubscribed }: {isAuth: boolean, isSubscribed: boo
                                 <li className='my-3 h-px w-full bg-gray-300' />
                                 <li>
                                 <Link href='/pricing' className='flex items-center w-full font-semibold'>
-                                    Upgrade <Gem className='text-orange-600 h-4 w-4 ml-1.5' />
+                                    Upgrade <Gem className='text-blue-500 h-4 w-4 ml-1.5' />
                                 </Link>
                                 </li>
                             </>

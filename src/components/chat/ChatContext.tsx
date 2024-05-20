@@ -175,7 +175,7 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
     
     setIsLoading(false)
 
-},
+    },
     onError: ({_,__, context}) => {
         setIsLoading(false)
          setMessage(backupMessage.current)
@@ -185,13 +185,13 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
           );
        
     
-      },
-        onSettled: async() => {
+    },
+    onSettled: async() => {
           
             setIsLoading(false);
             await utils.getFileMessages.invalidate({ fileId });
            
-        }
+    }
    })
 
    const addMessage = () => {

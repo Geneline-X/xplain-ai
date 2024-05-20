@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
+import { getKindeServerSession, } from "@kinde-oss/kinde-auth-nextjs/server"
 import { db } from '@/db'
 import PdfRenderer from '@/components/PdfRenderer'
 import ChatWrapper from '@/components/chat/ChatWrapper'
@@ -33,7 +33,12 @@ const Page = async({params}: PageProps) => {
 
     if(!file) notFound()
     
+    const handleSendInvite = (email: string) => {
+      // Logic to send invite
+      console.log(`Invitation sent to ${email}`);
+  };
 
+ 
   return (
     <div className='flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)]'>
      <div className="mx-auto w-full max-w-8xl grow lg:flex xl:px-2">
@@ -43,11 +48,11 @@ const Page = async({params}: PageProps) => {
             <PdfRenderer url={file.url}/>
           </div>
        </div>
-
        <div className="shrink-0 flex-[0.85] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
          <ChatWrapper fileId={file.id}/>
        </div>
-     </div>
+      </div>
+      
     </div>
   )
 }

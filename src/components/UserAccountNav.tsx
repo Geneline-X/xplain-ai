@@ -66,7 +66,7 @@ const UserAccountNav = async({email, imageUrl, name}: UserAccountNavProps) => {
                         </Link>
                     ): (
                         <Link href='/pricing'>
-                          Upgrade <Gem className='text-orange-600 h-4 w-4 ml-1.5'/>
+                          Upgrade <Gem className='text-blue-500 h-4 w-4 ml-1.5'/>
                         </Link> 
                     )}
                 </DropdownMenuItem>

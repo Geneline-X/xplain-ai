@@ -35,6 +35,9 @@ export async function getUserSubscriptionPlan() {
         dbUser.monimeCurrentPeriodsEnd &&
         new Date(dbUser.monimeCurrentPeriodsEnd).getTime() > Date.now()
     );
+    // const isLifeTimeAccess = Boolean(
+    //   dbUser.isLifeTimeAccess
+    // )
   
     const plan = isSubscribed
       ? PLANS.find((p) => p.name === "Pro") // Adjust based on your plans

@@ -13,8 +13,7 @@ interface ChatInputProps {
 const ChatInput = ({isDisabled} : ChatInputProps) => {
 
     const { addMessage, handleInputChange, isLoading, message} = useContext(ChatContex)
-
-  
+ 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
   return (
     <div className='absolute bottom-0 left-0 w-full'>
@@ -38,7 +37,7 @@ const ChatInput = ({isDisabled} : ChatInputProps) => {
                             textareaRef.current?.focus()
                         } 
                     }}
-                    className='resize-none pr-12 text-base py-3 scrollbar-thumb-orange scrollbar-thumb-rounded scroll-track-orange-lighter scrollbar-w-2 scrolling-touch'
+                    className='resize-none pr-12 text-base py-3 scrollbar-thumb-blue scrollbar-thumb-rounded scroll-track-blue-lighter scrollbar-w-2 scrolling-touch'
                     />
                     <Button
                     disabled={isLoading || isDisabled}

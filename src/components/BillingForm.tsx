@@ -8,12 +8,14 @@ import MaxWidthWrapper from './MaxWidthWrapper'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow, format, differenceInHours } from 'date-fns'
+
 interface BillingFormProps {
     subScriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
+    price:string
 }
 
-const BillingForm = ({subScriptionPlan}: BillingFormProps) => {
+const BillingForm = ({subScriptionPlan, price}: BillingFormProps) => {
     const {toast} = useToast()
     const { mutate: updateUserDataCancelSub } = trpc.updateUserDataCancelSub.useMutation();
 
@@ -21,13 +23,14 @@ const BillingForm = ({subScriptionPlan}: BillingFormProps) => {
     const endDate = subScriptionPlan?.monimeCurrentPeriodsEnd!;
 
     useEffect(() => {
-        if (endDate) {
-          const currentTime = new Date();
-          if (currentTime.getTime() > endDate.getTime() && subScriptionPlan.isSubscribed) {
-            // If current time is greater than end time and subscription is active, cancel subscription
-            updateUserDataCancelSub();
-          }
+      if (endDate) {
+        const currentTime = new Date();
+        const hoursUntilEnd = differenceInHours(endDate, currentTime);
+        if (hoursUntilEnd <= 0 && subScriptionPlan.isSubscribed) {
+          // If hours until end are less than or equal to 0 and subscription is active, cancel subscription
+           updateUserDataCancelSub();
         }
+      }
       }, [endDate, subScriptionPlan.isSubscribed, updateUserDataCancelSub]);
     
     if (!endDate) {
@@ -57,7 +60,7 @@ const BillingForm = ({subScriptionPlan}: BillingFormProps) => {
     <MaxWidthWrapper className='max-w-5xl'>
        <form className='mt-12' onSubmit={(e) => {
         e.preventDefault()
-        createMonimeSession()
+        createMonimeSession({price})
        }}>
          <Card>
             <CardHeader>

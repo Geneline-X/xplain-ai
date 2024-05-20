@@ -12,11 +12,9 @@ import { v4 } from 'uuid'
 interface KindeUser {
     id: string;
     email: string;
-    
 }
 
 let mainMonimeSessionData:any = {}
-
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async() => {
@@ -24,9 +22,7 @@ export const appRouter = router({
     const user = await getUser()
     if(!user?.id || !user?.email){
         throw new TRPCError({code: "UNAUTHORIZED"})
-        
     }
-
     // Check in the database
     const dbUser = await db.user.findFirst({
         where: {id: user.id}
@@ -36,8 +32,7 @@ export const appRouter = router({
         await db.user.create({
             data: {
                 id: user.id,
-                email: user.email,
-                
+                email: user.email, 
             }
         })
     }
@@ -119,8 +114,13 @@ export const appRouter = router({
 
     return { url: stripeSession.url }
   }),
-  createMonimeSession: PrivateProcedure.mutation(async({ctx}) => {
+  createMonimeSession: PrivateProcedure.input(z.object({
+    price: z.string() 
+  })).mutation(async({ctx, input}) => {
     const { userId } = ctx
+    const { price } = input
+ 
+    console.log("this is the price ", price)
 
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
 
@@ -154,11 +154,12 @@ export const appRouter = router({
                   bulk: {
                     amount: {
                       "currency": "SLE",
-                      "value": "500"
+                      "value": price
                     }
                   },
-                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel`,
-                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect`
+                  //process.env.CPH_REDIRECT_URL
+                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel?price=${price}`,
+                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect?price=${price}`
                 }),
               });
 
@@ -169,7 +170,7 @@ export const appRouter = router({
                // Extract relevant data from Monime response
               const monimeUrl = monimeSessionData.success ? monimeSessionData.result.checkoutUrl : null;
               
-                  return { url: monimeUrl }; 
+              return { url: monimeUrl }; 
          } catch (error) {
             console.log(error)
         }
@@ -277,11 +278,10 @@ export const appRouter = router({
         id:input.id
     }
    })
-
    return file
   }),
 
 });
  
-export { mainMonimeSessionData}
+export { mainMonimeSessionData }
 export type AppRouter = typeof appRouter;

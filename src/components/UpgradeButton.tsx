@@ -1,11 +1,14 @@
 "use client"
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { buttonVariants, Button } from './ui/button';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { trpc } from '@/app/_trpc/client';
 
-const UpgradeButton = () => {
+type UpgradeButtonProps = {
+  price:string 
+}
+const UpgradeButton = ({price}: UpgradeButtonProps) => {
       
       const { mutate: createMonimeSession, isLoading} = trpc.createMonimeSession.useMutation({
         onSuccess: (data) => {
@@ -17,7 +20,7 @@ const UpgradeButton = () => {
   return (
     <Button
       onClick={() => {
-        createMonimeSession();
+        createMonimeSession({price});
       }}
       disabled={isLoading}
       className='w-full'

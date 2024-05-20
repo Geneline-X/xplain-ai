@@ -26,7 +26,7 @@ const Page = async() => {
     
   return (
     <>
-    <DashBoard subscriptionPlan={subscriptionPlan}/>
+        <DashBoard subscriptionPlan={subscriptionPlan}/>
     </>
   )
 }

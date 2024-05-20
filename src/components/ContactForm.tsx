@@ -134,7 +134,7 @@ const ContactForm = () => {
                         />
                         <Button type="submit" disabled={form.formState.isSubmitting}>
                             {form.formState.isSubmitting ? (
-                                <Loader2 color='orange' className='h-5 w-5 animate-spin' />
+                                <Loader2 color='blue' className='h-5 w-5 animate-spin' />
                             ) : (
                                 "Submit"
                             )}

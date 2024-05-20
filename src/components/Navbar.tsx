@@ -9,6 +9,7 @@ import UserAccountNav from './UserAccountNav'
 import MobileNav from './MobileNav'
 import { getUserSubscriptionPlan } from '@/lib/monime'
 import { NavLogo } from '@/app/Icons'
+import InvitationMenu from './InvitationMenu'
 
 interface Props {}
 
@@ -24,8 +25,8 @@ const Navbar = async() => {
            
               {/* Logo */}
           <div className='flex items-center space-x-2'>
-            <Link href="/" className='flex z-40 font-semibold text-3xl'>
-               <NavLogo/>
+            <Link href="/" className='flex z-40 font-semibold text-xl'>
+               XPLAIN-AI
             </Link>
           </div>
           
@@ -58,6 +59,7 @@ const Navbar = async() => {
                     email={user.email ?? ""}
                     imageUrl={user.picture ?? ""}
                    />
+                
                 </>}
             </div>
         </div>

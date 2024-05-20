@@ -16,14 +16,14 @@ export default async function Home() {
     <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
       <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
         <p className="text-sm font-semibold text-gray-700">
-           Shinsei AI is now public
+           XPLAIN AI is now public
         </p>
       </div>
       <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
-        Unlock the knowledge within any <span className="text-orange-600">documents</span> in seconds.
+        Unlock the knowledge within any <span className="text-blue-500">documents</span> in seconds.
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-        Shinsei AI lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
+        XPLAIN AI lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
         <strong className="block mt-2 font-bold">Use keywords from the document for optimal results.</strong>
       </p>
       {!user ?<>
@@ -83,7 +83,7 @@ export default async function Home() {
             <h2 className="mt-2 font-bold tex--4xl text-gray-900 sm:text-5xl">
               Unlock Document Knowledge Instantly.
             </h2>
-            <p className="mt-4 text-lg text-gray-600">Stop struggling to find information in your documents. Shinsei AI lets you chat with any document type and get answers in seconds.</p>
+            <p className="mt-4 text-lg text-gray-600">Stop struggling to find information in your documents. XPLAIN AI lets you chat with any document type and get answers in seconds.</p>
           </div>
         </div>
 
@@ -91,28 +91,28 @@ export default async function Home() {
         <ol className="my-8 space-y-4 pt-8 md:flex md:space-x-12 md:space-y-0">
           <li className="md:flex">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
-              <span className="text-sm font-medium text-orange-600">Step 1</span>
+              <span className="text-sm font-medium text-blue-500">Step 1</span>
               <span className="text-xl font-semibold">Sign up for an account.</span>
               <span className="mt-2 text-zinc-700">
-                Either starting out with a free plan or choose our. <Link href="/pricing" className="text-orange-700 underline underline-offset-2">pro plan</Link> 
+                Either starting out with a free plan or choose our. <Link href="/pricing" className="text-blue-600 underline underline-offset-2">pro plan</Link> 
               </span>
             </div>
           </li>
           <li className="md:flex">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
-              <span className="text-sm font-medium text-orange-600">Step 2</span>
+              <span className="text-sm font-medium text-blue-500">Step 2</span>
               <span className="text-xl font-semibold">Upload any document (PDF, PPTX, DOCX, etc.).</span>
               <span className="mt-2 text-zinc-700">
-              Shinsei AI will automatically process it, using industry-standard encryption to keep your information safe. The processed data is then readily accessible through chat.
+               XPLAIN AI will automatically process it, using industry-standard encryption to keep your information safe. The processed data is then readily accessible through chat.
               </span>
             </div>
           </li>
           <li className="md:flex">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
-              <span className="text-sm font-medium text-orange-600">Step 3</span>
+              <span className="text-sm font-medium text-blue-500">Step 3</span>
               <span className="text-xl font-semibold">Start asking questions</span>
               <span className="mt-2 text-zinc-700">
-               Unleash the knowledge within your documents! Start asking questions and get answers in seconds. Try Shinsei AI today - it&apos;s faster than ever.
+               Unleash the knowledge within your documents! Start asking questions and get answers in seconds. Try XPLAIN AI today - it&apos;s faster than ever.
               </span>
             </div>
           </li>

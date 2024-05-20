@@ -14,7 +14,7 @@ export const PLANS = [
     },
     {
         name: "Pro",
-        slug: "pro",
+        slug: "pro-hour",
         quota: 500,
         pagesPerPdf: 10000000,
         price: {
@@ -24,5 +24,31 @@ export const PLANS = [
                 production: ""
             }
         }
-    }
+    },
+    {
+        name: "Pro",
+        slug: "pro-day",
+        quota: 500,
+        pagesPerPdf: 10000000,
+        price: {
+            amount: 20,
+            priceIds: {
+                test: "ssafsa", //// put the pricing key from stripe
+                production: ""
+            }
+        }
+    },
+    {
+        name: "Pro",
+        slug: "pro-week",
+        quota: 500,
+        pagesPerPdf: 10000000,
+        price: {
+            amount: 50,
+            priceIds: {
+                test: "ssafsa", //// put the pricing key from stripe
+                production: ""
+            }
+        }
+    },
 ]

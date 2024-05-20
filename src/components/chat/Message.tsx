@@ -13,6 +13,7 @@ import rehypeRaw from 'rehype-raw';
 import { Copy } from 'lucide-react'
 import remarkGfm from 'remark-gfm';
 
+
 // const renderers = {
 //   code: ({ language='python', value }:any) => {
 //     return (
@@ -56,8 +57,9 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
   <div ref={ref} className={cn('flex items-end', {
     "justify-end": message.isUserMessage
   })}>
+  
     <div className={cn("realtive flex h-6 w-6 aspect-square items-center", {
-        "order-2 bg-orange-600 rounded-sm": message.isUserMessage,
+        "order-2 bg-blue-500 rounded-sm": message.isUserMessage,
         "order-1 bg-zinc-800 rounded-sm": !message.isUserMessage,
         invisible: isNextMesageSamePerson
     })}>
@@ -72,7 +74,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
         "order-2 items-start": !message.isUserMessage
     })}>
         <div className={cn("px-4 py-2 rounded-lg inline-block", {
-            "bg-orange-600 text-black": message.isUserMessage,
+            "bg-blue-500 text-black": message.isUserMessage,
             "bg-gray-200 text-gray-900" : !message.isUserMessage,
             "rounded-br-none": !isNextMesageSamePerson && message.isUserMessage,
             "rounded-bl-none": !isNextMesageSamePerson && !message.isUserMessage,
@@ -84,7 +86,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
                remarkPlugins={[remarkGfm]}
                components={{
                 a: ({ node, ...props }) => (
-                  <a {...props} className="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                  <a {...props} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
                     {props.children}
                   </a>
                 ),
@@ -100,14 +102,14 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
             <>
             <div className={cn("text-xs select-none mt-2 w-full txt-right", {
                 "text-zinc-500": !message.isUserMessage,
-                "text-orange-300": message.isUserMessage,
+                "text-blue-300": message.isUserMessage,
             })}>
                 {formattedTime}
             </div>
             <div className='flex justify-end'>
               <CopyToClipboard text={message.text as string} onCopy={handleCopy}>
                 <button className={cn('text-xs flex cursor-pointer focus:outline-none',{
-                  "text-orange-500":!message.isUserMessage,
+                  "text-blue-400":!message.isUserMessage,
                   "text-zinc-100": message.isUserMessage,
                 })}>
                   {isCopied ? 'Copied!' : (
