@@ -18,6 +18,7 @@ model User {
   monimeUrl               String?   @map("monime_url") @db.VarChar(191)
   monimeCurrentPeriodsEnd DateTime? @map("monime_current_period_end") @db.Timestamptz(6)
   File                    File[]
+  currentPrice            String?    @map("current_price") @db.VarChar(191)
   Message                 Message[]
 }
 

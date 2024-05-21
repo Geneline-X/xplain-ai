@@ -56,7 +56,7 @@ export default async function Home() {
                 <div className="mt-16 flow-root sm:mt-24">
                   <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:m-4 lg:rounded-2xl lg:p-4">
                     <Image 
-                    src="/chat-preview.png" 
+                    src="/xplain-ai.png" 
                     width={1364} 
                     height={866}
                     alt="preview of the app"
@@ -121,7 +121,7 @@ export default async function Home() {
           <div className="mt-16 flow-root sm:mt-24">
             <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:m-4 lg:rounded-2xl lg:p-4">
               <Image 
-              src="/my-version-img.png" 
+              src="/new-priview.png" 
               width={1419} 
               height={732}
               alt="uploading preview"
