@@ -42,7 +42,7 @@ const pricingItems = [
   },
   {
     plan: 'Pro-hour',
-    priceMonime: "100", // 500
+    priceMonime: "500", // 500
     tagline: 'For larger projects with higher needs.',
     quota: PLANS.find((p) => p.slug === 'pro-hour')!.quota,
     features: [
@@ -68,7 +68,7 @@ const pricingItems = [
   },
   {
     plan: 'Pro-day',
-    priceMonime: "102", // 2000,
+    priceMonime: "2000", // 2000,
     tagline: 'For larger projects with higher needs.',
     quota: PLANS.find((p) => p.slug === 'pro-day')!.quota,
     features: [
@@ -94,7 +94,7 @@ const pricingItems = [
   },
   {
     plan: 'Pro-week',
-    priceMonime: "103", // 5000,
+    priceMonime: "5000", // 5000,
     tagline: 'For larger projects with higher needs.',
     quota: PLANS.find((p) => p.slug === 'pro-week')!.quota,
     features: [

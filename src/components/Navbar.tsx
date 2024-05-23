@@ -26,7 +26,7 @@ const Navbar = async() => {
               {/* Logo */}
           <div className='flex items-center space-x-2'>
             <Link href="/" className='flex z-40 font-semibold text-xl'>
-               XPLAIN-AI
+               X<span className='text-sm mt-1'>-PLAIN-AI</span>
             </Link>
           </div>
           

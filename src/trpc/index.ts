@@ -115,7 +115,7 @@ export const appRouter = router({
     return { url: stripeSession.url }
   }),
   createMonimeSession: PrivateProcedure.input(z.object({
-    price: z.string() 
+    price: z.string() || z.null()
   })).mutation(async({ctx, input}) => {
     const { userId } = ctx
     const { price } = input
@@ -157,9 +157,9 @@ export const appRouter = router({
                       "value": price
                     }
                   },
-                  //process.env.CPH_REDIRECT_URL
-                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel?price=${price}`,
-                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect?price=${price}`
+                  //${process.env.CPH_REDIRECT_URL}
+                  cancelUrl:  `http://localhost:3000/api/monime-redirect-cancel?price=${price}`,
+                  receiptUrl:  `http://localhost:3000/api/monime-redirect?price=${price}&monimeSessionId=${idempotencyKey}&userId=${dbUser.id}`
                 }),
               });
 

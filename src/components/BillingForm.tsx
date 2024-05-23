@@ -9,16 +9,17 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/c
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
 import { formatDistanceToNow, format, differenceInHours } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 interface BillingFormProps {
     subScriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
-    price:string
+    price: string | null
 }
 
 const BillingForm = ({subScriptionPlan, price}: BillingFormProps) => {
     const {toast} = useToast()
     const { mutate: updateUserDataCancelSub } = trpc.updateUserDataCancelSub.useMutation();
-
+    const router = useRouter()
     // Assuming subScriptionPlan?.monimeCurrentPeriodsEnd! is a valid Date object
     const endDate = subScriptionPlan?.monimeCurrentPeriodsEnd!;
 
@@ -60,6 +61,14 @@ const BillingForm = ({subScriptionPlan, price}: BillingFormProps) => {
     <MaxWidthWrapper className='max-w-5xl'>
        <form className='mt-12' onSubmit={(e) => {
         e.preventDefault()
+        if(!price){
+          toast({
+            title: "price is null",
+            description: "please go back to the pricing page, and renew"
+          })
+          router.push("/pricing")
+          return
+        }
         createMonimeSession({price})
        }}>
          <Card>

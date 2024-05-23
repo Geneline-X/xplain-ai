@@ -11,15 +11,15 @@ const Page = async() => {
     const subScriptionPlan = await getUserSubscriptionPlan()
     const { getUser } = getKindeServerSession();
     const user = await getUser();
-
     const dbUser = await db.user.findFirst({
       where: {
       id: user?.id,
     },
   })
+  
 
   return (
-    <BillingForm subScriptionPlan={subScriptionPlan} price={"500"}/>
+    <BillingForm subScriptionPlan={subScriptionPlan} price={dbUser!.currentPrice}/>
   )
 }
 
