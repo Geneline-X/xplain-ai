@@ -158,8 +158,8 @@ export const appRouter = router({
                     }
                   },
                   //${process.env.CPH_REDIRECT_URL}
-                  cancelUrl:  `http://localhost:3000/api/monime-redirect-cancel?price=${price}`,
-                  receiptUrl:  `http://localhost:3000/api/monime-redirect?price=${price}&monimeSessionId=${idempotencyKey}&userId=${dbUser.id}`
+                  cancelUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect-cancel?price=${price}`,
+                  receiptUrl:  `${process.env.CPH_REDIRECT_URL}/api/monime-redirect?price=${price}&monimeSessionId=${idempotencyKey}&userId=${dbUser.id}`
                 }),
               });
 
