@@ -1,11 +1,11 @@
 {
-    "theme_color": "#f69435",
-    "background_color": "#f69435",
+    "theme_color": "#4a90e2",
+    "background_color": "#4a90e2",
     "display": "standalone",
     "scope": "/",
     "start_url": "/",
-    "name": "XPLAIN-AI ",
-    "short_name": "XPLAIN-AI",
+    "name": "Xplain-ai",
+    "short_name": "Xplain-ai",
     "description": "This app allows users to chat with their documents files",
     "icons": [
         {
