@@ -35,6 +35,21 @@ model File {
   User         User?             @relation(fields: [userId], references: [id])
 }
 
+model Favorites {
+  id        String  @id(map: "idx_28870_PRIMARY") @default(cuid()) @db.VarChar(191)
+  userId    String  @db.VarChar(191)
+  messageId String  @db.VarChar(191)
+  title     String?  @optional
+  description String?  @optional
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(6)
+
+  # Optional document association (for document-specific favorites)
+  file       File?    @relation(fields: [fileId], references: [id])
+
+  @@unique([userId, messageId])
+}
+
 model Message {
   id            String   @id(map: "idx_28868_PRIMARY") @default(cuid()) @db.VarChar(191)
   text          String
