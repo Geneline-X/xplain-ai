@@ -20,8 +20,8 @@ export async function simulateCheckout(): Promise<{
     reference: PublicKey;
 }> {
     return {
-        label: 'XPLAIN AI',
-        message: 'Purchasing XPLAIN AI with Solana Based Coins',
+        label: 'Xplain-ai',
+        message: 'Purchasing Xplain-ai with Solana Based Coins',
         memo: 'JC#4098',
         amount: new BigNumber(1),
         reference: new Keypair().publicKey,

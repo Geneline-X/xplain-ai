@@ -43,7 +43,7 @@ export const getBackgroundCompleted = () => {
 
 export function constructMetaData({
   title =  "Xplain-ai - the SaaS for interacting with your document(pdf,ppt,doc,etc) files",
-  description = "XPLAIN AI is a software that makes chatting with your Documents(pdf,ppt,doc,etc) files easy.",
+  description = "Xplain-ai is a software that makes chatting with your Documents(pdf,ppt,doc,etc) files easy.",
   image = "/explain-logo.jpg",
   icons = "/favicon.ico",
   noIndex = false,
