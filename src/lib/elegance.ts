@@ -3,6 +3,8 @@ import { model, pineconeIndex } from "./gemini";
 import { db } from "@/db";
 import { Liveblocks } from "@liveblocks/node";
 import Moralis from 'moralis';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // add hours to date //
 export const addHoursToDate = (date: Date, hours:number) => {
@@ -40,6 +42,39 @@ export const appLogo = 'https://i.postimg.cc/gcxV8R6L/app-logo.jpg'
 //     secret: `${process.env.LIVEBLOCK_SECRET_API}`,
 // });
 
+/// handlePdfDownload /////
+export const handleDownloadPDF = async (htmlContent:string) => {
+    try {
+      const element = document.createElement('div');
+      element.innerHTML = htmlContent;
+  
+      const canvas = await html2canvas(element);
+  
+      const imgData = canvas.toDataURL('image/png'); // Get image data URL
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+  
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+  
+      // Generate PDF Blob object
+      const blob = pdf.output('blob');
+  
+      // Trigger browser download
+      const downloadURL = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadURL;
+      link.download = 'document.pdf';
+      link.click();
+  
+      // Clean up
+      URL.revokeObjectURL(downloadURL);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 type SessionProps = { 
     user: KindeUser;
     randomHex: string

@@ -7,6 +7,7 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
 
 type StreamResponseType = {
     addMessage: () => void,
+    setMessage: React.Dispatch<React.SetStateAction<string>> 
     message: string,
     handleInputChange: (event:React.ChangeEvent<HTMLTextAreaElement>) => void,
     isLoading: boolean
@@ -15,6 +16,7 @@ type StreamResponseType = {
 export const ChatContex = createContext<StreamResponseType>({
     addMessage: () => {},
     message: "",
+    setMessage: () => {},
     handleInputChange: () => {},
     isLoading: false
     
@@ -207,7 +209,8 @@ export const ChatContextProvider = ({fileId, children}: Props) => {
         addMessage,
         message,
         handleInputChange,
-        isLoading 
+        isLoading, 
+        setMessage
     }}>
         {children}
     </ChatContex.Provider>

@@ -23,7 +23,7 @@ export default async function Home() {
         Unlock the knowledge within any <span className="text-blue-500">documents</span> in seconds.
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-      Xplain-ai AI lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
+      Xplain-ai  lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
         <strong className="block mt-2 font-bold">Use keywords from the document for optimal results.</strong>
       </p>
       {!user ?<>

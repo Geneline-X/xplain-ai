@@ -271,7 +271,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
             </div>
           ) : (
             // messing around //
-            <Button disabled={!selectedFile ? true : false} onClick={handleFileUpload} className="w-full bg-blue-400 text-white">
+            <Button disabled={!selectedFile ? true : false} onClick={handleFileUpload} className="w-full bg-blue-600 text-white">
               Upload <Upload className='w-4 h-4 ml-2'/>
             </Button>
           )}
