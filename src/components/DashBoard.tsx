@@ -122,15 +122,14 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
                   </div>
                 </Link>
                 <div className='px-6 mt-4 grid grid-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500'>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 text-blue-400">
                               <Plus className='h-4 w-4'/>
                               {format(new Date(file.createAt), "dd MMM yyyy")}
                           </div>  
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 text-blue-400">
                               <MessageSquare className='h-4 w-4'/>
-                              Mocked
+                              {file._count.message} {file._count.message > 1 ? "Messages" : "Message"}
                           </div>
-
                           <Button onClick={() => deleteFile({id: file?.id})} size="sm" className='w-full' variant='destructive'>
                               { currentDeletingFile === file.id ? (
                                   <Loader2 className='h-4 w-4 animate-spin'/>

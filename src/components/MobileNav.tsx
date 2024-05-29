@@ -76,6 +76,16 @@ const MobileNav = ({ isAuth, isSubscribed }: {isAuth: boolean, isSubscribed: boo
                                Dashboard 
                             </Link>
                         </li>
+                        <li className='my-3 h-px w-full bg-gray-300'/>
+                        <li>
+                            <Link 
+                            onClick={() => closeOnCurrent('/dashboard/editor')}
+                            href='/dashboard/editor'
+                            className='flex items-center w-full font-semibold'
+                            >
+                               Editor 
+                            </Link>
+                        </li>
                         {!isSubscribed ? (
                             <>
                                 <li className='my-3 h-px w-full bg-gray-300' />

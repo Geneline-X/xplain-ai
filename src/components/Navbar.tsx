@@ -50,10 +50,18 @@ const Navbar = async() => {
                    })}>Get Started <ArrowRight className='ml-1.5 h-5 w-5'/></RegisterLink>
                 </> :
                  <>
+                 <Link href="/dashboard/editor" className={buttonVariants({
+                    variant: "ghost",
+                    size: "sm"
+                   })}>
+                    Editor
+                   </Link>
                    <Link href="/dashboard" className={buttonVariants({
                     variant: "ghost",
                     size: "sm"
-                   })}>Dashboard</Link>
+                   })}>
+                    Dashboard
+                   </Link>
                    <UserAccountNav 
                     name={!user.given_name || !user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
                     email={user.email ?? ""}

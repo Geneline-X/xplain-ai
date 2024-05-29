@@ -10,6 +10,7 @@ import "simplebar-react/dist/simplebar.min.css"
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from '@/components/ui/toaster'
 import { Room } from '@/components/Room'
+import { EditorContextProvider } from '@/components/editor/EditorContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,7 +23,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-          <Providers>
+          <Providers>  
+          <EditorContextProvider>
             <head>
             {/* <meta name="google-adsense-account" content="ca-pub-1827922289519800"/> */}
             <meta name="google-site-verification" content="xqSq2gtf73XFTo_Z-8FEfgbwYD2xrJuZ8ityqXyGL4s" />
@@ -37,6 +39,7 @@ export default function RootLayout({
               <SpeedInsights/>
               <Analytics />
             </body>
+            </EditorContextProvider>
           </Providers>
     </html>
   )

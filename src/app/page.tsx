@@ -16,14 +16,14 @@ export default async function Home() {
     <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
       <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
         <p className="text-sm font-semibold text-gray-700">
-           XPLAIN AI is now public
+           Xplain-ai is now public
         </p>
       </div>
       <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
         Unlock the knowledge within any <span className="text-blue-500">documents</span> in seconds.
       </h1>
       <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-        XPLAIN AI lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
+       Xplain-ai lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
         <strong className="block mt-2 font-bold">Use keywords from the document for optimal results.</strong>
       </p>
       {!user ?<>
@@ -83,7 +83,7 @@ export default async function Home() {
             <h2 className="mt-2 font-bold tex--4xl text-gray-900 sm:text-5xl">
               Unlock Document Knowledge Instantly.
             </h2>
-            <p className="mt-4 text-lg text-gray-600">Stop struggling to find information in your documents. XPLAIN AI lets you chat with any document type and get answers in seconds.</p>
+            <p className="mt-4 text-lg text-gray-600">Stop struggling to find information in your documents. Xplain-ai lets you chat with any document type and get answers in seconds.</p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default async function Home() {
               <span className="text-sm font-medium text-blue-500">Step 2</span>
               <span className="text-xl font-semibold">Upload any document (PDF, PPTX, DOCX, etc.).</span>
               <span className="mt-2 text-zinc-700">
-               XPLAIN AI will automatically process it, using industry-standard encryption to keep your information safe. The processed data is then readily accessible through chat.
+               Xplain-ai will automatically process it, using industry-standard encryption to keep your information safe. The processed data is then readily accessible through chat.
               </span>
             </div>
           </li>
@@ -112,7 +112,7 @@ export default async function Home() {
               <span className="text-sm font-medium text-blue-500">Step 3</span>
               <span className="text-xl font-semibold">Start asking questions</span>
               <span className="mt-2 text-zinc-700">
-               Unleash the knowledge within your documents! Start asking questions and get answers in seconds. Try XPLAIN AI today - it&apos;s faster than ever.
+               Unleash the knowledge within your documents! Start asking questions and get answers in seconds. Try Xplain-ai today - it&apos;s faster than ever.
               </span>
             </div>
           </li>

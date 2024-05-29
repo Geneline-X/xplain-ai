@@ -224,14 +224,22 @@ export const appRouter = router({
     }
   }),
 
-  getUserFiles: PrivateProcedure.query(async({ctx})=>{
-    const { userId, user} = ctx
+  getUserFiles: PrivateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
     return await db.file.findMany({
-        where: {
-            userId
-        }
-    })
+      where: {
+        userId,
+      },
+      include: {
+        _count: {
+          select: {
+            message: true,
+          },
+        },
+      },
+    });
   }),
+  
 
   getFileUploadStatus: PrivateProcedure.input(z.object({fileId: z.string()})).query(async({input, ctx})=> {
      const file = await db.file.findFirst({

@@ -14,10 +14,11 @@ interface Props {}
 
 const Page = async({params}: PageProps) => {
 
+
     ///// retrieve the file id
     const { fileId } = params
     const { getUser } = getKindeServerSession()
-
+   
     const user = await getUser()
     if(!user || !user.id) {
        return redirect(`/auth-callback?origin=dashboard/${fileId}`)
@@ -37,6 +38,7 @@ const Page = async({params}: PageProps) => {
       // Logic to send invite
       console.log(`Invitation sent to ${email}`);
   };
+
 
  
   return (

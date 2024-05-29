@@ -103,11 +103,11 @@ const handlePageSubmit = ({page}: TCostumPageValidator) => {
           </Button>
         </div>
 
-        <div className='space-x-2'>
+        <div className='flex items-center space-x-[.2px]'>
            <DropdownMenu>
              <DropdownMenuTrigger asChild>
-                <Button className='gap-1.5' aria-label='zoom' variant="ghost">
-                  <Search className='h-4 w-4'/>
+                <Button className='gap-1' aria-label='zoom' variant="ghost">
+                  <Search className='h-3 w-3'/>
                   {scale * 100}%<ChevronDown className='h-3 w-3 opacity-50'/>
                 </Button>
              </DropdownMenuTrigger>
@@ -128,7 +128,7 @@ const handlePageSubmit = ({page}: TCostumPageValidator) => {
            </DropdownMenu>
 
            <Button onClick={() => setRotation((prev) => prev + 90)} variant='ghost' aria-label='rotate 90 degrees'>
-             <RotateCw className='h-4 w-4'/>
+             <RotateCw className='h-3 w-3'/>
            </Button>
 
            <PdfFullScreen fileUrl={url}/>
