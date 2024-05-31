@@ -76,7 +76,7 @@ const handlePageSubmit = ({page}: TCostumPageValidator) => {
           <div className='flex items-center gap-1.5'>
             <Input
             {...register("page")}
-            className={cn("w-12 h-8", errors.page && "focus-visible:ring-red-500")}
+            className={cn("w-12 h-8", errors.page && "focus-visible:ring-blue-500")}
             onKeyDown={(e) =>{
               if(e.key === "Enter"){
                 handleSubmit(handlePageSubmit)()

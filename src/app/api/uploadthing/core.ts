@@ -64,7 +64,7 @@ const onUploadComplete = async({metadata, file}: {
     const isProExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf
     
     const isFreeExceeded = pageAmnt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf
-   
+   //(isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)
     if((isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)){
       await updateStatusInDb({uploadStatus:"FAILED", createdFile})
     } else{

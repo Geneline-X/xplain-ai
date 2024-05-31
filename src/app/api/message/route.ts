@@ -8,7 +8,7 @@ import { ReadableStream } from "web-streams-polyfill/ponyfill";
 import { getCachedOrFetchBlob } from "@/lib/utils";
 import { prioritizeContext } from "@/lib/utils";
 import { llm } from "@/lib/gemini";
-import { getSimilarEmbeddings } from "@/lib/elegance";
+import { getSimilarEmbeddings, cosineSimilaritySearch } from "@/lib/elegance";
 
 export const maxDuration = 300
 
@@ -44,7 +44,7 @@ export const POST = async(req: NextRequest) => {
     /// nlp part of the app //////
     
     // get similar embeddings from pinecode database
-    const similarEmbeddings = await getSimilarEmbeddings({file, message})
+    const {joinedEmbeddings, contexts} = await cosineSimilaritySearch({file, message})
     
     const prevMessages = await db.message.findMany({
         where: {
@@ -90,17 +90,22 @@ export const POST = async(req: NextRequest) => {
             }
          
       let context:any
-        const loader = new PDFLoader(blob);
-        const pageLevelDocs = await loader.load();
-        const numPages = pageLevelDocs.length
-        if(numPages > 40){
-          context = prioritizeContext(pageLevelDocs, message)
-        }else{
-          const allPageContent = pageLevelDocs.flatMap((page) => page.pageContent)
-           context = allPageContent.join('\n\n')
-        }
+      // let msg:any
+      // if(!contexts){
+      //   const loader = new PDFLoader(blob);
+      //   const pageLevelDocs = await loader.load();
+      //   const numPages = pageLevelDocs.length
+      //   if(numPages > 40){
+      //     context = prioritizeContext(pageLevelDocs, message)
+      //   }else{
+      //     const allPageContent = pageLevelDocs.flatMap((page) => page.pageContent)
+      //      context = allPageContent.join('\n\n')
+      //   }
+      //   msg = `${message} ${joinedEmbeddings} ${context}`;
+      // }
         
-        const msg = `${message} ${similarEmbeddings.matches.join("")} ${context}`;
+        
+       const msg = `${message} ${joinedEmbeddings} ${contexts}`;
         const resultFromChat = await chat.sendMessageStream(msg);
         let text = ''
         const responseStream = new ReadableStream({

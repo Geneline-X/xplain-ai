@@ -213,7 +213,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
             const pdf = await PDFDocument.load(arrayBuffer);
 
             const numPages = pdf.getPageCount();
-            const MAX_PAGE_COUNT_FREE = 50
+            const MAX_PAGE_COUNT_FREE = 10 //change this to 10
             // Check page count against plan limit
             if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
               // Show toast and redirect to pricing page
