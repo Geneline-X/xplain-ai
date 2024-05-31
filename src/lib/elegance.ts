@@ -5,8 +5,10 @@ import { Liveblocks } from "@liveblocks/node";
 import Moralis from 'moralis';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { vectordb } from "./firebaseConfig";
+import { collection, getDocs, addDoc, writeBatch, doc, getDoc,  query} from "firebase/firestore";
 
-// add hours to date //
+
 export const addHoursToDate = (date: Date, hours:number) => {
   const newDate = new Date(date);
   newDate.setHours(date.getHours() + hours);
@@ -42,39 +44,7 @@ export const appLogo = 'https://i.postimg.cc/gcxV8R6L/app-logo.jpg'
 //     secret: `${process.env.LIVEBLOCK_SECRET_API}`,
 // });
 
-/// handlePdfDownload /////
-export const handleDownloadPDF = async (htmlContent:string) => {
-    try {
-      const element = document.createElement('div');
-      element.innerHTML = htmlContent;
-  
-      const canvas = await html2canvas(element);
-  
-      const imgData = canvas.toDataURL('image/png'); // Get image data URL
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
-  
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-  
-      // Generate PDF Blob object
-      const blob = pdf.output('blob');
-  
-      // Trigger browser download
-      const downloadURL = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadURL;
-      link.download = 'document.pdf';
-      link.click();
-  
-      // Clean up
-      URL.revokeObjectURL(downloadURL);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
 type SessionProps = { 
     user: KindeUser;
     randomHex: string
@@ -91,15 +61,127 @@ type SessionProps = {
 //   return session
 // }
 
-// function that get similar embeddings of the message //
-export const getSimilarEmbeddings = async({file, message}: any) => {
-    const result = await model.embedContent(message);
-    const messageEmbedding = result.embedding.values;
+// function that get similar embeddings of the message from pinecone db //
+// export const getSimilarEmbeddings = async({file, message}: any) => {
+//     const result = await model.embedContent(message);
+//     const messageEmbedding = result.embedding.values;
 
-    return await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true}) 
-}
+//     return await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true}) 
+// }
 
-//// function inside that return the readable stream ///
+
+
+export const getSimilarEmbeddings = async ({ file, message }: any): Promise<any[]> => {
+  try {
+  
+    const collectionRef = collection(vectordb, file.id)
+    const messageEmbedding = (await model.embedContent(message)).embedding.values;
+    
+    const querySnapshot = (await getDocs(collection(vectordb, file.id)))
+    
+    const similarEmbeddings = querySnapshot.docs.map((doc) => doc.data().embedding);
+
+    console.log("These are the similar embedding values:", similarEmbeddings);
+
+    return similarEmbeddings; 
+  } catch (error: any) {
+    console.error('Error occurred during similarity search:', error.message);
+    return []; // Return empty array on error
+  }
+};
+
+// In-memory cache to store embeddings
+const embeddingsCache: { [fileId: string]: { id: string, embedding: number[], pageText?: string }[] } = {};
+
+// Timeouts for cache invalidation
+const cacheTimeouts: { [fileId: string]: NodeJS.Timeout } = {};
+
+// Function to retrieve embeddings from Firestore with caching and cache expiration
+const getEmbeddingsFromFirestore = async (fileId: string) => {
+  // Check if embeddings for the fileId are already in the cache
+  if (embeddingsCache[fileId]) {
+    console.log('Returning cached embeddings for fileId:', fileId);
+
+    // Clear the existing timeout and set a new one to extend the cache expiration
+    clearTimeout(cacheTimeouts[fileId]);
+    cacheTimeouts[fileId] = setTimeout(() => {
+      delete embeddingsCache[fileId];
+      delete cacheTimeouts[fileId];
+      console.log('Cache for fileId expired and removed:', fileId);
+    }, 10 * 60 * 1000); // 10 minutes
+
+    return embeddingsCache[fileId];
+  }
+
+  // If not in cache, retrieve from Firestore
+  const q = query(collection(vectordb, fileId));
+  const querySnapshot = await getDocs(q);
+  const embeddings: { id: string, embedding: number[], pageText?:string }[] = [];
+  querySnapshot.forEach((doc) => {
+    embeddings.push({ id: doc.id, embedding: doc.data().embedding, pageText: doc.data().pageText });
+  });
+
+  // Store retrieved embeddings in the cache
+  embeddingsCache[fileId] = embeddings;
+
+  // Set a timeout to remove the cache after 10 minutes
+  cacheTimeouts[fileId] = setTimeout(() => {
+    delete embeddingsCache[fileId];
+    delete cacheTimeouts[fileId];
+    console.log('Cache for fileId expired and removed:', fileId);
+  }, 10 * 60 * 1000); // 10 minutes
+
+
+  return embeddings;
+};
+
+// Function to compute cosine similarity
+const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
+  const dotProduct = vecA.reduce((sum, a, idx) => sum + a * vecB[idx], 0);
+  const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
+  const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
+  return dotProduct / (magnitudeA * magnitudeB);
+};
+
+
+// Function to find the top N similar embeddings
+const findTopNSimilarEmbeddings = (queryEmbedding: number[], embeddings: { id: string, embedding: number[], pageText?: string }[], topN: number) => {
+  const similarities = embeddings.map((embedding) => ({
+    id: embedding.id,
+    embedding: embedding.embedding,
+    pageText: embedding.pageText,
+    similarity: cosineSimilarity(queryEmbedding, embedding.embedding),
+  }));
+  
+  //console.log("this is the top similarity: ", similarities)
+  similarities.sort((a, b) => b.similarity - a.similarity);
+  
+  return similarities.slice(0, topN);
+};
+
+// Function to perform cosine similarity search
+export const cosineSimilaritySearch = async ({message, file, topN = 8}:any) => {
+  try {
+    const messageEmbedding = (await model.embedContent(message)).embedding.values;
+    
+    // Retrieve all embeddings from Firestore for the specified fileId
+    const embeddings = await getEmbeddingsFromFirestore(file.id);
+
+    // Find the top N similar embeddings
+    const topSimilarEmbeddings = findTopNSimilarEmbeddings(messageEmbedding, embeddings, topN);
+
+    // Extract and join the individual numbers of the embeddings into a single string
+    const joinedEmbeddings = topSimilarEmbeddings.map(e => e.embedding.slice(0,topN)).flat().join(' ');
+    const contexts = topSimilarEmbeddings.map(e => e.pageText).join('\n\n');
+    
+    return contexts ? { joinedEmbeddings, contexts } : {joinedEmbeddings};
+
+  } catch (error) {
+    console.error('Error during cosine similarity search:', error);
+    throw error;
+  }
+};
+
 type GeneratorType = {
     controller: ReadableStreamDefaultController;
     text: string
@@ -142,6 +224,7 @@ type ProcessBatchTypes = {
 /// process documents by batches ////
 export const processBatch = async ({batch, startIndex, createdFile}: ProcessBatchTypes):Promise<any> => {
     try {
+        const batchWrite = writeBatch(vectordb);
         const upsertPromises = batch.map(async (page:any, index:number) => {
           const pageIndex = startIndex + index;
           const pageText = page.pageContent;
@@ -151,18 +234,28 @@ export const processBatch = async ({batch, startIndex, createdFile}: ProcessBatc
           const pageEmbedding = result.embedding.values;
 
           const pageId = `${createdFile.id}-page-${pageIndex}`;
+          
+          // Store the embedding for the page 
+          // Create the data object for the page embedding
+            const pageData = {
+              pageText,
+              embedding: pageEmbedding,
+            };
+            
+            // Add the page data to the Firestore batch
+            //const docRef = await addDoc(collection(vectordb, createdFile.id), pageData);
 
-          // Store the embedding for the page
-          return pineconeIndex.namespace(createdFile.id).upsert([
-              {
-                  id: pageId,
-                  values: pageEmbedding,
-              }
-          ]);
+            const docRef = doc(collection(vectordb, createdFile.id), pageId);
+            batchWrite.set(docRef, pageData);   
       });
 
-      // Wait for all upsert operations in the batch to complete
-      return Promise.all(upsertPromises);
+      //return Promise.all(upsertPromises);
+      await Promise.all(upsertPromises);
+
+      // Commit the batch write
+      await batchWrite.commit();
+
+      console.log("Batch write committed successfully");
     } catch (error:any) {
       // Handle the error gracefully
         console.error('Error occurred during batch processing:', error.message);
@@ -174,6 +267,12 @@ export const processBatch = async ({batch, startIndex, createdFile}: ProcessBatc
 };
 
 
+          // return pineconeIndex.namespace(createdFile.id).upsert([
+          //     {
+          //         id: pageId,
+          //         values: pageEmbedding,
+          //     }
+          // ]);
 // update the status of the upload //
 type UploadTypes = {
     createdFile:any
