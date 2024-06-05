@@ -10,10 +10,12 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose other styles as well
 import rehypeRaw from 'rehype-raw';
-import { Copy } from 'lucide-react'
+import { Copy, Loader2 } from 'lucide-react'
 import remarkGfm from 'remark-gfm';
 import SendToEditor from '../SendToEditor'
-
+import { Volume2 } from 'lucide-react';
+import axios from 'axios'
+import { b64toBlob } from '@/lib/elegance'
 // const renderers = {
 //   code: ({ language='python', value }:any) => {
 //     return (
@@ -46,7 +48,7 @@ const formattedTime = `${currentTime.getHours()}:${currentTime.getMinutes().toSt
 const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesageSamePerson}, ref) => {
   
   const [isCopied, setIsCopied] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleCopy = () => {
     setIsCopied(true);
@@ -54,6 +56,34 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
   };
 
  
+
+  const handleTextToSpeech = async(text: string) => {
+    //'speechSynthesis' in window
+    const newText = text.replace(/\*/g, '')
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(newText);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      try {
+        setIsLoading(true);
+        const response = await axios.post('/api/tts', { newText }, { responseType: 'blob' });
+        const blob = new Blob([response.data], { type: 'audio/mp3' });
+        const audioUrl = URL.createObjectURL(blob);
+
+        // Create an audio element and play the audio
+        const audio = new Audio(audioUrl);
+        audio.play();
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+      };
+        setIsLoading(false);
+    } catch (error) {
+        console.error('Error with text-to-speech:', error);
+        setIsLoading(false);
+    }
+      console.error('Text-to-speech is not supported in this browser.');
+    }
+  };
 
   return (
       <div ref={ref} className={cn('flex items-end', {
@@ -81,6 +111,19 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
                 "rounded-br-none": !isNextMesageSamePerson && message.isUserMessage,
                 "rounded-bl-none": !isNextMesageSamePerson && !message.isUserMessage,
             })}>
+              <div className='mr-auto flex justify-end'>
+              {isLoading ? (
+                <Loader2 className='w-6 h-6 animate-spin'/>
+              ): (
+              <button
+                onClick={() => handleTextToSpeech(message.text as string)}
+                className="p-1 rounded-full hover:bg-gray-300"
+                title="Listen to this message"
+              >
+                <Volume2 className="w-6 h-6" />
+              </button>
+              )}
+              </div>
               {typeof message.text === "string" ? (
                 <ReactMarkdown className={cn("prose", {
                     "text-zinc-50": message.isUserMessage
