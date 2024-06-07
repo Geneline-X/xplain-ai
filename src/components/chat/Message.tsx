@@ -15,7 +15,7 @@ import remarkGfm from 'remark-gfm';
 import SendToEditor from '../SendToEditor'
 import { Volume2 } from 'lucide-react';
 import axios from 'axios'
-import { b64toBlob } from '@/lib/elegance'
+
 // const renderers = {
 //   code: ({ language='python', value }:any) => {
 //     return (
