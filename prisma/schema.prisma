@@ -20,10 +20,11 @@ model User {
   File                    File[]
   currentPrice            String?    @map("current_price") @db.VarChar(191)
   Message                 Message[]
+  urlFiles                UrlFile[]
 }
 
 model File {
-  id           String            @id(map: "idx_28861_PRIMARY") @default(cuid()) @db.VarChar(191)
+  id           String            @id(map: "idx_28861_PRIMARY_file") @default(cuid()) @db.VarChar(191)
   name         String            @db.VarChar(191)
   uploadStatus File_uploadStatus @default(PENDING)
   url          String            @db.VarChar(191)
@@ -35,6 +36,19 @@ model File {
   User         User?             @relation(fields: [userId], references: [id])
 }
 
+model UrlFile {
+  id           String            @id(map: "idx_28861_PRIMARY_urlfile") @default(cuid()) @db.VarChar(191)
+  name         String            @db.VarChar(191)
+  url          String            @db.VarChar(191)
+  key          String            @db.VarChar(191)
+  createAt     DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime          @updatedAt @db.Timestamptz(6)
+  userId       String?           @db.VarChar(191)
+  message      Message[]
+  htmlContent  String?
+  User         User?             @relation(fields: [userId], references: [id])  
+}
+
 
 model Message {
   id            String   @id(map: "idx_28868_PRIMARY") @default(cuid()) @db.VarChar(191)
@@ -44,8 +58,10 @@ model Message {
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
   userId        String?  @db.VarChar(191)
   fileId        String?  @db.VarChar(191)
+  urlFileId     String?  @db.VarChar(191)
   User          User?    @relation(fields: [userId], references: [id])
   File          File?    @relation(fields: [fileId], references: [id])
+  UrlFile      UrlFile?  @relation(fields: [urlFileId], references: [id])
 }
 
 enum File_uploadStatus {

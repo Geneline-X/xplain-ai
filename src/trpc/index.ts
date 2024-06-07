@@ -223,10 +223,71 @@ export const appRouter = router({
         nextCursor
     }
   }),
+  getUrlFileMessages: PrivateProcedure.input(z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+        urlfileId: z.string()
+  })).query(async({ctx, input}) => {
+    const { userId } = ctx
+    const { urlfileId, cursor} = input
+    const limit = input.limit ?? INFINITE_QUERY_LIMIT
+
+    const file = await db.urlFile.findFirst({
+        where: {
+            id: urlfileId,
+            userId
+        }
+    })
+
+    if(!file) throw new TRPCError({code: "NOT_FOUND"})
+
+    const messages = await db.message.findMany({
+        take: limit + 1,
+        where: {
+            fileId:urlfileId
+        },
+        orderBy: {
+            createAt: "desc"
+        },
+        cursor: cursor ? {id: cursor} : undefined,
+        select: {
+            id: true,
+            isUserMessage: true,
+            createAt: true,
+            text: true
+        }
+    })
+
+    let nextCursor: typeof cursor | undefined = undefined
+    if(messages.length > limit){
+        const nextItem = messages.pop()
+        nextCursor = nextItem?.id
+    }
+
+    return {
+        messages,
+        nextCursor
+    }
+  }),
 
   getUserFiles: PrivateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
     return await db.file.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        _count: {
+          select: {
+            message: true,
+          },
+        },
+      },
+    });
+  }),
+  getUserUrlFiles: PrivateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    return await db.urlFile.findMany({
       where: {
         userId,
       },
@@ -266,6 +327,20 @@ export const appRouter = router({
      if(!file) throw new TRPCError({code: "NOT_FOUND"})
      return file
   }),
+  getUrlFile: PrivateProcedure.input(z.object({key:z.string()}))
+  .mutation(async({ctx, input}) => {
+     const { userId } = ctx
+
+     const urlfile = await db.urlFile.findFirst({
+        where: {
+            key: input.key,
+            userId
+        }
+     })
+
+     if(!urlfile) throw new TRPCError({code: "NOT_FOUND"})
+     return urlfile
+  }),
 
   deleteFile: PrivateProcedure.input(z.object({
     id: z.string()})
@@ -288,6 +363,28 @@ export const appRouter = router({
    })
    return file
   }),
+
+  deleteUrlFile: PrivateProcedure.input(z.object({
+    id:z.string()})
+  ).mutation(async({ctx, input}) => {
+    const { userId } = ctx
+
+    const urlfile = await db.urlFile.findFirst({
+     where: {
+         id: input.id,
+         userId
+     }
+    })
+ 
+    if(!urlfile) throw new TRPCError({code: "NOT_FOUND"})
+ 
+    await db.urlFile.delete({
+     where: {
+         id:input.id
+     }
+    })
+    return urlfile
+  })
 
 });
  

@@ -3,7 +3,7 @@
 import React, {useEffect, useState} from 'react'
 import UploadButton from './UploadButton'
 import { trpc } from '@/app/_trpc/client'
-import { Ghost, Loader2, MessageSquare, Plus, Trash } from 'lucide-react'
+import { Ghost, Loader2, MessageSquare, Plus, Trash,Link as LinkIcon, Image as ImageIcon } from 'lucide-react'
 import Skeleton from 'react-loading-skeleton'
 import Link from 'next/link'
 import { format } from 'date-fns'
@@ -77,8 +77,8 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
 
   return (
     <main className='mx-auto max-w-7xl md:p-10'>
-     
-    <div className='mt-8 flex flex-col items-start justify-between gap-4 border-b boder-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0'>
+    
+    <div className='mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0'>
         <h1 className='mt-3 font-bold text-5xl text-gray-900'>
           My Files
         </h1>
@@ -91,6 +91,11 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
         {/*  */}
         <div className="hidden sm:block">
           <UploadButton isSubscribed={subscriptionPlan.isSubscribed} />
+              <Button className='ml-2 bg-slate-500' onClick={() => router.push('/dashboard/url-image-chat')}>
+                <LinkIcon className="mr-2 h-4 w-4" />
+                <ImageIcon className="mr-2 h-4 w-4" />
+                URL & Image Chat
+              </Button>
         </div>
     </div>
 
@@ -112,7 +117,7 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
                     <div className='h-10 w-10 ml-2 flex-shrink-0 rounded-full bg-gradient-to-r from-blue-400 to-blue-600'/>
                     <div className="flex-1 truncate">
                         <div className="flex items-center space-x-3">
-                          {loadingFiles[file.id] ? ( // Display loader-spinner if loading
+                          {loadingFiles[file.id] ? ( 
                             <Loader2 color='blue' className='h-10 w-10 animate-spin' />
                           ) : (
                             <h3 className='truncate text-lg font-medium text-zinc-900'>{file.name}</h3>
