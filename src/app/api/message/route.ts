@@ -2,13 +2,10 @@ import { db } from "@/db";
 import { SendMessageValidators } from "@/lib/validators/SendMessageValidator";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextRequest } from "next/server";
-import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { StreamingTextResponse } from "ai"
 import { ReadableStream } from "web-streams-polyfill/ponyfill";
-import { getCachedOrFetchBlob } from "@/lib/utils";
-import { prioritizeContext } from "@/lib/utils";
 import { llm } from "@/lib/gemini";
-import { getSimilarEmbeddings, cosineSimilaritySearch } from "@/lib/elegance";
+import { cleanedHtmlText, cosineSimilaritySearch } from "@/lib/elegance";
 
 export const maxDuration = 300
 
@@ -25,22 +22,27 @@ export const POST = async(req: NextRequest) => {
 
     if(!userId) return new Response("Unauthorized", {status: 401})
 
-    const { fileId ,message } = SendMessageValidators.parse(body)
-
-
-    const file = await db.file.findFirst({
+    const { fileId ,message, isUrlFile } = SendMessageValidators.parse(body)
+     let file
+    if(!isUrlFile){
+         file = await db.file.findFirst({
+            where: {
+                id: fileId,
+                userId
+            }
+         })
+    }else{
+      file = await db.urlFile.findFirst({
         where: {
             id: fileId,
             userId
         }
-    })
+     })
+    }
+    
 
     if(!file) return new Response("NotFound", {status: 404})
      
-    const blob = await getCachedOrFetchBlob(
-      `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
-    );
-    
     /// nlp part of the app //////
     
     // get similar embeddings from pinecode database
@@ -88,24 +90,10 @@ export const POST = async(req: NextRequest) => {
                   },
               });
             }
-         
-      let context:any
-      // let msg:any
-      // if(!contexts){
-      //   const loader = new PDFLoader(blob);
-      //   const pageLevelDocs = await loader.load();
-      //   const numPages = pageLevelDocs.length
-      //   if(numPages > 40){
-      //     context = prioritizeContext(pageLevelDocs, message)
-      //   }else{
-      //     const allPageContent = pageLevelDocs.flatMap((page) => page.pageContent)
-      //      context = allPageContent.join('\n\n')
-      //   }
-      //   msg = `${message} ${joinedEmbeddings} ${context}`;
-      // }
-        
-        
-       const msg = `${message} ${joinedEmbeddings} ${contexts}`;
+          
+         //@ts-ignore
+       const newContext = isUrlFile ? file.htmlContent : contexts
+       const msg = `${message} ${joinedEmbeddings} ${newContext}`;
         const resultFromChat = await chat.sendMessageStream(msg);
         let text = ''
         const responseStream = new ReadableStream({

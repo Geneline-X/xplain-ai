@@ -2,9 +2,11 @@
 import { GoogleGenerativeAI, } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 
+// model 1
 export const genAI = new GoogleGenerativeAI(
-    process.env.GEMINI_API_KEY!
+    process.env.GOOGLE_GEMINI_MODEL_BILLING!
 );
+
 
 export const pinecone = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY!,
@@ -13,7 +15,7 @@ export const pinecone = new Pinecone({
 })
 
 export const pineconeIndex = pinecone.Index("cph-serverless");
-export const llm = genAI.getGenerativeModel({model:"gemini-1.0-pro"})
+export const llm = genAI.getGenerativeModel({model:"gemini-1.5-flash"})
 export const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
 

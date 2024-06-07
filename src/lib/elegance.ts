@@ -7,7 +7,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { vectordb } from "./firebaseConfig";
 import { collection, getDocs, addDoc, writeBatch, doc, getDoc,  query} from "firebase/firestore";
-
+import crypto from "crypto"
+import cheerio from "cheerio"
 
 export const addHoursToDate = (date: Date, hours:number) => {
   const newDate = new Date(date);
@@ -69,29 +70,34 @@ type SessionProps = {
 //     return await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true}) 
 // }
 
-// convert audio content base64 to blob
+// split text into chunks //
+export function splitTextIntoChunks(text:string, chunkSize:number) {
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const chunks = [];
+  let chunk = '';
 
-// Function to convert base64 to blob
-export function b64toBlob(b64Data: string, contentType: string = '', sliceSize: number = 512) {
-  const byteCharacters = atob(b64Data);
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
+  for (const sentence of sentences) {
+    if (chunk.length + sentence.length <= chunkSize) {
+      chunk += sentence;
+    } else {
+      chunks.push(chunk);
+      chunk = sentence;
+    }
   }
 
-  const blob = new Blob(byteArrays, { type: contentType });
-  return blob;
+  if (chunk) {
+    chunks.push(chunk);
+  }
+
+  return chunks;
 }
 
+// create random key for each file //
+export function generateUniqueKey(url:string) {
+  const hash = crypto.createHash('sha256').update(url).digest('base64');
+  // Remove any special characters from the base64 encoded string
+  return hash.replace(/[+/=]/g, ''); 
+}
 
 export const getSimilarEmbeddings = async ({ file, message }: any): Promise<any[]> => {
   try {
@@ -204,6 +210,26 @@ export const cosineSimilaritySearch = async ({message, file, topN = 8}:any) => {
   }
 };
 
+//// returned cleaned html content with text only /////
+export const cleanedHtmlText = (htmlContent:string):{textContent:string, cleanedHtmlContent:string} => {
+  // Load the HTML content into Cheerio
+  const $ = cheerio.load(htmlContent);
+
+  $('script').remove();
+  $('.ad, .ads, .advertisement, .sponsor, .sponsored, [id*="ad"], [class*="ad"]').remove();
+  
+  // Extract text content from HTML elements
+  const textContentArray: string[] = [];
+  $('body')
+    .find('p, div, span, h1, h2, h3, h4, h5, h6')
+    .each((_, element) => {
+        textContentArray.push($(element).text());
+    });
+  const textContent = textContentArray.join(' ');
+
+  const cleanedHtmlContent = $.html();
+  return {textContent, cleanedHtmlContent}
+}
 type GeneratorType = {
     controller: ReadableStreamDefaultController;
     text: string
@@ -285,6 +311,48 @@ export const processBatch = async ({batch, startIndex, createdFile}: ProcessBatc
 
         // Retry the operation for the failed batch
         return processBatch({batch, startIndex, createdFile});
+    }
+};
+export const processBatchUrl = async ({batch, startIndex, createdFile}: ProcessBatchTypes):Promise<any> => {
+    try {
+        const batchWrite = writeBatch(vectordb);
+        const upsertPromises = batch.map(async (text:string, index:number) => {
+          const pageIndex = startIndex + index;
+         
+          // Embed the individual page using model.embedContent
+          const result = await model.embedContent(text);
+          const pageEmbedding = result.embedding.values;
+
+          const pageId = `${createdFile.id}-page-${pageIndex}`;
+          
+          // Store the embedding for the page 
+          // Create the data object for the page embedding
+            const pageData = {
+              text,
+              embedding: pageEmbedding,
+            };
+            
+            // Add the page data to the Firestore batch
+            //const docRef = await addDoc(collection(vectordb, createdFile.id), pageData);
+
+            const docRef = doc(collection(vectordb, createdFile.id), pageId);
+            batchWrite.set(docRef, pageData);   
+      });
+
+      //return Promise.all(upsertPromises);
+      await Promise.all(upsertPromises);
+
+      // Commit the batch write
+      await batchWrite.commit();
+
+      console.log("Batch write committed successfully");
+    } catch (error:any) {
+      // Handle the error gracefully
+        console.error('Error occurred during batch processing:', error.message);
+        // You can choose to log the error, retry the operation, or take other appropriate actions
+
+        // Retry the operation for the failed batch
+        return processBatchUrl({batch, startIndex, createdFile});
     }
 };
 

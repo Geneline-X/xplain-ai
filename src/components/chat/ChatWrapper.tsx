@@ -8,10 +8,6 @@ import Link from 'next/link'
 import { buttonVariants } from '../ui/button'
 import { ChatContextProvider } from './ChatContext'
 
-// import { RoomProvider } from '../../../liveblocks.config'
-// import { ClientSideSuspense } from '@liveblocks/react'
-// import { Liveblocks } from "@liveblocks/node";
-//import { liveblocks } from '../../../liveblocks.config'
 
 interface ChatWrapperProps {
   fileId: string,
@@ -47,48 +43,6 @@ const ChatWrapper = ({fileId}:ChatWrapperProps) => {
       <ChatInput isDisabled/>
     </div>
   )
-
-  // useEffect(() => {
-  //   // Fetch initial chat history (if needed)
-  //   // ...
-
-  //   const messageSubscription = room.subscribe(
-  //     'chat-messages', // State key
-  //     (newMessages:any) => setMessages((prevMessages) => [...prevMessages, ...newMessages])
-  //   );
-
-  //   return () => messageSubscription.unsubscribe(); // Cleanup subscription on unmount
-  // }, [room]);
-
-  // const sendMessage = (message) => {
-  //   room.patch('chat-messages', (currentMessages) => [...currentMessages, {
-  //     userId: /* Your user ID */, // Get user ID from authentication logic
-  //     timestamp: Date.now(),
-  //     content: message,
-  //   }]);
-  // };
-
-const CustomQuestions = () => {
-
-  const customQuestions = [
-    "What is the main topic of the PDF?",
-    "How many pages does the PDF have?",
-    "Is there a table of contents?",
-    // Add more questions as needed
-  ];
-
-  return (
-    <div className="mb-4">
-      <h2 className="font-semibold text-lg mb-2">Common Questions</h2>
-      <ul className="space-y-2">
-        {customQuestions.map((question, index) => (
-          <li key={index} className="text-gray-600">{question}</li>
-        ))}
-      </ul>
-    </div>
-  );
-  
-}
 
   return (
       <ChatContextProvider fileId={fileId}>
