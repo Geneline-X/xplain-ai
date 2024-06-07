@@ -114,7 +114,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
               <div className='mr-auto flex justify-end'>
               {isLoading ? (
                 <Loader2 className='w-6 h-6 animate-spin'/>
-              ): (
+              ): !isLoading ? (
               <button
                 onClick={() => handleTextToSpeech(message.text as string)}
                 className="p-1 rounded-full hover:bg-gray-300"
@@ -122,7 +122,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
               >
                 <Volume2 className="w-6 h-6" />
               </button>
-              )}
+              ):null}
               </div>
               {typeof message.text === "string" ? (
                 <ReactMarkdown className={cn("prose", {

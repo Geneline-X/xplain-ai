@@ -93,7 +93,7 @@ export const POST = async(req: NextRequest) => {
           
          //@ts-ignore
        const newContext = isUrlFile ? file.htmlContent : contexts
-       const msg = `${message} ${joinedEmbeddings} ${newContext}`;
+       const msg = `${message} ${newContext}`;
         const resultFromChat = await chat.sendMessageStream(msg);
         let text = ''
         const responseStream = new ReadableStream({

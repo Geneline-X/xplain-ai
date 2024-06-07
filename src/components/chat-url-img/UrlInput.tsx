@@ -59,7 +59,7 @@ const UrlInput = () => {
 
   return (
     <div className='flex flex-col items-center justify-center mt-8'>
-      <h1 className='mb-4 text-2xl font-bold'>URL & Image Chat</h1>
+      <h1 className='mb-4 text-2xl font-bold'>Websites Chat</h1>
       <div className='flex flex-col space-y-2'>
         <Input
           type='text'
