@@ -11,7 +11,7 @@ const Providers = ({children}: PropsWithChildren) => {
     const [trpcClient] = useState(()=> trpc.createClient({
         links: [
             httpBatchLink({
-                url: 'https://xplain-ai.net/api/trpc',
+                url: '/api/trpc',
             })
         ]
     }))

@@ -9,6 +9,7 @@ import { vectordb } from "./firebaseConfig";
 import { collection, getDocs, addDoc, writeBatch, doc, getDoc,  query} from "firebase/firestore";
 import crypto from "crypto"
 import cheerio from "cheerio"
+import { llm } from "./gemini";
 
 export const addHoursToDate = (date: Date, hours:number) => {
   const newDate = new Date(date);
@@ -69,6 +70,26 @@ type SessionProps = {
 
 //     return await pineconeIndex.namespace(file.id).query({topK: 8,vector: messageEmbedding, includeValues:true}) 
 // }
+
+export async function generateFlashCards(context: string, fileId: string): Promise<any[]> {
+  try {
+      const result = await llm.generateContent(`Generate flash cards from the following context:\n\n${context}`);
+      const response =  result.response.text(); // Await the text response
+      const flashCards = response.split('\n').map(line => {
+          const [question, answer] = line.split(':');
+          if (question && answer) {
+              return { question: question.trim(), answer: answer.trim() };
+          }
+          return null;
+      }).filter(flashCard => flashCard !== null);
+
+      console.log("Generated flash cards:", flashCards);
+      return flashCards;
+  } catch (error) {
+      console.error("Error generating flash cards:", error);
+      return [];
+  }
+}
 
 // split text into chunks //
 export function splitTextIntoChunks(text:string, chunkSize:number) {
