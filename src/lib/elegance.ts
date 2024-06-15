@@ -73,23 +73,31 @@ type SessionProps = {
 
 export async function generateFlashCards(context: string, fileId: string): Promise<any[]> {
   try {
-      const result = await llm.generateContent(`Generate flash cards from the following context:\n\n${context}`);
-      const response =  result.response.text(); // Await the text response
-      const flashCards = response.split('\n').map(line => {
-          const [question, answer] = line.split(':');
-          if (question && answer) {
-              return { question: question.trim(), answer: answer.trim() };
-          }
-          return null;
-      }).filter(flashCard => flashCard !== null);
+    const result = await llm.generateContent(`Generate flash cards from the following context, don't add "front" and "back", just returned question and answers:\n\n${context}`);
+    const response = result.response.text(); // Await the text response
+    const lines = response.split('\n');
+    
+    const flashCards = lines.map(line => {
+      const separatorIndex = line.indexOf(':');
+      if (separatorIndex !== -1) {
+        const question = line.substring(0, separatorIndex).trim().replace(/\*/g, '');
+        const answer = line.substring(separatorIndex + 1).trim().replace(/\*/g, '');
+        if (question && answer) {
+          return { question, answer };
+        }
+      }
+      return null;
+    }).filter(flashCard => flashCard !== null);
 
-      console.log("Generated flash cards:", flashCards);
-      return flashCards;
+    console.log("Generated flash cards:", flashCards);
+    return flashCards;
   } catch (error) {
-      console.error("Error generating flash cards:", error);
-      return [];
+    console.error("Error generating flash cards:", error);
+    return [];
   }
 }
+
+
 
 // split text into chunks //
 export function splitTextIntoChunks(text:string, chunkSize:number) {

@@ -4,7 +4,7 @@ import { getKindeServerSession, } from "@kinde-oss/kinde-auth-nextjs/server"
 import { db } from '@/db'
 import PdfRenderer from '@/components/PdfRenderer'
 import ChatWrapper from '@/components/chat/ChatWrapper'
-
+import StudySession from '@/components/StudySession'
 interface PageProps {
     params: {
         fileId: string
@@ -51,6 +51,9 @@ const Page = async({params}: PageProps) => {
           </div>
        </div>
        <div className="shrink-0 flex-[0.85] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
+          <div className='m-2'>
+            <StudySession fileId={file.id} />
+          </div>
          <ChatWrapper fileId={file.id}/>
        </div>
       </div>
