@@ -5,8 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Loader2 } from 'lucide-react';
-import { Toast } from './ui/toast';
-
+import { toast } from './ui/use-toast';
 interface StudySessionProps {
   fileId: string;
 }
@@ -32,14 +31,19 @@ const StudySession: React.FC<StudySessionProps>  = ({ fileId }) => {
         body: JSON.stringify({ fileId, numberOfMessages: numMessages }),
       });
       const data = await response.json();
+      console.log("this the data: ", data)
       if(data.length === 0){
-        Toast({
-          title: "Questions and Answers not generated please generate again later",
+        toast({
+          title: "Questions and Answers not generated please try again",
           variant: "destructive"
-        })
+        });
       }
       setFlashcards(data);
     } catch (error) {
+      toast({
+        title: "Error Occured please try again",
+        variant: "destructive"
+      });
       console.error('Error fetching flashcards:', error);
     } finally {
       setLoading(false);

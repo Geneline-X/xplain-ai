@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation'
 import HtmlRenderer from '@/components/HtmlRenderer'
 import ChatWrapperUrl from '@/components/chat/ChatWrapperUrl'
 import Link from 'next/link'
+import StudySession from '@/components/StudySession'
 interface PageProps {
     params: {
         urlFileId: string
@@ -46,6 +47,9 @@ const Page = async({params}: PageProps) => {
          </div>
       </div>
       <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
+         <div className='m-2'>
+            <StudySession fileId={file.id} />
+          </div>
        <ChatWrapperUrl fileId={file.id}/>
       </div>
      </div>
