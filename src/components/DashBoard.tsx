@@ -45,31 +45,43 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
         }
     })
 
-    const handleClickFile = async (file: any) => {
+    const handleClickFile = async (file: any, subscriptionPlan:any) => {
       try {
+        // Fetch the file from S3
         const response = await fetch(`https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`)
         const blob = await response.blob()
-        const arrayBuffer: any = await readFile(blob)
-        const pdf = await PDFDocument.load(arrayBuffer)
-        const numPages = pdf.getPageCount()
-        const MAX_PAGE_COUNT_FREE = 10
-  
-        // Check page count against plan limit
-        if (numPages > MAX_PAGE_COUNT_FREE && !subscriptionPlan.isSubscribed) {
-          // Show toast and redirect to pricing page
-          toast({
-            title: "Too Many Pages",
-            description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
-            variant: "destructive",
-          })
-          router.push("/pricing")
-          return
-        } else {
-          router.push(`/dashboard/${file.id}`)
-          return
+        
+        // Check the file type
+        const fileType = blob.type.split('/')[1] // Extract file extension from MIME type
+        console.log("this is the file type: ", fileType)
+        if (fileType === "pdf") {
+          // Load the PDF document
+          const arrayBuffer: any = await readFile(blob)
+          const pdf = await PDFDocument.load(arrayBuffer)
+          const numPages = pdf.getPageCount()
+          const MAX_PAGE_COUNT_FREE = 10
+    
+          // Check page count against plan limit
+          if (numPages > MAX_PAGE_COUNT_FREE && !subscriptionPlan.isSubscribed) {
+            // Show toast and redirect to pricing page
+            toast({
+              description: `Your PDF has ${numPages} pages, exceeding the free plan limit of ${MAX_PAGE_COUNT_FREE}. Please upgrade to upload larger PDFs.`,
+              variant: "destructive"
+            })
+            router.push("/pricing")
+            return
+          }
         }
+    
+        // Navigate to the dashboard with the file id
+        router.push(`/dashboard/${file.id}`)
       } catch (error) {
-        console.log("this is the error", error)
+        console.error("Error occurred while handling file:", error)
+        // Handle errors (e.g., display error message to user)
+        toast({
+          description: "An error occurred while processing the file. Please try again later.",
+          variant: "destructive"
+        })
       }
     }
 
@@ -113,7 +125,7 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
                 <Link onClick={async(e) => {
                   e.preventDefault()
                   setLoadingFiles(prevState => ({ ...prevState, [file.id]: true })) // Set loading state to true for this file
-                  handleClickFile(file)
+                  handleClickFile(file, subscriptionPlan)
 
                 }} href={`/dashboard/${file.id}`} className='flex flex-col gap-2 '>
                   <div className="pt-6 flex w-full items-center justify-between space-x-6">

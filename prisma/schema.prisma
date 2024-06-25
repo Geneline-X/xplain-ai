@@ -10,17 +10,57 @@ datasource db {
 }
 
 model User {
-  id                      String    @id(map: "idx_28874_PRIMARY") @unique(map: "idx_28874_User_id_key") @db.VarChar(191)
-  email                   String    @unique(map: "idx_28874_User_email_key") @db.VarChar(191)
-  monimeCustomerId        String?   @unique(map: "idx_28874_User_monime_customer_id_key") @map("monime_customer_id") @db.VarChar(191)
-  monimeSubscriptionId    String?   @unique(map: "idx_28874_User_monime_subscription_id_key") @map("monime_subscription_id") @db.VarChar(191)
-  monimeSessionId         String?   @map("monime_session_id") @db.VarChar(191)
-  monimeUrl               String?   @map("monime_url") @db.VarChar(191)
-  monimeCurrentPeriodsEnd DateTime? @map("monime_current_period_end") @db.Timestamptz(6)
+  id                      String     @id(map: "idx_28874_PRIMARY") @unique(map: "idx_28874_User_id_key") @db.VarChar(191)
+  email                   String     @unique(map: "idx_28874_User_email_key") @db.VarChar(191)
+  monimeCustomerId        String?    @unique(map: "idx_28874_User_monime_customer_id_key") @map("monime_customer_id") @db.VarChar(191)
+  monimeSubscriptionId    String?    @unique(map: "idx_28874_User_monime_subscription_id_key") @map("monime_subscription_id") @db.VarChar(191)
+  monimeSessionId         String?    @map("monime_session_id") @db.VarChar(191)
+  monimeUrl               String?    @map("monime_url") @db.VarChar(191)
+  monimeCurrentPeriodsEnd DateTime?  @map("monime_current_period_end") @db.Timestamptz(6)
   File                    File[]
   currentPrice            String?    @map("current_price") @db.VarChar(191)
   Message                 Message[]
   urlFiles                UrlFile[]
+  businesses              Business[]
+}
+
+model Business {
+  id          String    @id(map: "idx_28862_PRIMARY_business") @default(cuid()) @db.VarChar(191)
+  userId      String    @db.VarChar(191)
+  name        String    @db.VarChar(191)
+  description String?
+  industry String?
+  createAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  User        User      @relation(fields: [userId], references: [id])
+  chatbots    Chatbot[]
+}
+
+model Chatbot {
+  id                    String    @id(map: "idx_28863_PRIMARY_chatbot") @default(cuid()) @db.VarChar(191)
+  businessId            String    @db.VarChar(191)
+  name                  String    @db.VarChar(191)
+  systemInstruction     String?
+  file                  File[]
+  message               Message[]
+  urlsToBusinessWebsite String?
+  customConfigurations  Json?
+  createAt              DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(6)
+  Business              Business  @relation(fields: [businessId], references: [id])
+  brands                Brand[]
+  urlFiles              UrlFile[]
+}
+
+model Brand {
+  id        String   @id(map: "idx_28864_PRIMARY_brand") @default(cuid()) @db.VarChar(191)
+  chatbotId String   @db.VarChar(191)
+  logo      String?
+  name      String   @db.VarChar(191)
+  theme     Json?
+  createAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  Chatbot   Chatbot  @relation(fields: [chatbotId], references: [id])
 }
 
 model File {
@@ -32,23 +72,26 @@ model File {
   createAt     DateTime          @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime          @updatedAt @db.Timestamptz(6)
   userId       String?           @db.VarChar(191)
+  chatbotId    String?           @db.VarChar(191)
   message      Message[]
   User         User?             @relation(fields: [userId], references: [id])
+  Chatbot      Chatbot?          @relation(fields: [chatbotId], references: [id])
 }
 
 model UrlFile {
-  id           String            @id(map: "idx_28861_PRIMARY_urlfile") @default(cuid()) @db.VarChar(191)
-  name         String            @db.VarChar(191)
-  url          String            @db.VarChar(191)
-  key          String            @db.VarChar(191)
-  createAt     DateTime          @default(now()) @db.Timestamptz(6)
-  updatedAt    DateTime          @updatedAt @db.Timestamptz(6)
-  userId       String?           @db.VarChar(191)
-  message      Message[]
-  htmlContent  String?
-  User         User?             @relation(fields: [userId], references: [id])  
+  id          String    @id(map: "idx_28861_PRIMARY_urlfile") @default(cuid()) @db.VarChar(191)
+  name        String    @db.VarChar(191)
+  url         String    @db.VarChar(191)
+  key         String    @db.VarChar(191)
+  createAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  userId      String?   @db.VarChar(191)
+  chatbotId   String?   @db.VarChar(191)
+  message     Message[]
+  htmlContent String?
+  User        User?     @relation(fields: [userId], references: [id])
+  Chatbot     Chatbot?  @relation(fields: [chatbotId], references: [id])
 }
-
 
 model Message {
   id            String   @id(map: "idx_28868_PRIMARY") @default(cuid()) @db.VarChar(191)
@@ -58,10 +101,12 @@ model Message {
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
   userId        String?  @db.VarChar(191)
   fileId        String?  @db.VarChar(191)
+  chatbotId     String?  @db.VarChar(191)
   urlFileId     String?  @db.VarChar(191)
   User          User?    @relation(fields: [userId], references: [id])
   File          File?    @relation(fields: [fileId], references: [id])
-  UrlFile      UrlFile?  @relation(fields: [urlFileId], references: [id])
+  UrlFile       UrlFile? @relation(fields: [urlFileId], references: [id])
+  Chatbot       Chatbot? @relation(fields: [chatbotId], references: [id])
 }
 
 enum File_uploadStatus {

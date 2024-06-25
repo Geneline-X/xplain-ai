@@ -23,7 +23,18 @@ const nextConfig = {
         config.resolve.alias.canvas = false
         config.resolve.alias.encoding = false
         return config
-    }
+    },
+    images: {
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: 'uploadthing-prod.s3.us-west-2.amazonaws.com',
+            port: '',
+            pathname: '/*',
+          },
+        ],
+      },
 }
+
 
 module.exports = nextConfig

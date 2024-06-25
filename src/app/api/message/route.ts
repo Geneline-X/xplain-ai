@@ -40,7 +40,6 @@ export const POST = async(req: NextRequest) => {
      })
     }
     
-
     if(!file) return new Response("NotFound", {status: 404})
      
     /// nlp part of the app //////

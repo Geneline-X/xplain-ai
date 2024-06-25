@@ -55,8 +55,14 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
         setDisabled(true);
         return;
       }
+      // check for media files //
+      if (selectedFile.type.startsWith('image/') || selectedFile.type.startsWith('video/') || selectedFile.type.startsWith('audio/')) {
+        setIsUploading(false)
+        setSelectedFile(selectedFile)
+        return;
+      }
 
-      if(selectedFile && selectedFile.type !== "application/pdf"){
+      if(selectedFile && selectedFile.type !== "application/pdf" ){
         
         const fileName = selectedFile?.name;
         const fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -235,7 +241,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
   return (
     <div className="relative">
       <Button disabled={selectedFile ? true : false} onClick={handleUploadClicked} className="w-full mb-3">
-        Upload Document
+        Upload File
       </Button>
       <input
         id="mobile-file-input"

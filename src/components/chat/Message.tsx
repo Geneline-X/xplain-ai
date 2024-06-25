@@ -49,7 +49,8 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
   
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false)
-
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
   const handleCopy = () => {
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 1500); // Reset the copy state after 1.5 seconds
@@ -58,11 +59,18 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({message, isNextMesage
  
 
   const handleTextToSpeech = async(text: string) => {
-    //'speechSynthesis' in window
-    const newText = text.replace(/\*/g, '')
+    const newText = text.replace(/\*/g, '');
+
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(newText);
-      window.speechSynthesis.speak(utterance);
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      } else {
+        const utterance = new SpeechSynthesisUtterance(newText);
+        utterance.onend = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+        setIsSpeaking(true);
+      }
     } else {
       try {
         setIsLoading(true);
