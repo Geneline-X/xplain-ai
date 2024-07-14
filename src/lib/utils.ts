@@ -42,8 +42,8 @@ export const getBackgroundCompleted = () => {
 }
 
 export function constructMetaData({
-  title =  "Xplain-ai - the SaaS for interacting with your document(pdf,ppt,doc,etc) files",
-  description = "Xplain-ai is a software that makes chatting with your Documents(pdf,ppt,doc,etc) files easy.",
+  title =  "Xplain-ai - the SaaS for interacting with your document(pdf,ppt,doc,etc) files and media files(image,video,audio etc)",
+  description = "Xplain-ai is a software that makes chatting with your Documents(pdf,ppt,doc,etc) and Media (image,video,audio) files easy.",
   image = "/cover-xplain.jpg",
   icons = "/favicon.ico",
   noIndex = false,
@@ -77,7 +77,7 @@ export function constructMetaData({
       creator: "@DKamara36931"
     },
     icons,
-    metadataBase: new URL("https://cph-nine.vercel.app"),
+    metadataBase: new URL("https://xplain-ai.net"),
     themeColor: "#FFF",
     ...(noIndex && {
       robots: {

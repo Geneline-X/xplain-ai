@@ -125,10 +125,6 @@ const Page = async() => {
     const { getUser } = getKindeServerSession()
     const user = await getUser()
 
-    const handleCryptoPayment = (cryptocurrency: string) => {
-      // Redirect to crypto payment page and pass cryptocurrency as state
-      // Example: redirect to `/crypto-payment?crypto=${cryptocurrency}`
-    }
 
     
   return (
@@ -244,11 +240,6 @@ const Page = async() => {
               })}
             </TooltipProvider>
         </div>
-        {/* <div className='flex justify-between mt-7'>
-          <Link href="/pricing/solana-pay" >
-             Pay Using Solana Token
-          </Link>
-        </div> */}
      </MaxWidthWrapper>
     </>
   )

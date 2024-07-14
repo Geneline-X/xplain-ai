@@ -72,6 +72,7 @@ const ImageRenderer = ({ url }: ImageRendererProps) => {
                   className='w-full h-auto p-3'
                   width={800}
                   height={800}
+                  
                 />
               </TransformComponent>
             </TransformWrapper>

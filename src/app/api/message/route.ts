@@ -5,11 +5,13 @@ import { NextRequest } from "next/server";
 import { StreamingTextResponse } from "ai"
 import { ReadableStream } from "web-streams-polyfill/ponyfill";
 import { llm } from "@/lib/gemini";
-import { cleanedHtmlText, cosineSimilaritySearch } from "@/lib/elegance";
-
+import { cleanedHtmlText, cosineSimilaritySearch, getFileType } from "@/lib/elegance";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 export const maxDuration = 300
 
+let globalContext:string | string[] | undefined
 
+// Improve the Response by referencing/ highlighting the particular page
 export const POST = async(req: NextRequest) => {
 
   try {
@@ -26,11 +28,11 @@ export const POST = async(req: NextRequest) => {
      let file
     if(!isUrlFile){
          file = await db.file.findFirst({
-            where: {
-                id: fileId,
-                userId
-            }
-         })
+          where: {
+            id: fileId,
+            userId
+        }
+      })
     }else{
       file = await db.urlFile.findFirst({
         where: {
@@ -43,16 +45,16 @@ export const POST = async(req: NextRequest) => {
     if(!file) return new Response("NotFound", {status: 404})
      
     /// nlp part of the app //////
-    
-    // get similar embeddings from pinecode database
+
+    // no need for the cosine similarity search because the model, can handle 2million tokens
     const {joinedEmbeddings, contexts} = await cosineSimilaritySearch({file, message})
-    
+    globalContext = contexts
     const prevMessages = await db.message.findMany({
         where: {
-            fileId
+          fileId
         },
         orderBy:{
-            createAt: "asc"
+          createAt: "asc"
         },
         take: 6
     })
@@ -84,14 +86,25 @@ export const POST = async(req: NextRequest) => {
           }else{
               chat = llm.startChat({
                 history: formattedPrevMessages,
-                    generationConfig: {
-                      maxOutputTokens: 2048,
-                  },
               });
             }
+
+            
+          const response = await fetch(
+            `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
+          );
+          const blob = await response.blob();
+          const {name} = getFileType(file.name)
+          if(name === 'pdf'){
+            const loader = new PDFLoader(blob);
+            const pageLevelDocs = await loader.load();
+    
+            const pageTexts = pageLevelDocs.map(page => page.pageContent);
+            globalContext = pageTexts
+          }
           
          //@ts-ignore
-       const newContext = isUrlFile ? file.htmlContent : contexts
+       const newContext = isUrlFile ? file.htmlContent : globalContext
        const msg = `${message} ${newContext}`;
         const resultFromChat = await chat.sendMessageStream(msg);
         let text = ''

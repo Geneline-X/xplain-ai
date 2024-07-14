@@ -83,7 +83,7 @@ export const ourFileRouter: FileRouter = {
   proPlanUploader: f({ 
     pdf: { maxFileSize: "1GB" }, 
     image: { maxFileSize: "1GB" },
-    video: { maxFileSize: "16GB" },
+    video: { maxFileSize: "32MB" },
     audio: { maxFileSize: "16GB" }
   })
     .middleware(middleware)

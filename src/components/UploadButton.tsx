@@ -67,7 +67,15 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
       const progressInterval = startSimulatedProgress();
 
       try {
-          if (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+           if(file.type.startsWith('video/')){
+            toast({
+                title: "Can't handle this file type for now",
+                description: "Please upload pdf, images, or audio files.",
+                variant: "destructive"
+            });
+            return
+           }
+          if (file.type.startsWith('image/') || file.type.startsWith('audio/')) {
               const res = await startUpload(acceptedFiles);
               handleUploadResponse(res);
           } else if (file.type !== 'application/pdf') {
@@ -148,7 +156,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
               variant: "destructive"
           });
       } finally {
-          setIsProcessing(false);
+        setIsProcessing(false);
       }
   };
 

@@ -26,6 +26,7 @@ export default async function Home() {
       Xplain-ai  lets you chat with PDFs, Presentations, emails, reports, and more! Ask questions and get answers directly from your files.
         <strong className="block mt-2 font-bold">Use keywords from the document for optimal results.</strong>
       </p>
+
       {!user ?<>
         <RegisterLink className={
           buttonVariants({ size: "lg", className: "mt-5"})}>
@@ -85,7 +86,44 @@ export default async function Home() {
             </h2>
             <p className="mt-4 text-lg text-gray-600">Stop struggling to find information in your documents. Xplain-ai lets you chat with any document type and get answers in seconds.</p>
           </div>
+          <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-16 items-center justify-center">
+          {/* Feature 1: Chat with Documents */}
+          <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Chat Directly with Documents
+              </h2>
+              <p className="text-lg text-gray-700">
+                Interact with PDFs, presentations, spreadsheets, emails, reports, and more by simply chatting. Xplain-ai understands your questions and retrieves relevant information from your documents in seconds.
+              </p>
+            </div>
+          <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Chat with Media Files
+              </h2>
+              <p className="text-lg text-gray-700">
+                Discuss images, audio files, and even web articles directly within Xplain-ai. Whether it’s analyzing visual content or understanding multimedia presentations, Xplain-ai makes it easy.
+              </p>
+          </div>
+          {/* Feature 3: Real-time Collaboration */}
+          {/* <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Real-time Collaboration
+              </h2>
+              <p className="text-lg text-gray-700">
+                Collaborate seamlessly with your team or clients in real-time. Share insights, discuss findings, and annotate documents together, enhancing productivity and decision-making processes.
+              </p>
+          </div> */}
+          {/* Feature 4: Secure and Encrypted */}
+          <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Secure and Encrypted
+              </h2>
+              <p className="text-lg text-gray-700">
+                Your data&apos;s security is our priority. Xplain-ai uses industry-standard encryption to protect sensitive information. Rest assured that your documents and interactions are safe and confidential.
+              </p>
+            </div>
         </div>
+      </div>
 
         {/* STEPS */}
         <ol className="my-8 space-y-4 pt-8 md:flex md:space-x-12 md:space-y-0">
@@ -101,7 +139,7 @@ export default async function Home() {
           <li className="md:flex">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
               <span className="text-sm font-medium text-blue-500">Step 2</span>
-              <span className="text-xl font-semibold">Upload any document (PDF, PPTX, DOCX, etc.).</span>
+              <span className="text-xl font-semibold">Upload any document (PDF, PPTX, DOCX, etc.) or Media files (Video, Images, Audio).</span>
               <span className="mt-2 text-zinc-700">
               Xplain-ai will automatically process it, using industry-standard encryption to keep your information safe. The processed data is then readily accessible through chat.
               </span>
