@@ -89,19 +89,21 @@ export const POST = async(req: NextRequest) => {
               });
             }
 
-            
-          const response = await fetch(
-            `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
-          );
-          const blob = await response.blob();
-          const {name} = getFileType(file.name)
-          if(name === 'pdf'){
-            const loader = new PDFLoader(blob);
-            const pageLevelDocs = await loader.load();
-    
-            const pageTexts = pageLevelDocs.map(page => page.pageContent);
-            globalContext = pageTexts
+          if(!isUrlFile){
+            const response = await fetch(
+              `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
+            );
+            const blob = await response.blob();
+            const {name} = getFileType(file.name)
+            if(name === 'pdf'){
+              const loader = new PDFLoader(blob);
+              const pageLevelDocs = await loader.load();
+      
+              const pageTexts = pageLevelDocs.map(page => page.pageContent);
+              globalContext = pageTexts
+            }
           }
+          
           
          //@ts-ignore
        const newContext = isUrlFile ? file.htmlContent : globalContext
