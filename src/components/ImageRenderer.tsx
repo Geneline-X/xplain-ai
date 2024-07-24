@@ -65,7 +65,8 @@ const ImageRenderer = ({ url }: ImageRendererProps) => {
               onZoom={(ref) => setZoom(ref.state.scale)}
             >
               <TransformComponent>
-                <Image
+                {/*  eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={url}
                   alt="Rendered content"
                   style={{ transform: `rotate(${rotation}deg) scale(${zoom})` }}

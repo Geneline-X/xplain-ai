@@ -183,7 +183,6 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
               variant: "default",
           });
       }
-
       setIsUpLoading(true);
       const progressInterval = startSimulatedProgress();
       const res = await startUpload([file]);

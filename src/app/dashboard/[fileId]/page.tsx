@@ -43,10 +43,10 @@ const Page = async ({ params }: PageProps) => {
       case 'video':
         return <VideoRenderer url={ `https://utfs.io/f/${file.key}`} />
       case 'image':
-        return <ImageRenderer url={ `https://utfs.io/f/${file.key}`} />
+        return <ImageRenderer url={`https://utfs.io/f/${file.key}`} />
       case 'audio':
         return <AudioPlayer url={ `https://utfs.io/f/${file.key}`} />
-      // Add more cases here for other file types (e.g., image, audio)
+      
       default:
         return <div>Unsupported file type</div>
     }
