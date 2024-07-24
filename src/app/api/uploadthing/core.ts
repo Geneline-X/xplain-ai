@@ -72,7 +72,7 @@ const onUploadComplete = async ({ metadata, file }: {
 
 export const ourFileRouter: FileRouter = {
   freePlanUploader: f({
-    pdf: { maxFileSize: "4MB" },
+    pdf: { maxFileSize: "1GB" },
     image: { maxFileSize: "1GB" },
     video: { maxFileSize: "1GB" },
     audio: { maxFileSize: "1GB" }

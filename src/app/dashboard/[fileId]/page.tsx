@@ -39,13 +39,13 @@ const Page = async ({ params }: PageProps) => {
   const renderFile = () => {
     switch (name) {
       case 'pdf':
-        return <PdfRenderer url={file.url} />
+        return <PdfRenderer url={ `https://utfs.io/f/${file.key}`} />
       case 'video':
-        return <VideoRenderer url={file.url} />
+        return <VideoRenderer url={ `https://utfs.io/f/${file.key}`} />
       case 'image':
-        return <ImageRenderer url={file.url} />
+        return <ImageRenderer url={ `https://utfs.io/f/${file.key}`} />
       case 'audio':
-        return <AudioPlayer url={file.url} />
+        return <AudioPlayer url={ `https://utfs.io/f/${file.key}`} />
       // Add more cases here for other file types (e.g., image, audio)
       default:
         return <div>Unsupported file type</div>

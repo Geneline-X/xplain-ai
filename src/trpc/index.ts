@@ -68,7 +68,7 @@ export const appRouter = router({
 
     if(!userId) throw new TRPCError({code: "UNAUTHORIZED"})
 
-    const billingUrl = 'https://cph-nine.vercel.app/dashboard'
+    const billingUrl = 'https://xplain-ai.net/dashboard'
     const dbUser = await db.user.findFirst({
         where: {
             id: userId

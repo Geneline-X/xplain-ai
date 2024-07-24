@@ -48,7 +48,7 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
     const handleClickFile = async (file: any, subscriptionPlan:any) => {
       try {
         // Fetch the file from S3
-        const response = await fetch(`https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`)
+        const response = await fetch(`https://utfs.io/f/${file.key}`)
         const blob = await response.blob()
         
         // Check the file type

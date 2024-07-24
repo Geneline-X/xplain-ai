@@ -91,7 +91,7 @@ export const POST = async(req: NextRequest) => {
 
           if(!isUrlFile){
             const response = await fetch(
-              `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
+              `https://utfs.io/f/${file.key}`
             );
             const blob = await response.blob();
             const {name} = getFileType(file.name)
@@ -103,7 +103,6 @@ export const POST = async(req: NextRequest) => {
               globalContext = pageTexts
             }
           }
-          
           
          //@ts-ignore
        const newContext = isUrlFile ? file.htmlContent : globalContext
