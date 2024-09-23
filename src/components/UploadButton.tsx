@@ -164,7 +164,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
       const arrayBuffer:any = await readFile(file);
       const pdf = await PDFDocument.load(arrayBuffer);
       const numPages = pdf.getPageCount();
-      const MAX_PAGE_COUNT_FREE = 10;
+      const MAX_PAGE_COUNT_FREE = 50;
 
       if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
           toast({
@@ -205,7 +205,7 @@ const UploadDropzone = ({isSubscribed}: {isSubscribed: boolean}) => {
                            </span>{" "}
                            or drag and drop
                         </p>
-                        <p className='text-sm text-zinc-500'>Document Files/Media Files (up to {isSubscribed? "infinite pages" : "10 pages"})</p>
+                        <p className='text-sm text-zinc-500'>Document Files/Media Files (up to {isSubscribed? "infinite pages" : "50 pages"})</p>
                        </div>
                        {acceptedFiles && acceptedFiles[0] &&!isProcessing ? (
                        <div className='max-w-xs bg-white flex items-center rounded-md overflow-hidden outline-[1px] outline-zinc-200 divide-x divide-zinc-200'>

@@ -4,7 +4,7 @@ import { Pinecone } from "@pinecone-database/pinecone";
 
 // model 1
 export const genAI = new GoogleGenerativeAI(
-    process.env.GOOGLE_GEMINI_MODEL_BILLING!
+    process.env.GOOGLE_GEMINI_MODEL_BILLING!,
 );
 
 

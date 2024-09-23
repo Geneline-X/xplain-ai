@@ -30,8 +30,7 @@ const Navbar = async() => {
             </Link>
           </div>
           
-            
-
+          
             {/* todo: add mobile navbar */}
             <MobileNav isAuth={!!user} isSubscribed={subscriptionPlan.isSubscribed}/>
             <div className='hidden items-center space-x-4 sm:flex'>

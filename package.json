@@ -71,6 +71,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "codegpt-nextjs": "file:../../.vscode/extensions/danielsanmedium.dscodegpt-3.1.1/standalone",
+    "cph": "file:",
     "date-fns": "^3.1.0",
     "dompurify": "^3.1.5",
     "exit-hook": "^4.0.0",
