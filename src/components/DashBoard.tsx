@@ -95,7 +95,7 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
           My Files
         </h1>
         {/* Display MobileUploadButton only on small screens */}
-        <div className="flex sm:hidden items-center justify-center">
+        <div className="flex md:hidden items-center justify-center">
           <MobileUploadButton isSubscribed={subscriptionPlan.isSubscribed} />
           <Button style={{marginTop: "-9px"}} className='ml-2 bg-slate-500' onClick={() => router.push('/dashboard/url-image-chat')}>
             <LinkIcon className="mr-2 h-4 w-4" />
@@ -105,7 +105,7 @@ const DashBoard = ({subscriptionPlan}: PageProps) => {
 
         {/* Display UploadButton on larger screens */}
         {/*  */}
-        <div className="hidden sm:block">
+        <div className="hidden md:block">
           <UploadButton isSubscribed={subscriptionPlan.isSubscribed} />
               <Button className='ml-2 bg-slate-500' onClick={() => router.push('/dashboard/url-image-chat')}>
                 <LinkIcon className="mr-2 h-4 w-4" />
