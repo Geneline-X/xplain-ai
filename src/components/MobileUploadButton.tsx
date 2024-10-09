@@ -117,7 +117,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
 
           const numPages = pdf.getPageCount();
           console.log(numPages)
-          const MAX_PAGE_COUNT_FREE = 10
+          const MAX_PAGE_COUNT_FREE = 200
           // Check page count against plan limit
           if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
             // Show toast and redirect to pricing page
@@ -153,7 +153,7 @@ const MobileUploadButton: React.FC<MobileUploadButtonProps> = ({ isSubscribed })
 
         const numPages = pdf.getPageCount();
        
-        const MAX_PAGE_COUNT_FREE = 10
+        const MAX_PAGE_COUNT_FREE = 200
 
         if (numPages > MAX_PAGE_COUNT_FREE && !isSubscribed) {
           // Show toast and redirect to pricing page
